@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.brand.service;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,19 @@ public class BrandService {
     private void validateRole(Member member) {
         if (!member.isSeller()) {
             throw new IllegalArgumentException("Member is not seller");
+        }
+    }
+
+    public void delete(Long memberId, Long brandId) {
+        Brand brand = brandRepository.findOrThrow(brandId);
+        Member member = memberRepository.findOrThrow(memberId);
+        validateIsOwner(brand, member);
+        brandRepository.delete(brand);
+    }
+
+    private void validateIsOwner(Brand brand, Member member) {
+        if (!Objects.equals(brand.getMember(), member)) {
+            throw new IllegalArgumentException("Member is not own");
         }
     }
 }

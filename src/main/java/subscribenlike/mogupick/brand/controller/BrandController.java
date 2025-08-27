@@ -2,6 +2,8 @@ package subscribenlike.mogupick.brand.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,5 +21,11 @@ public class BrandController {
     @PostMapping
     public ResponseEntity<BrandResponse> create(Long memberId, @RequestBody BrandCreateRequest brandCreateRequest) {
         return ResponseEntity.ok(brandService.save(memberId, brandCreateRequest));
+    }
+
+    @DeleteMapping("{brandId}")
+    public ResponseEntity<Void> delete(Long memberId, @PathVariable Long brandId) {
+        brandService.delete(memberId,brandId);
+        return ResponseEntity.ok().build();
     }
 }
