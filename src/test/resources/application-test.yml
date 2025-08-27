@@ -1,4 +1,8 @@
 spring:
+  data:
+    redis:
+      host: localhost
+      port: 63790
   config.activate.on-profile: "test"
   jpa:
     show-sql: true
