@@ -33,4 +33,27 @@ public class Member extends BaseEntity {
     private MemberRole role;
 
     //todo social타입을 관리할건지? 논의가 필요해 보입니다!
+
+
+    public Member(Long id, String name, String email, String password, String phoneNumber, LocalDate birthDate,
+                  boolean isAccepted, MemberRole role) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.birthDate = birthDate;
+        this.isAccepted = isAccepted;
+        this.role = role;
+    }
+
+    public Member(String name, String email, String password, String phoneNumber, LocalDate birthDate,
+                  boolean isAccepted,
+                  MemberRole role) {
+        this(null, name, email, password, phoneNumber, birthDate, isAccepted, role);
+    }
+
+    public boolean isSeller() {
+        return role == MemberRole.SELLER;
+    }
 }
