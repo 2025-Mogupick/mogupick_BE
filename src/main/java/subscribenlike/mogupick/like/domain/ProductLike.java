@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.subscription.domain;
+package subscribenlike.mogupick.like.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,15 +9,20 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
+import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.product.domain.Product;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SubscriptionOption extends BaseEntity {
+public class ProductLike extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private Subscription subscription;
+    private Product product;
+
+    @ManyToOne
+    private Member member;
 }
