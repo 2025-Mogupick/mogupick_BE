@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.common.domain.BaseEntity;
 import subscribenlike.mogupick.subscription.domain.Subscription;
 
@@ -32,5 +33,5 @@ public class Product extends BaseEntity {
     private String imageUrl;
 
     @ManyToOne
-    private Subscription subscription;
+    private Brand brand;
 }
