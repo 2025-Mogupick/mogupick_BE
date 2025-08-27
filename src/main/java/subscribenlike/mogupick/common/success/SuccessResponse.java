@@ -8,11 +8,11 @@ public record SuccessResponse<T>(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         T data
 ) {
-    public static <T> SuccessResponse<T> of(SuccessCode successCode) {
+    public static <T> SuccessResponse<T> from(SuccessCode successCode) {
         return new SuccessResponse<>(successCode.getStatus().value(), successCode.getMessage(), null);
     }
 
-    public static <T> SuccessResponse<T> of(SuccessCode successCode, T result) {
+    public static <T> SuccessResponse<T> from(SuccessCode successCode, T result) {
         return new SuccessResponse<>(successCode.getStatus().value(), successCode.getMessage(), result);
     }
 }

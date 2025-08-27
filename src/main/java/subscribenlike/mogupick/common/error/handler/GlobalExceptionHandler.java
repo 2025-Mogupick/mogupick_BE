@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode));
+                .body(ErrorResponse.from(errorCode));
     }
 
     private static ResponseEntity<ErrorResponse> getErrorResponse(Exception e, ErrorCode errorCode) {
@@ -38,6 +38,6 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode, e.getMessage()));
+                .body(ErrorResponse.from(errorCode, e.getMessage()));
     }
 }
