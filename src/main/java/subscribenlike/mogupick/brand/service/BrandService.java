@@ -27,7 +27,7 @@ public class BrandService {
     }
 
     private void validateRole(Member member) {
-        if (!member.isSeller()) {
+        if (member.isMember()) {
             throw new IllegalArgumentException("Member is not seller");
         }
     }

@@ -53,7 +53,7 @@ public class Member extends BaseEntity {
         this(null, name, email, password, phoneNumber, birthDate, isAccepted, role);
     }
 
-    public boolean isSeller() {
-        return role == MemberRole.SELLER;
+    public boolean isMember() {
+        return role == MemberRole.MEMBER;
     }
 }
