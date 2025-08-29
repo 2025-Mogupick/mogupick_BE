@@ -1,16 +1,11 @@
 package subscribenlike.mogupick.product.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.common.domain.BaseEntity;
-import subscribenlike.mogupick.subscription.domain.Subscription;
 
 @Entity
 @Getter
@@ -34,4 +29,14 @@ public class Product extends BaseEntity {
 
     @ManyToOne
     private Brand brand;
+
+    public Product(String name, String description, String origin, int price, ProductType productType, String imageUrl, Brand brand) {
+        this.name = name;
+        this.description = description;
+        this.origin = origin;
+        this.price = price;
+        this.productType = productType;
+        this.imageUrl = imageUrl;
+        this.brand = brand;
+    }
 }
