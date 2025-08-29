@@ -4,6 +4,14 @@ spring:
       host: localhost
       port: 63790
   config.activate.on-profile: "test"
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
   jpa:
     show-sql: true
     hibernate:
@@ -16,3 +24,6 @@ spring:
 logging:
   level:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+jwt:
+  secret: "e3f7c0d9a82b4f56aa3c91d77efbb2b94d50c1d8a0a7485db2341d6a9c5f7a2f"
