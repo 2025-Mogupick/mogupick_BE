@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.product;
+package subscribenlike.mogupick.product.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import subscribenlike.mogupick.product.domain.Product;

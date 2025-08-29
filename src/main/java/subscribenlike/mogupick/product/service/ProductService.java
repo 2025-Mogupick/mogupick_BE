@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.product;
+package subscribenlike.mogupick.product.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -6,6 +6,7 @@ import subscribenlike.mogupick.product.model.FetchBrandResponse;
 import subscribenlike.mogupick.product.model.FetchNewProductsInMonthResponse;
 import subscribenlike.mogupick.product.model.FetchProductResponse;
 import subscribenlike.mogupick.product.model.FetchReviewResponse;
+import subscribenlike.mogupick.product.repository.ProductRepository;
 
 import java.util.List;
 

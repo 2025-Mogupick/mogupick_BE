@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.product;
+package subscribenlike.mogupick.product.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import subscribenlike.mogupick.common.success.SuccessResponse;
+import subscribenlike.mogupick.product.service.ProductService;
 import subscribenlike.mogupick.product.common.ProductSuccessCode;
 import subscribenlike.mogupick.product.model.FetchNewProductsInMonthResponse;
 

@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.product;
+package subscribenlike.mogupick.product.repository;
 
 
 import com.querydsl.core.types.Projections;

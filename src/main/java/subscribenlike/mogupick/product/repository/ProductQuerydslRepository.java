@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.product;
+package subscribenlike.mogupick.product.repository;
 
 
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;

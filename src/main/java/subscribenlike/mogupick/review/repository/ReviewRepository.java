@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.review;
+package subscribenlike.mogupick.review.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import subscribenlike.mogupick.review.domain.Review;
