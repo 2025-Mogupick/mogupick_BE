@@ -42,13 +42,8 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/login/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        // TODO: 개발 완료 후, 기존 인증 설정으로 변경.
+                        .requestMatchers("/**").permitAll()
                 )
                 // OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
