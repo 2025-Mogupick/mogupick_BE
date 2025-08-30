@@ -31,7 +31,7 @@ public class CategoryController {
     @GetMapping("/options-filters")
     public ResponseEntity<SuccessResponse<List<CategoryOptionAndFilterResponse>>> getOptionsAndFilters(@RequestParam RootCategory rootCategory){
         return ResponseEntity
-                .status(CategorySuccessCode.ROOT_CATEGORIES_FETCHED.getStatus())
-                .body(SuccessResponse.from(CategorySuccessCode.ROOT_CATEGORIES_FETCHED,categoryService.getFiltersByRootCategoryAndOption(rootCategory)));
+                .status(CategorySuccessCode.CATEGORY_OPTIONS_AND_FILTERS_FETCHED.getStatus())
+                .body(SuccessResponse.from(CategorySuccessCode.CATEGORY_OPTIONS_AND_FILTERS_FETCHED,categoryService.getFiltersByRootCategoryAndOption(rootCategory)));
     }
 }
