@@ -32,4 +32,12 @@ public class Review extends BaseEntity {
 
     @ManyToOne
     private Product product;
+
+    public Review(String content, double score, String reviewImage, Member member, Product product) {
+        this.content = content;
+        this.score = score;
+        this.reviewImage = reviewImage;
+        this.member = member;
+        this.product = product;
+    }
 }
