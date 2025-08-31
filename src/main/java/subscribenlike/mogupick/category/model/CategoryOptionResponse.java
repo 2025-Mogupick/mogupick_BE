@@ -8,14 +8,15 @@ import subscribenlike.mogupick.category.domain.CategoryOption;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CategoryOptionDto {
+public class CategoryOptionResponse {
+    private CategoryOption key;
     private String name;
     private String type;
-    
+
     @JsonProperty("multiple")
     private boolean isMultiple;
 
-    public static CategoryOptionDto from(CategoryOption option) {
-        return new CategoryOptionDto(option.getName(), option.getType().name(), option.isMultiple());
+    public static CategoryOptionResponse from(CategoryOption option) {
+        return new CategoryOptionResponse(option, option.getName(), option.getType().name(), option.isMultiple());
     }
 }
