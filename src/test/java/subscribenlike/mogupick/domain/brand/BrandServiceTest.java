@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.domain;
+package subscribenlike.mogupick.domain.brand;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
