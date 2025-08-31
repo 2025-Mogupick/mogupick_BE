@@ -46,10 +46,13 @@ public class CategoryService {
         List<CategoryOption> categoryOptions = getCategoryOptionsByRootCategory(rootCategory);
         List<String> categoryOptionKeys = categoryOptions.stream().map(CategoryOption::name).toList();
 
-        // CategoryOptions에 포함되지 않는 옵션이
-        options.keySet().stream()
+        // CategoryOptions에 포함되지 않는 옵션이 있다면
+        List<String> unavailableOptions = options.keySet().stream()
                 .filter(option -> !categoryOptionKeys.contains(option))
-                .findFirst()
-                .orElseThrow(() -> new CategoryException(CategoryErrorCode.INVALID_INPUT_VALUE,rootCategory));
+                .toList();
+
+        if(!unavailableOptions.isEmpty()) {
+            throw new CategoryException(CategoryErrorCode.INVALID_INPUT_VALUE,unavailableOptions);
+        }
     }
 }
