@@ -26,7 +26,7 @@ class CategoryServiceTest {
         // Then
         assertThat(rootCategories).hasSize(10);
         assertThat(rootCategories)
-                .extracting("rootCategory")
+                .extracting("key")
                 .containsExactlyInAnyOrder(
                         RootCategory.FRESH_FOOD,
                         RootCategory.MEAT_SEAFOOD,
