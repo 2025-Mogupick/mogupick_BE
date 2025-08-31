@@ -7,7 +7,7 @@ import subscribenlike.mogupick.category.domain.CategoryOption;
 import subscribenlike.mogupick.category.domain.CategoryOptionFilter;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.category.model.CategoryOptionAndFilterResponse;
-import subscribenlike.mogupick.category.model.CategoryOptionDto;
+import subscribenlike.mogupick.category.model.CategoryOptionResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,7 +121,7 @@ public class CategoryOptionMappingGraph {
         return graph.get(rootCategory).stream()
                 .map(node ->
                         CategoryOptionAndFilterResponse.of(
-                                CategoryOptionDto.from(node.getCategoryOption()),
+                                CategoryOptionResponse.from(node.getCategoryOption()),
                                 node.getFilters()
                         ))
                 .toList();
