@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import subscribenlike.mogupick.category.common.sucess.CategorySuccessCode;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.category.model.CategoryOptionAndFilterResponse;
+import subscribenlike.mogupick.category.model.CategoryOptionResponse;
 import subscribenlike.mogupick.category.model.RootCategoryResponse;
 import subscribenlike.mogupick.common.success.SuccessResponse;
 
@@ -26,6 +27,13 @@ public class CategoryController {
         return ResponseEntity
                 .status(CategorySuccessCode.ROOT_CATEGORIES_FETCHED.getStatus())
                 .body(SuccessResponse.from(CategorySuccessCode.ROOT_CATEGORIES_FETCHED,categoryService.getRootCategories()));
+    }
+
+    @GetMapping("/options")
+    public ResponseEntity<SuccessResponse<List<CategoryOptionResponse>>> getOptions(@RequestParam RootCategory rootCategory){
+        return ResponseEntity
+                .status(CategorySuccessCode.CATEGORY_OPTIONS_FETCHED.getStatus())
+                .body(SuccessResponse.from(CategorySuccessCode.CATEGORY_OPTIONS_FETCHED,categoryService.getCategoryOptionDtoByRootCategory(rootCategory)));
     }
 
     @GetMapping("/options-filters")
