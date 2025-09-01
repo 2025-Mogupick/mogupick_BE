@@ -8,9 +8,12 @@ import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
 import subscribenlike.mogupick.category.CategoryService;
 import subscribenlike.mogupick.category.domain.RootCategory;
+import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.model.*;
+import subscribenlike.mogupick.product.model.query.FetchPeerBestReviewsQueryResult;
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
@@ -25,6 +28,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
     private final BrandRepository brandRepository;
+    private final MemberRepository memberRepository;
 
     private final CategoryService categoryService;
 
@@ -32,6 +36,22 @@ public class ProductService {
         return productRepository.findAllProductsInMonth(month).stream()
                 .map(ProductService::createFetchNewProductsInMonthResponse)
                 .toList();
+    }
+
+    public List<FetchPeerBestReviewsResponse> fetchPeerBestReview(Long memberId, int limit) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+        int peerStandardAge = 5;
+        int myBirthDateYear = member.getBirthDate().getYear();
+
+        int fromYear = myBirthDateYear - peerStandardAge;
+        int toYear = myBirthDateYear + peerStandardAge;
+
+        List<FetchPeerBestReviewsQueryResult> result =
+                productRepository.fetchPeerBestReviewNative(fromYear, toYear, limit);
+
+        return result.stream().map(FetchPeerBestReviewsResponse::from).toList();
     }
 
     @Transactional
@@ -43,14 +63,14 @@ public class ProductService {
         createProductOption(request, product);
     }
 
-    public ProductWithOptionResponse findProductWithOptionById(Long productId){
+    public ProductWithOptionResponse findProductWithOptionById(Long productId) {
         Product product = productRepository.getById(productId);
         ProductOption productOption = productOptionRepository.getByProductId(productId);
 
         return ProductWithOptionResponse.of(product, productOption);
     }
 
-    public List<ProductWithOptionResponse> findProductWithOptionByRootCategory(RootCategory rootCategory){
+    public List<ProductWithOptionResponse> findProductWithOptionByRootCategory(RootCategory rootCategory) {
         // TODO : 페이지네이션 필요시 구현
         List<ProductOption> productOptions = productOptionRepository.findAllByRootCategory(rootCategory);
         List<Long> productIds = productOptions.stream()
@@ -60,7 +80,7 @@ public class ProductService {
         Map<Long, Product> products = productRepository.findAllByIdInMaps(productIds);
 
         return productOptions.stream()
-                .map(option-> createProductWithOptionResponse(products, option))
+                .map(option -> createProductWithOptionResponse(products, option))
                 .toList();
     }
 
