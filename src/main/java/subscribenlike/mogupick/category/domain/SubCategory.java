@@ -4,6 +4,8 @@ package subscribenlike.mogupick.category.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @RequiredArgsConstructor
 public enum SubCategory {
@@ -56,5 +58,11 @@ public enum SubCategory {
     private final String name;
     private final RootCategory root;
 
+
+    public static List<SubCategory> findByRootCategory(RootCategory rootCategory) {
+        return List.of(values()).stream()
+                .filter(subCategory -> subCategory.getRoot().equals(rootCategory))
+                .toList();
+    }
 }
 

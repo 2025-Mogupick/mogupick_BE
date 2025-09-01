@@ -2,6 +2,10 @@ package subscribenlike.mogupick.category.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import subscribenlike.mogupick.category.common.exception.CategoryErrorCode;
+import subscribenlike.mogupick.category.common.exception.CategoryException;
+
+import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
@@ -19,4 +23,13 @@ public enum CategoryOption {
     private final String name;
     private final CategoryOptionType type;
     private final boolean isMultiple;
+
+    public static void validate(String name) {
+        String upperName = name.toUpperCase();
+
+        Arrays.stream(CategoryOption.values())
+                .filter(option->option.name().equals(upperName))
+                .findFirst()
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.INVALID_INPUT_VALUE, upperName));
+    }
 }

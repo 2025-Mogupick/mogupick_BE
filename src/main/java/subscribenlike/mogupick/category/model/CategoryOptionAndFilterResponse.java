@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor(staticName = "of")
 public class CategoryOptionAndFilterResponse {
-    private CategoryOptionDto option;
+    private CategoryOptionResponse option;
     private List<CategoryOptionFilter> optionFilters;
 }
 
