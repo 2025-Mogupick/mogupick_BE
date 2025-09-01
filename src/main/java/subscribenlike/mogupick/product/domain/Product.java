@@ -23,19 +23,16 @@ public class Product extends BaseEntity {
 
     private int price;
 
-    private ProductType productType;
-
     private String imageUrl;
 
     @ManyToOne
     private Brand brand;
 
-    public Product(String name, String description, String origin, int price, ProductType productType, String imageUrl, Brand brand) {
+    public Product(String name, String description, String origin, int price, String imageUrl, Brand brand) {
         this.name = name;
         this.description = description;
         this.origin = origin;
         this.price = price;
-        this.productType = productType;
         this.imageUrl = imageUrl;
         this.brand = brand;
     }

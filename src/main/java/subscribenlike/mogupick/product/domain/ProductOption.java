@@ -1,24 +1,38 @@
 package subscribenlike.mogupick.product.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import subscribenlike.mogupick.common.domain.BaseEntity;
-import subscribenlike.mogupick.subscription.domain.Subscription;
+import org.springframework.data.mongodb.core.mapping.Document;
+import subscribenlike.mogupick.category.domain.RootCategory;
+import subscribenlike.mogupick.category.domain.SubCategory;
 
-@Entity
+import java.util.Map;
+
 @Getter
+@Document(collection = "productOptions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductOption extends BaseEntity {
+public class ProductOption {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @ManyToOne
-    private Subscription subscription;
+    private Long productId;
+
+    private RootCategory rootCategory;
+
+    private SubCategory subCategory;
+
+    private Map<String, String> options;
+
+    private ProductOption(Long productId, RootCategory rootCategory, SubCategory subCategory, Map<String, String> options) {
+        this.productId = productId;
+        this.rootCategory = rootCategory;
+        this.subCategory = subCategory;
+        this.options = options;
+    }
+
+    public static ProductOption of(Product product, RootCategory rootCategory, SubCategory subCategory, Map<String, String> options) {
+        return new ProductOption(product.getId(), rootCategory, subCategory, options);
+    }
 }
