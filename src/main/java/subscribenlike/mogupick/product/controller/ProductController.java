@@ -55,12 +55,10 @@ public class ProductController {
                     description = "상품 목록 조회 성공"
             )
     })
-    @GetMapping("/new")
-    public ResponseEntity<?> fetchPeerBestReviews() {
-        Long DEV_MEMBER_ID = 1L;
-
+    @GetMapping("/peer-best-reviews")
+    public ResponseEntity<?> fetchPeerBestReviews(@RequestParam Long memberId) {
         List<FetchPeerBestReviewsResponse> response =
-                productService.fetchPeerBestReview(DEV_MEMBER_ID, 10);
+                productService.fetchPeerBestReview(memberId, 10);
 
         return ResponseEntity
                 .status(200)
