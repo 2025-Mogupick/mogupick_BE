@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.product.repository;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import subscribenlike.mogupick.product.common.ProductErrorCode;
 import subscribenlike.mogupick.product.common.ProductException;
@@ -20,4 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     default Product getById(Long productId) {
         return findById(productId).orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
     }
+
+    List<Product> findByNameContainingIgnoreCase(String keyword);
+
 }

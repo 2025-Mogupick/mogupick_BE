@@ -36,4 +36,8 @@ public class Product extends BaseEntity {
         this.imageUrl = imageUrl;
         this.brand = brand;
     }
+
+    public String getBrandName(){
+        return brand.getName();
+    }
 }
