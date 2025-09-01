@@ -41,7 +41,9 @@ public class Member extends BaseEntity {
     private String nickname;
 
     @Builder
-    public Member(String name, String email, String password, String phoneNumber, LocalDate birthDate, boolean isAccepted, MemberRole role, String provider, String nickname) {
+    public Member(Long id, String name, String email, String password, String phoneNumber, LocalDate birthDate,
+                  boolean isAccepted, MemberRole role) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
@@ -55,5 +57,9 @@ public class Member extends BaseEntity {
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public boolean isMember() {
+        return role == MemberRole.MEMBER;
     }
 }
