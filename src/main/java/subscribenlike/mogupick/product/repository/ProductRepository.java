@@ -33,11 +33,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
             b.name AS brandName,
             p.name AS productName,
             p.price AS price,
-            YEAR(m.birth_date) AS birth_year,
-            m.profile_image AS profileImage,
+            YEAR(m.birth_date) AS memberBirthYear,
+            m.profile_image AS memberProfileImageUrl,
             m.name AS memberName,
-            r.review_image AS reviewImage,
-            r.created_at AS createdAt,
+            r.review_image AS reviewImageUrl,
+            r.created_at AS reviewCreatedAt,
             COALESCE(review_likes.review_like, 0) AS likeCount,
             COALESCE(review_counts.review_count, 0) AS reviewCount
         FROM review r
@@ -61,7 +61,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
         WHERE YEAR(m.birth_date) BETWEEN :fromYear AND :toYear
         ORDER BY likeCount DESC
         LIMIT :limit
-    """, nativeQuery = true)
+    """,
+            nativeQuery = true
+    )
     List<FetchPeerBestReviewsQueryResult> fetchPeerBestReviewNative(
             @Param("fromYear") int fromYear,
             @Param("toYear") int toYear,
