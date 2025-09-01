@@ -17,7 +17,7 @@ public class FetchPeerBestReviewsResponse {
 
     @Getter
     @AllArgsConstructor(staticName = "of")
-    static class ProductResponse{
+    public static class ProductResponse{
         private Long productId;          // 상품 id
         private String productName;      // 상품명
         private Integer price;        // 가격
@@ -26,7 +26,7 @@ public class FetchPeerBestReviewsResponse {
 
     @Getter
     @AllArgsConstructor(staticName = "of")
-    static class MemberResponse{
+    public static class MemberResponse{
         private Integer memberAge;       // 회원 나이
         private String memberProfileImageUrl;   // 회원 이미지
         private String memberName;       // 회원 이름
@@ -34,9 +34,9 @@ public class FetchPeerBestReviewsResponse {
 
     @Getter
     @AllArgsConstructor(staticName = "of")
-    static class ReviewResponse{
-        private Integer likeCount;       // 좋아요 수
-        private Integer reviewCount;     // 리뷰 수
+    public static class ReviewResponse{
+        private Long likeCount;       // 좋아요 수
+        private Long reviewCount;     // 리뷰 수
         private String reviewImageUrl;   // 리뷰 이미지
         private LocalDateTime reviewCreatedAt; // 리뷰 작성일
     }
