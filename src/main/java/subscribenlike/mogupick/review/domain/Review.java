@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
 import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.subscription.domain.Subscription;
 
 @Entity
@@ -30,5 +31,13 @@ public class Review extends BaseEntity {
     private Member member;
 
     @ManyToOne
-    private Subscription subscription;
+    private Product product;
+
+    public Review(String content, double score, String reviewImage, Member member, Product product) {
+        this.content = content;
+        this.score = score;
+        this.reviewImage = reviewImage;
+        this.member = member;
+        this.product = product;
+    }
 }

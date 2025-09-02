@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
 import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.subscription.domain.Subscription;
 
 @Entity
@@ -24,5 +25,5 @@ public class Cart extends BaseEntity {
     private Member member;
 
     @ManyToOne
-    private Subscription subscription;
+    private Product product;
 }
