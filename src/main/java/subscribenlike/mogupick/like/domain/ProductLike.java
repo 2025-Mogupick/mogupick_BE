@@ -10,18 +10,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
 import subscribenlike.mogupick.member.domain.Member;
-import subscribenlike.mogupick.subscription.domain.Subscription;
+import subscribenlike.mogupick.product.domain.Product;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SubscriptionLike extends BaseEntity {
+public class ProductLike extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private Subscription subscription;
+    private Product product;
 
     @ManyToOne
     private Member member;
