@@ -32,6 +32,8 @@ public class ProductService {
 
     private final CategoryService categoryService;
 
+    private final static int PEER_STANDARD_AGE = 5;
+
     public List<FetchNewProductsInMonthResponse> findAllNewProductsInMonth(int month) {
         return productRepository.findAllProductsInMonth(month).stream()
                 .map(ProductService::createFetchNewProductsInMonthResponse)
@@ -39,14 +41,12 @@ public class ProductService {
     }
 
     public List<FetchPeerBestReviewsResponse> fetchPeerBestReview(Long memberId, int limit) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Member member = memberRepository.findOrThrow(memberId);
 
-        int peerStandardAge = 5;
         int myBirthDateYear = member.getBirthDate().getYear();
 
-        int fromYear = myBirthDateYear - peerStandardAge;
-        int toYear = myBirthDateYear + peerStandardAge;
+        int fromYear = myBirthDateYear - PEER_STANDARD_AGE;
+        int toYear = myBirthDateYear + PEER_STANDARD_AGE;
 
         List<FetchPeerBestReviewsQueryResult> result =
                 productRepository.fetchPeerBestReviewNative(fromYear, toYear, limit);
