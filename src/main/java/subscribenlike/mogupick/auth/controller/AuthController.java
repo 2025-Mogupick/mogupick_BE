@@ -3,10 +3,13 @@ package subscribenlike.mogupick.auth.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import subscribenlike.mogupick.auth.dto.TokenReissueDto;
 import subscribenlike.mogupick.auth.service.AuthService;
 import subscribenlike.mogupick.global.dto.ApiResponse;
+import subscribenlike.mogupick.global.jwt.TokenInfo;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -24,5 +27,11 @@ public class AuthController {
         authService.logout(email);
 
         return ApiResponse.success(null);
+    }
+
+    @PostMapping("/reissue")
+    public ApiResponse<TokenInfo> reissue(@RequestBody TokenReissueDto tokenReissueDto) {
+        TokenInfo tokenInfo = authService.reissue(tokenReissueDto);
+        return ApiResponse.success(tokenInfo);
     }
 }
