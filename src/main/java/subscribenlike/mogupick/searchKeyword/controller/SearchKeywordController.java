@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordRequest;
+import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchProductResponse;
 import subscribenlike.mogupick.searchKeyword.service.SearchKeywordService;
 
@@ -19,5 +20,10 @@ public class SearchKeywordController {
     @GetMapping
     public List<SearchProductResponse> searchProducts(@RequestParam SearchKeywordRequest searchKeywordRequest) {
         return searchKeywordService.findByKeyword(searchKeywordRequest);
+    }
+
+    @GetMapping("/related")
+    public List<SearchKeywordResponse> findRelatedKeyword(@RequestParam SearchKeywordRequest searchKeywordRequest) {
+        return searchKeywordService.findRelatedKeyword(searchKeywordRequest.content());
     }
 }

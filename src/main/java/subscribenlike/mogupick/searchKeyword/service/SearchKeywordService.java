@@ -10,6 +10,7 @@ import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 import subscribenlike.mogupick.searchKeyword.domain.SearchKeyword;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordRequest;
+import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchProductResponse;
 import subscribenlike.mogupick.searchKeyword.repository.SearchKeywordRepository;
 
@@ -52,5 +53,15 @@ public class SearchKeywordService {
                 .mapToDouble(Review::getScore)
                 .average()
                 .orElse(0.0);
+    }
+
+    public List<SearchKeywordResponse> findRelatedKeyword(String keyword) {
+        String normalized = SearchKeyword.normalize(keyword);
+
+        return searchKeywordRepository
+                .findTop5ByNormalizedContentContainingIgnoreCaseOrderBySearchedCountDesc(normalized)
+                .stream()
+                .map(SearchKeywordResponse::from)
+                .toList();
     }
 }
