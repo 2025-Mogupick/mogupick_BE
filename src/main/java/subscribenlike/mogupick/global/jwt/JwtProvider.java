@@ -11,7 +11,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User; // ✅ import 추가
 import org.springframework.stereotype.Component;
+import subscribenlike.mogupick.global.oauth.OAuthAttributes;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -40,10 +43,26 @@ public class JwtProvider {
 
         long now = (new Date()).getTime();
 
+        String email;
+        if (authentication.getPrincipal() instanceof OAuth2User) {
+            // OAuth2 로그인인 경우
+            String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+            OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2User.getAttributes());
+            email = attributes.getEmail();
+        } else {
+            // 일반 로그인의 경우
+            email = authentication.getName();
+        }
+
+        if (email == null) {
+            throw new RuntimeException("사용자 이메일 정보를 가져올 수 없습니다.");
+        }
+
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds);
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(email)
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
