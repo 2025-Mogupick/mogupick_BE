@@ -35,8 +35,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2User.getAttributes());
         String email = attributes.getEmail();
 
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        Member member = memberRepository.getByEmail(email);
 
         member.updateRefreshToken(tokenInfo.getRefreshToken());
 
