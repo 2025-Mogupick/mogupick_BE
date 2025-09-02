@@ -29,7 +29,7 @@ public class ProductViewCountController {
             )
     })
     @PutMapping("/{productId}/increment")
-    public ResponseEntity<?> updateProductViewCount(Long productId) {
+    public ResponseEntity<?> updateProductViewCount(@PathVariable Long productId) {
         productViewCountService.incrementProductViewCount(productId);
         return ResponseEntity
                 .status(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED.getStatus())
@@ -44,7 +44,7 @@ public class ProductViewCountController {
             )
     })
     @GetMapping("/most-daily-view-stat-change")
-    public ResponseEntity<?> fetchMostDailyViewStatChange(@RequestParam int size) {
+    public ResponseEntity<?> fetchMostDailyViewStatChange(@RequestParam(defaultValue = "10") int size) {
         List<FetchProductMostDailyViewStatChangeResponse> response =
                 productViewCountService.getMostDailyViewStatChangeProduct(size);
 
