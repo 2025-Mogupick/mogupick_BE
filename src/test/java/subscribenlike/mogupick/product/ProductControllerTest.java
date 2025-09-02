@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.product;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,6 +13,8 @@ import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.member.ProductTestMemberFixture;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
+import subscribenlike.mogupick.product.ProductFixture;
+import subscribenlike.mogupick.product.ProductOptionFixture;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
@@ -299,5 +302,43 @@ class ProductControllerTest {
                 .post("/api/v1/products")
                 .then()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
+
+    @Test
+    @DisplayName("내 또래 베스트 리뷰 조회 API를 호출할 수 있다")
+    void 내_또래_베스트_리뷰_조회_API를_호출할_수_있다() {
+        // Given
+        Member member = ProductTestMemberFixture.김회원();
+        memberRepository.save(member);
+
+        // When & Then
+        given()
+                .port(port)
+                .when()
+                .get("/api/v1/products/peer-best-reviews?memberId=" + member.getId())
+                .then()
+                .statusCode(200)
+                .body("status", equalTo(200))
+                .body("message", equalTo("내 또래 상품 베스트 리뷰 리스트를 조회하였습니다."))
+                .body("data", notNullValue());
+    }
+
+    @Test
+    @DisplayName("내 또래 베스트 리뷰 조회 API 응답 구조가 올바르다")
+    void 내_또래_베스트_리뷰_조회_API_응답_구조가_올바르다() {
+        // Given
+        Member member = ProductTestMemberFixture.김회원();
+        memberRepository.save(member);
+
+        // When & Then
+        given()
+                .port(port)
+                .when()
+                .get("/api/v1/products/peer-best-reviews?memberId=" + member.getId())
+                .then()
+                .statusCode(200)
+                .body("status", equalTo(200))
+                .body("message", equalTo("내 또래 상품 베스트 리뷰 리스트를 조회하였습니다."))
+                .body("data", instanceOf(java.util.List.class));
     }
 }

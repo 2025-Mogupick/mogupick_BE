@@ -40,9 +40,11 @@ public class Member extends BaseEntity {
     @Column(unique = true)
     private String nickname;
 
+    private String profileImage;
+
     @Builder
     public Member(Long id, String name, String email, String password, String phoneNumber, LocalDate birthDate,
-                  boolean isAccepted, MemberRole role, String provider, String nickname) {
+                  boolean isAccepted, MemberRole role, String provider, String nickname, String profileImage) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -53,6 +55,7 @@ public class Member extends BaseEntity {
         this.role = role;
         this.provider = provider;
         this.nickname = nickname;
+        this.profileImage = profileImage;
     }
 
     public void updateRefreshToken(String refreshToken) {

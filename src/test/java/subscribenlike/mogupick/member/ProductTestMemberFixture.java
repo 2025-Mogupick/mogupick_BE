@@ -29,14 +29,44 @@ public enum ProductTestMemberFixture {
     }
 
     public static Member 김회원() {
-        return new Member(김회원.name, 김회원.email, 김회원.password, 김회원.phoneNumber, 김회원.birthDate, 김회원.isAccepted, 김회원.role);
+        return Member.builder()
+                .name(김회원.name)
+                .email(김회원.email)
+                .password(김회원.password)
+                .phoneNumber(김회원.phoneNumber)
+                .birthDate(김회원.birthDate)
+                .isAccepted(김회원.isAccepted)
+                .role(김회원.role)
+                .nickname(김회원.name) // nickname 설정
+                .profileImage("https://example.com/profile1.jpg") // 프로필 이미지 설정
+                .build();
     }
 
     public static Member 김모구() {
-        return new Member(김모구.name, 김모구.email, 김모구.password, 김모구.phoneNumber, 김모구.birthDate, 김모구.isAccepted, 김모구.role);
+        return Member.builder()
+                .name(김모구.name)
+                .email(김모구.email)
+                .password(김모구.password)
+                .phoneNumber(김모구.phoneNumber)
+                .birthDate(김모구.birthDate)
+                .isAccepted(김모구.isAccepted)
+                .role(김모구.role)
+                .nickname(김모구.name) // nickname 설정
+                .profileImage("https://example.com/profile2.jpg") // 프로필 이미지 설정
+                .build();
     }
 
     public static Member 관리자() {
-        return new Member(관리자.name, 관리자.email, 관리자.password, 관리자.phoneNumber, 관리자.birthDate, 관리자.isAccepted, 관리자.role);
+        return Member.builder()
+                .name(관리자.name)
+                .email(관리자.email)
+                .password(관리자.password)
+                .phoneNumber(관리자.phoneNumber)
+                .birthDate(관리자.birthDate)
+                .isAccepted(관리자.isAccepted)
+                .role(관리자.role)
+                .nickname(관리자.name) // nickname 설정
+                .profileImage("https://example.com/profile3.jpg") // 프로필 이미지 설정
+                .build();
     }
 }
