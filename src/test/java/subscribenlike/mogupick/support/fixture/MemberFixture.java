@@ -7,8 +7,8 @@ import subscribenlike.mogupick.member.domain.MemberRole;
 
 @Getter
 public enum MemberFixture {
-    김회원("김회원", "test@gmail.com", "password", "010-xxxx-xxxx", LocalDate.of(1995, 5, 10), true, MemberRole.SELLER),
-    김모구("김모구", "test@gmail.com", "password", "010-xxxx-xxxx", LocalDate.of(1995, 5, 10), true, MemberRole.MEMBER);
+    김회원("김회원", "test1@gmail.com", "password", "010-xxxx-xxxx", LocalDate.of(1995, 5, 10), true, MemberRole.SELLER),
+    김모구("김모구", "test2@gmail.com", "password", "010-xxxx-xxxx", LocalDate.of(1995, 5, 10), true, MemberRole.MEMBER);
     private String name;
     private String email;
     private String password;

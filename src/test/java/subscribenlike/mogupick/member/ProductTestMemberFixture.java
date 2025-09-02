@@ -37,6 +37,8 @@ public enum ProductTestMemberFixture {
                 .birthDate(김회원.birthDate)
                 .isAccepted(김회원.isAccepted)
                 .role(김회원.role)
+                .nickname(김회원.name) // nickname 설정
+                .profileImage("https://example.com/profile1.jpg") // 프로필 이미지 설정
                 .build();
     }
 
@@ -49,6 +51,8 @@ public enum ProductTestMemberFixture {
                 .birthDate(김모구.birthDate)
                 .isAccepted(김모구.isAccepted)
                 .role(김모구.role)
+                .nickname(김모구.name) // nickname 설정
+                .profileImage("https://example.com/profile2.jpg") // 프로필 이미지 설정
                 .build();
     }
 
@@ -61,6 +65,8 @@ public enum ProductTestMemberFixture {
                 .birthDate(관리자.birthDate)
                 .isAccepted(관리자.isAccepted)
                 .role(관리자.role)
+                .nickname(관리자.name) // nickname 설정
+                .profileImage("https://example.com/profile3.jpg") // 프로필 이미지 설정
                 .build();
     }
 }
