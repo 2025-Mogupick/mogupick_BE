@@ -26,4 +26,9 @@ public class SearchKeywordController {
     public List<SearchKeywordResponse> findRelatedKeyword(@RequestParam SearchKeywordRequest searchKeywordRequest) {
         return searchKeywordService.findRelatedKeyword(searchKeywordRequest.content());
     }
+
+    @GetMapping("/top-rising/today")
+    public List<SearchKeywordResponse> getTop10RisingToday() {
+        return searchKeywordService.findTop10RisingToday();
+    }
 }

@@ -7,5 +7,10 @@ import subscribenlike.mogupick.searchKeyword.domain.SearchKeyword;
 
 public interface SearchKeywordRepository extends JpaRepository<SearchKeyword, Long> {
     Optional<SearchKeyword> findByNormalizedContent(String normalizedContent);
+
     List<SearchKeyword> findTop5ByNormalizedContentContainingIgnoreCaseOrderBySearchedCountDesc(String keyword);
+
+    default SearchKeyword findByNormalizedContentOrThrow(String normalizedContent) {
+        return findByNormalizedContent(normalizedContent).orElseThrow(() -> new IllegalArgumentException("Not Found"));
+    }
 }
