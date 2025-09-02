@@ -38,8 +38,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
             m.name AS memberName,
             r.review_image AS reviewImageUrl,
             r.created_at AS reviewCreatedAt,
-            COALESCE(review_likes.review_like, 0) AS likeCount,
-            COALESCE(review_counts.review_count, 0) AS reviewCount
+            AVG(r.score) AS reviewScore,
+            COALESCE(rl.review_like, 0) AS likeCount,
+            COALESCE(rc.review_count, 0) AS reviewCount
         FROM review r
         JOIN member m ON r.member_id = m.id
         JOIN product p ON r.product_id = p.id
@@ -50,15 +51,19 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
                 COUNT(*) AS review_like
             FROM review_likes
             GROUP BY review_id
-        ) AS review_likes ON r.id = review_likes.review_id
+        ) AS rl ON r.id = rl.review_id
         LEFT JOIN (
             SELECT
                 review.product_id,
                 COUNT(*) AS review_count
             FROM review
             GROUP BY product_id
-        ) AS review_counts ON p.id = review_counts.product_id
+        ) AS rc ON p.id = rc.product_id
         WHERE YEAR(m.birth_date) BETWEEN :fromYear AND :toYear
+        GROUP BY(
+            p.id, b.name, p.name, p.price, m.birth_date,
+            m.profile_image, m.name, r.review_image, r.created_at,
+            rl.review_like, rc.review_count)
         ORDER BY likeCount DESC
         LIMIT :limit
     """,
