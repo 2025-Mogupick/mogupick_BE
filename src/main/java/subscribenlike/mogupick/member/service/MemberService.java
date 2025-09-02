@@ -16,16 +16,14 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public MemberResponse getMemberInfo(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+        Member member = memberRepository.getByEmail(email);
 
         return new MemberResponse(member);
     }
 
     @Transactional
     public void updateNickname(String email, MemberUpdateRequest request) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+        Member member = memberRepository.getByEmail(email);
 
         member.updateNickname(request.getNickname());
     }
