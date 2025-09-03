@@ -2,7 +2,8 @@ package subscribenlike.mogupick.member.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import subscribenlike.mogupick.global.dto.ApiResponse;
 import subscribenlike.mogupick.member.dto.MemberResponse;
@@ -17,17 +18,17 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/me")
-    public ApiResponse<MemberResponse> getMyInfo(Authentication authentication) {
-        String email = authentication.getName();
+    public ApiResponse<MemberResponse> getMyInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
         MemberResponse memberInfo = memberService.getMemberInfo(email);
         return ApiResponse.success(memberInfo);
     }
 
     @PatchMapping("/me")
     public ApiResponse<Void> updateMyNickname(
-            Authentication authentication,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody MemberUpdateRequest request) {
-        String email = authentication.getName();
+        String email = userDetails.getUsername();
         memberService.updateNickname(email, request);
         return ApiResponse.success(null);
     }
