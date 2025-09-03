@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -73,5 +75,19 @@ public class SearchKeywordController {
     public ResponseEntity<List<RecentKeywordResponse>> getRecentKeywords(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(searchKeywordService.findRecentKeywords(userDetails.getUsername()));
+    }
+
+    @Operation(summary = "최근 검색어 삭제", description = "최근 검색했던 키워드를 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "최근 검색한 검색어 삭제 성공"
+            )
+    })
+    @DeleteMapping("/recent/{keywordId}")
+    public ResponseEntity<?> deleteRecentKeywords(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long keywordId) {
+        searchKeywordService.deleteRecentKeyword(userDetails.getUsername(), keywordId);
+        return ResponseEntity.noContent()
+                .build();
     }
 }

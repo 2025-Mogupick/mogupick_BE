@@ -201,4 +201,18 @@ public class SearchKeywordService {
                 .map(RecentKeywordResponse::from)
                 .toList();
     }
+
+    @Transactional
+    public void deleteRecentKeyword(String userName, Long keywordId) {
+        RecentSearchKeyword recentSearchKeyword = recentSearchKeywordRepository.findOrThrow(keywordId);
+        Member member = memberRepository.findByEmailOrThrow(userName);
+        validateOwner(recentSearchKeyword, member);
+        recentSearchKeywordRepository.delete(recentSearchKeyword);
+    }
+
+    private static void validateOwner(RecentSearchKeyword recentSearchKeyword, Member member) {
+        if (!Objects.equals(recentSearchKeyword.getMember().getId(), member.getId())) {
+            throw new IllegalArgumentException("검색어의 주인이 아닙니다");
+        }
+    }
 }
