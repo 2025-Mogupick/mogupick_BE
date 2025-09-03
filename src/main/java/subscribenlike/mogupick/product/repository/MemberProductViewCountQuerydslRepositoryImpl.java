@@ -16,6 +16,7 @@ import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResu
 import subscribenlike.mogupick.review.domain.QReview;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -56,7 +57,21 @@ public class MemberProductViewCountQuerydslRepositoryImpl implements MemberProdu
                 .orderBy(QMemberProductViewCount.memberProductViewCount.lastViewedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
+                .fetch()
+                .stream()
+                .map(result -> new RecentlyViewProductsQueryResult(
+                        result.getProductId(),
+                        null, // TODO: 다중 이미지 지원 시 구현
+                        result.getProductName(),
+                        result.getProductPrice(),
+                        result.getBrandId(),
+                        result.getBrandName(),
+                        result.getRating(),
+                        result.getReviewCount(),
+                        result.getViewCount(),
+                        result.getLastViewedAt()
+                ))
+                .collect(Collectors.toList());
 
         Long total = query
                 .select(QMemberProductViewCount.memberProductViewCount.count())

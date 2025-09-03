@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 public class RecentlyViewProductsQueryResult {
     private Long productId;
-    private String productImageUrl;
+    private List<String> productImageUrls;
     private String productName;
     private Integer productPrice;
     private Long brandId;
