@@ -58,6 +58,17 @@ public class Member extends BaseEntity {
         this.profileImage = profileImage;
     }
 
+    public Member(String name, String email, String password, String phoneNumber, LocalDate birthDate,
+                  boolean isAccepted, MemberRole role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.birthDate = birthDate;
+        this.isAccepted = isAccepted;
+        this.role = role;
+    }
+
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
