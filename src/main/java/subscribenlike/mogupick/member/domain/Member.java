@@ -73,6 +73,12 @@ public class Member extends BaseEntity {
         this.refreshToken = refreshToken;
     }
 
+    public void updateNickname(String nickname) {
+        if (nickname != null && !nickname.isBlank()) {
+            this.nickname = nickname;
+        }
+    }
+  
     public boolean isMember() {
         return role == MemberRole.MEMBER;
     }
