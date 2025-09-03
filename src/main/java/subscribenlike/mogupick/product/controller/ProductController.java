@@ -16,6 +16,7 @@ import subscribenlike.mogupick.product.model.ProductWithOptionResponse;
 import subscribenlike.mogupick.product.service.ProductService;
 import subscribenlike.mogupick.product.common.ProductSuccessCode;
 import subscribenlike.mogupick.product.model.FetchNewProductsInMonthResponse;
+import subscribenlike.mogupick.product.model.FetchProductDetailResponse;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -127,6 +128,26 @@ public class ProductController {
         return ResponseEntity
                 .status(200)
                 .body(SuccessResponse.from(ProductSuccessCode.RECENTLY_VIEWED_PRODUCTS_FETCHED, response));
+    }
+
+    @Operation(summary = "상품 상세 조회", description = "상품의 상세 정보를 조회합니다. 상품명, 브랜드명, 브랜드ID, 평균 평점, 리뷰 수, 가격 정보를 포함합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "상품 상세 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "상품을 찾을 수 없음"
+            )
+    })
+    @GetMapping("/{productId}/detail")
+    public ResponseEntity<?> getProductDetail(@PathVariable Long productId) {
+        FetchProductDetailResponse response = productService.findProductDetailById(productId);
+
+        return ResponseEntity
+                .status(200)
+                .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_DETAIL_FETCHED, response));
     }
 
 }
