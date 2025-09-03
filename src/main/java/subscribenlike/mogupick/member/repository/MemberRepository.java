@@ -9,6 +9,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByEmail(String email);
 
+    Optional<Member> findByRefreshToken(String refreshToken);
+
+    default Member getByEmail(String email) {
+        return findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
     default Member findOrThrow(Long id) {
         return findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("not found"));

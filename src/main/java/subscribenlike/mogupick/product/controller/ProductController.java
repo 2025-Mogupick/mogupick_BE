@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.common.success.SuccessResponse;
 import subscribenlike.mogupick.product.model.CreateProductRequest;
+import subscribenlike.mogupick.product.model.FetchPeerBestReviewsResponse;
 import subscribenlike.mogupick.product.model.ProductWithOptionResponse;
 import subscribenlike.mogupick.product.service.ProductService;
 import subscribenlike.mogupick.product.common.ProductSuccessCode;
@@ -45,6 +46,23 @@ public class ProductController {
         return ResponseEntity
                 .status(200)
                 .body(SuccessResponse.from(ProductSuccessCode.NEW_PRODUCTS_IN_MONTH_FETCHED, response));
+    }
+
+    @Operation(summary = "내 또래 상품 베스트 리뷰 조회", description = "내 또래 상품 베스트 리뷰를 상위 10개 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "상품 목록 조회 성공"
+            )
+    })
+    @GetMapping("/peer-best-reviews")
+    public ResponseEntity<?> fetchPeerBestReviews(@RequestParam Long memberId) {
+        List<FetchPeerBestReviewsResponse> response =
+                productService.fetchPeerBestReview(memberId, 10);
+
+        return ResponseEntity
+                .status(200)
+                .body(SuccessResponse.from(ProductSuccessCode.PEER_BEST_REVIEW_FETCHED, response));
     }
 
     @Operation(summary = "루트 카테고리에 대한 상품 목록 조회", description = "하나의 루트 카테고리에 대한 상품 목록을 조회합니다.")
