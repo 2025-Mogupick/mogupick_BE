@@ -21,8 +21,16 @@ public class Brand extends BaseEntity {
 
     private String name;
 
-    private String imageUrl;
-
     @ManyToOne
     private Member member;
+
+    public Brand(Long id, String name, Member member) {
+        this.id = id;
+        this.name = name;
+        this.member = member;
+    }
+
+    public Brand(String name, Member member) {
+        this(null, name, member);
+    }
 }

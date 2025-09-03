@@ -16,4 +16,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 
+    default Member findOrThrow(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("not found"));
+    }
 }

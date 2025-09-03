@@ -1,0 +1,19 @@
+package subscribenlike.mogupick.common.error.core;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class ErrorResponse {
+    private final int status;
+    private final String message;
+
+    public static ErrorResponse from(ErrorCode errorCode) {
+        return new ErrorResponse(errorCode.getStatus().value(), errorCode.getMessage());
+    }
+
+    public static ErrorResponse from(ErrorCode errorCode, String message) {
+        return new ErrorResponse(errorCode.getStatus().value(), message);
+    }
+}

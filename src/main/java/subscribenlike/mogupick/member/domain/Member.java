@@ -40,8 +40,12 @@ public class Member extends BaseEntity {
     @Column(unique = true)
     private String nickname;
 
+    private String profileImage;
+
     @Builder
-    public Member(String name, String email, String password, String phoneNumber, LocalDate birthDate, boolean isAccepted, MemberRole role, String provider, String nickname) {
+    public Member(Long id, String name, String email, String password, String phoneNumber, LocalDate birthDate,
+                  boolean isAccepted, MemberRole role, String provider, String nickname, String profileImage) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
@@ -51,6 +55,18 @@ public class Member extends BaseEntity {
         this.role = role;
         this.provider = provider;
         this.nickname = nickname;
+        this.profileImage = profileImage;
+    }
+
+    public Member(String name, String email, String password, String phoneNumber, LocalDate birthDate,
+                  boolean isAccepted, MemberRole role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.birthDate = birthDate;
+        this.isAccepted = isAccepted;
+        this.role = role;
     }
 
     public void updateRefreshToken(String refreshToken) {
@@ -61,5 +77,9 @@ public class Member extends BaseEntity {
         if (nickname != null && !nickname.isBlank()) {
             this.nickname = nickname;
         }
+    }
+  
+    public boolean isMember() {
+        return role == MemberRole.MEMBER;
     }
 }
