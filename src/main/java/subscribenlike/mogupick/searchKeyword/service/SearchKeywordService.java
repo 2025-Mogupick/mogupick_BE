@@ -22,6 +22,7 @@ import subscribenlike.mogupick.recentSearchKeyword.repository.RecentSearchKeywor
 import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 import subscribenlike.mogupick.searchKeyword.domain.SearchKeyword;
+import subscribenlike.mogupick.searchKeyword.dto.RecentKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordRequest;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchProductResponse;
@@ -53,7 +54,7 @@ public class SearchKeywordService {
         recordSearchRiseToday(searchKeyword.getNormalizedContent());
         List<Product> productList = productRepository.findByNameContainingIgnoreCase(
                 searchKeyword.getNormalizedContent());
-        if (email != null){
+        if (email != null) {
             Member member = memberRepository.findByEmailOrThrow(email);
             updateRecentSearchKeyword(member, searchKeyword.getNormalizedContent());
         }
@@ -177,14 +178,27 @@ public class SearchKeywordService {
     }
 
     private void updateRecentSearchKeyword(Member member, String normalizedContent) {
-        RecentSearchKeyword existing = recentSearchKeywordRepository.findByNormalizedContentAndMember(normalizedContent, member);
+        RecentSearchKeyword existing = recentSearchKeywordRepository.findByNormalizedContentAndMember(normalizedContent,
+                member);
 
         if (existing != null) {
             recentSearchKeywordRepository.delete(existing);
-            recentSearchKeywordRepository.save(new RecentSearchKeyword(existing.getContent(), existing.getNormalizedContent(), member));
+            recentSearchKeywordRepository.save(
+                    new RecentSearchKeyword(existing.getContent(), existing.getNormalizedContent(), member));
         } else {
-            RecentSearchKeyword recentSearchKeyword = new RecentSearchKeyword(normalizedContent, normalizedContent, member);
+            RecentSearchKeyword recentSearchKeyword = new RecentSearchKeyword(normalizedContent, normalizedContent,
+                    member);
             recentSearchKeywordRepository.save(recentSearchKeyword);
         }
+    }
+
+    public List<RecentKeywordResponse> findRecentKeywords(String username) {
+        Member member = memberRepository.findByEmailOrThrow(username);
+        List<RecentSearchKeyword> recentSearchKeywords = recentSearchKeywordRepository.findTop5ByMemberOrderByCreatedAtDesc(
+                member);
+
+        return recentSearchKeywords.stream()
+                .map(RecentKeywordResponse::from)
+                .toList();
     }
 }
