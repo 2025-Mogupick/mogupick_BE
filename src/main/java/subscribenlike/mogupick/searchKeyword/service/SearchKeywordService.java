@@ -13,11 +13,16 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.repository.ProductRepository;
+import subscribenlike.mogupick.recentSearchKeyword.domain.RecentSearchKeyword;
+import subscribenlike.mogupick.recentSearchKeyword.repository.RecentSearchKeywordRepository;
 import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 import subscribenlike.mogupick.searchKeyword.domain.SearchKeyword;
+import subscribenlike.mogupick.searchKeyword.dto.RecentKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordRequest;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchProductResponse;
@@ -32,12 +37,14 @@ public class SearchKeywordService {
     public static final int KEYWORD_RANK_SIZE = 10;
 
     private final SearchKeywordRepository searchKeywordRepository;
+    private final RecentSearchKeywordRepository recentSearchKeywordRepository;
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
     private final StringRedisTemplate redis;
+    private final MemberRepository memberRepository;
 
     @Transactional
-    public List<SearchProductResponse> findByKeyword(SearchKeywordRequest searchKeywordRequest) {
+    public List<SearchProductResponse> findByKeyword(String email, SearchKeywordRequest searchKeywordRequest) {
         SearchKeyword searchKeyword = new SearchKeyword(searchKeywordRequest.content());
         searchKeywordRepository.findByNormalizedContent(searchKeyword.getNormalizedContent())
                 .ifPresentOrElse(
@@ -47,6 +54,14 @@ public class SearchKeywordService {
         recordSearchRiseToday(searchKeyword.getNormalizedContent());
         List<Product> productList = productRepository.findByNameContainingIgnoreCase(
                 searchKeyword.getNormalizedContent());
+        if (email != null) {
+            Member member = memberRepository.findByEmailOrThrow(email);
+            updateRecentSearchKeyword(member, searchKeyword.getNormalizedContent());
+        }
+        return createProductResponse(productList);
+    }
+
+    private List<SearchProductResponse> createProductResponse(List<Product> productList) {
         return productList.stream()
                 .map(product -> {
                     List<Review> reviews = findReviewByProductId(product.getId());
@@ -73,7 +88,9 @@ public class SearchKeywordService {
     @Transactional
     public void recordSearchRiseToday(String rawKeyword) {
         String norm = SearchKeyword.normalize(rawKeyword);
-        if (norm.isEmpty()) return;
+        if (norm.isEmpty()) {
+            return;
+        }
 
         String key = todayRiseKey();
         redis.opsForZSet().incrementScore(key, norm, 1D);
@@ -134,14 +151,16 @@ public class SearchKeywordService {
             if (e != null) {
                 result.add(SearchKeywordResponse.from(e));
             }
-            if (result.size() == 10) break;
+            if (result.size() == 10) {
+                break;
+            }
         }
         return result;
     }
 
     private List<SearchKeyword> getSearchKeywords(List<String> orderedNorms) {
         List<SearchKeyword> keywords = new ArrayList<>();
-        for(String keyword: orderedNorms) {
+        for (String keyword : orderedNorms) {
             keywords.add(searchKeywordRepository.findByNormalizedContentOrThrow(keyword));
         }
         return keywords;
@@ -156,5 +175,44 @@ public class SearchKeywordService {
                     .forEach(orderedNorms::add);
         }
         return orderedNorms;
+    }
+
+    private void updateRecentSearchKeyword(Member member, String normalizedContent) {
+        RecentSearchKeyword existing = recentSearchKeywordRepository.findByNormalizedContentAndMember(normalizedContent,
+                member);
+
+        if (existing != null) {
+            recentSearchKeywordRepository.delete(existing);
+            recentSearchKeywordRepository.save(
+                    new RecentSearchKeyword(existing.getContent(), existing.getNormalizedContent(), member));
+        } else {
+            RecentSearchKeyword recentSearchKeyword = new RecentSearchKeyword(normalizedContent, normalizedContent,
+                    member);
+            recentSearchKeywordRepository.save(recentSearchKeyword);
+        }
+    }
+
+    public List<RecentKeywordResponse> findRecentKeywords(String username) {
+        Member member = memberRepository.findByEmailOrThrow(username);
+        List<RecentSearchKeyword> recentSearchKeywords = recentSearchKeywordRepository.findTop5ByMemberOrderByCreatedAtDesc(
+                member);
+
+        return recentSearchKeywords.stream()
+                .map(RecentKeywordResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteRecentKeyword(String userName, Long keywordId) {
+        RecentSearchKeyword recentSearchKeyword = recentSearchKeywordRepository.findOrThrow(keywordId);
+        Member member = memberRepository.findByEmailOrThrow(userName);
+        validateOwner(recentSearchKeyword, member);
+        recentSearchKeywordRepository.delete(recentSearchKeyword);
+    }
+
+    private static void validateOwner(RecentSearchKeyword recentSearchKeyword, Member member) {
+        if (!Objects.equals(recentSearchKeyword.getMember().getId(), member.getId())) {
+            throw new IllegalArgumentException("검색어의 주인이 아닙니다");
+        }
     }
 }

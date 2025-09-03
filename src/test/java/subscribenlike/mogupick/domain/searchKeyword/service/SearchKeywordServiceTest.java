@@ -57,9 +57,9 @@ class SearchKeywordServiceTest {
     @Test
     void 같은_키워드를_검색하면_카운트만_증가한다() {
         SearchKeywordRequest request = new SearchKeywordRequest("구독");
-        searchKeywordService.findByKeyword(request);
-        searchKeywordService.findByKeyword(request);
-        searchKeywordService.findByKeyword(request);
+        searchKeywordService.findByKeyword(null, request);
+        searchKeywordService.findByKeyword(null, request);
+        searchKeywordService.findByKeyword(null, request);
 
         assertThat(searchKeywordRepository.count()).isEqualTo(1);
         assertThat(
