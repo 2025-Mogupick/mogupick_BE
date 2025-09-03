@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subscribenlike.mogupick.common.utils.GlobalLogger;
+import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.product.common.ProductErrorCode;
 import subscribenlike.mogupick.product.common.ProductException;
 import subscribenlike.mogupick.product.domain.Product;
