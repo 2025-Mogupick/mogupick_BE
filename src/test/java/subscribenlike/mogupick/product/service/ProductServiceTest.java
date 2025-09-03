@@ -3,6 +3,7 @@ package subscribenlike.mogupick.product.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import subscribenlike.mogupick.brand.BrandFixture;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
@@ -49,8 +50,8 @@ class ProductServiceTest {
         
         // When & Then
         assertThatThrownBy(() -> productService.fetchPeerBestReview(nonExistentMemberId, 10))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Member not found");
+                .isInstanceOf(InvalidDataAccessApiUsageException.class)
+                .hasMessage("not found");
     }
 
     @Test

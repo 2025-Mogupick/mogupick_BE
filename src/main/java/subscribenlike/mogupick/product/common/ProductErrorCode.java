@@ -11,6 +11,7 @@ import subscribenlike.mogupick.common.error.core.ErrorCode;
 public enum ProductErrorCode implements ErrorCode {
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력 값입니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
+    VIEW_COUNT_STATS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 시간대에 대한 상품 조회 데이터가 존재하지 않습니다."),
 
     ;
 
