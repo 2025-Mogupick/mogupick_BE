@@ -33,17 +33,17 @@ public class ProductViewCountService {
     private List<FetchProductMostDailyViewStatChangeResponse> currentViewStatChanges;
 
     private final static DateTimeFormatter DEFAULT_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHH");
+    private static final long HOUR_RANGE = 24;
 
     @Scheduled(cron = "0 12 0 * * ?")
     public void updateMostDailyViewStatChangeProduct() {
         // 현재 변화량 랭킹 리스트 업데이트
-        long hourRange = 24;
         List<Product> products = productRepository.findAll();
 
         // TODO : 변화량 구하기 메서드를 비동기적으로 수행?
         currentViewStatChanges =
                 products.stream()
-                        .map(product -> getMostDailyViewStatChange(product.getId(), hourRange))
+                        .map(product -> getMostDailyViewStatChange(product.getId(), HOUR_RANGE))
                         .sorted((p1, p2) -> Double.compare(p2.getChange().getGradient(), p1.getChange().getGradient()))
                         .toList();
     }
@@ -80,25 +80,29 @@ public class ProductViewCountService {
         List<FetchProductDailyViewStatChangeResponse> response = new ArrayList<>();
 
         for (int i = 1; i < viewStats.size(); i++) {
-            Long time = Long.parseLong(viewStats.get(i).getKey());
-            Long prevTime = Long.parseLong(viewStats.get(i - 1).getKey());
-            Long count = viewStats.get(i).getValue();
-            Long prevCount = viewStats.get(i - 1).getValue();
-
-            Double gradient = getGradient(prevCount, count, prevTime, time);
-
-            response.add(FetchProductDailyViewStatChangeResponse.builder()
-                    .productId(productId)
-                    .startTime(viewStats.get(i - 1).getKey())
-                    .endTime(viewStats.get(i).getKey())
-                    .startViewCount(prevCount)
-                    .endViewCount(count)
-                    .gradient(gradient)
-                    .viewCountIncreaseRate(getIncreaseRate(count, prevCount))
-                    .build());
+            response.add(createProductDailViewStatChange(productId, viewStats, i));
         }
 
         return response;
+    }
+
+    private FetchProductDailyViewStatChangeResponse createProductDailViewStatChange(Long productId, List<Map.Entry<String, Long>> viewStats, int i) {
+        Long time = Long.parseLong(viewStats.get(i).getKey());
+        Long prevTime = Long.parseLong(viewStats.get(i - 1).getKey());
+        Long count = viewStats.get(i).getValue();
+        Long prevCount = viewStats.get(i - 1).getValue();
+
+        Double gradient = getGradient(prevCount, count, prevTime, time);
+
+        return FetchProductDailyViewStatChangeResponse.builder()
+                .productId(productId)
+                .startTime(viewStats.get(i - 1).getKey())
+                .endTime(viewStats.get(i).getKey())
+                .startViewCount(prevCount)
+                .endViewCount(count)
+                .gradient(gradient)
+                .viewCountIncreaseRate(getIncreaseRate(count, prevCount))
+                .build();
     }
 
     public void incrementProductViewCount(Long productId) {
