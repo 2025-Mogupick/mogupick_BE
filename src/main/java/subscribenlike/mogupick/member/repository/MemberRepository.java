@@ -11,7 +11,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByRefreshToken(String refreshToken);
 
-    default Member getByEmail(String email) {
+    default Member findByEmailOrThrow(String email) {
         return findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }

@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,8 +30,9 @@ public class SearchKeywordController {
             )
     })
     @GetMapping
-    public List<SearchProductResponse> searchProducts(@RequestParam SearchKeywordRequest searchKeywordRequest) {
-        return searchKeywordService.findByKeyword(searchKeywordRequest);
+    public List<SearchProductResponse> searchProducts(@AuthenticationPrincipal UserDetails userDetails,
+                                                      @RequestParam SearchKeywordRequest searchKeywordRequest) {
+        return searchKeywordService.findByKeyword(userDetails.getUsername(), searchKeywordRequest);
     }
 
     @Operation(summary = "연관 검색어 조회", description = "입력한 검색어를 포함한 연관검색어를 조회합니다.")
