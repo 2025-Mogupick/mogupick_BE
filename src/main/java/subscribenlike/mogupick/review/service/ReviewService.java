@@ -80,7 +80,7 @@ public class ReviewService {
                 .memberProfileImageUrl(review.getMember().getProfileImage())
                 .reviewScore(review.getScore())
                 .reviewContent(review.getContent())
-                .reviewImageUrl(review.getReviewImage())
+                .reviewImageUrls(null) // TODO: 다중 이미지 지원 시 구현
                 .isLikedByCurrentMember(isLiked)
                 .likeCount(likeCount)
                 .timeAgo(timeAgo)
