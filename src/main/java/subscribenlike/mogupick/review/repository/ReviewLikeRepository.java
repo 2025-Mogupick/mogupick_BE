@@ -30,4 +30,9 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
      * 특정 회원이 좋아요한 모든 리뷰를 조회합니다.
      */
     List<ReviewLike> findByMemberId(Long memberId);
+
+    /**
+     * 여러 리뷰 ID에 대한 좋아요 목록을 조회합니다.
+     */
+    List<ReviewLike> findByReviewIdIn(List<Long> reviewIds);
 }
