@@ -17,6 +17,7 @@ import subscribenlike.mogupick.product.model.query.FetchPeerBestReviewsQueryResu
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
+import subscribenlike.mogupick.product.repository.ProductViewCountRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.Map;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
+    private final ProductViewCountRepository productViewCountRepository;
     private final BrandRepository brandRepository;
     private final MemberRepository memberRepository;
 
@@ -82,6 +84,12 @@ public class ProductService {
         return productOptions.stream()
                 .map(option -> createProductWithOptionResponse(products, option))
                 .toList();
+    }
+
+
+    public void fetchRecentlyViewedProducts(Long memberId) {
+        // TODO : 최근 본 상품 조회
+        productViewCountRepository.findAllById()
     }
 
     private static ProductWithOptionResponse createProductWithOptionResponse(Map<Long, Product> products, ProductOption option) {
