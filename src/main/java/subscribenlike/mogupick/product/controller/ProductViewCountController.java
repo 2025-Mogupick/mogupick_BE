@@ -36,6 +36,23 @@ public class ProductViewCountController {
                 .body(SuccessResponse.from(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED));
     }
 
+    @Operation(summary = "멤버별 상품 조회수 증가", description = "특정 멤버의 상품 조회수를 증가시키고 MemberProductViewCount를 생성/업데이트합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "멤버별 상품 조회수 증가 성공"
+            )
+    })
+    @PutMapping("/{productId}/member/{memberId}/increment")
+    public ResponseEntity<?> updateMemberProductViewCount(
+            @PathVariable Long productId,
+            @PathVariable Long memberId) {
+        productViewCountService.incrementProductViewCount(productId, memberId);
+        return ResponseEntity
+                .status(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED.getStatus())
+                .body(SuccessResponse.from(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED));
+    }
+
     @Operation(summary = "주목받는 상품 목록 조회", description = "주목받는 상품 목록 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(

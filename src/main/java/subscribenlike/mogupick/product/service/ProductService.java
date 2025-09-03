@@ -18,9 +18,13 @@ import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.product.repository.ProductViewCountRepository;
+import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ProductViewCountRepository productViewCountRepository;
+    private final MemberProductViewCountRepository memberProductViewCountRepository;
     private final BrandRepository brandRepository;
     private final MemberRepository memberRepository;
 
@@ -87,9 +92,8 @@ public class ProductService {
     }
 
 
-    public void fetchRecentlyViewedProducts(Long memberId) {
-        // TODO : 최근 본 상품 조회
-        productViewCountRepository.findAllById()
+    public Page<RecentlyViewProductsQueryResult> fetchRecentlyViewedProducts(Long memberId, Pageable pageable) {
+        return memberProductViewCountRepository.findRecentlyViewedProductsByMemberId(pageable, memberId);
     }
 
     private static ProductWithOptionResponse createProductWithOptionResponse(Map<Long, Product> products, ProductOption option) {

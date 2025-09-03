@@ -21,7 +21,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
 
 @RestController
 @RequiredArgsConstructor
@@ -103,5 +107,26 @@ public class ProductController {
                 .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_CREATED));
     }
 
+    @Operation(summary = "멤버의 최근 본 상품 목록 조회", description = "멤버가 최근에 본 상품 목록을 조회합니다. lastViewedAt 기준 내림차순으로 정렬됩니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "최근 본 상품 목록 조회 성공"
+            )
+    })
+    @GetMapping("/recently-viewed")
+    public ResponseEntity<?> getRecentlyViewedProducts(
+            @RequestParam Long memberId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RecentlyViewProductsQueryResult> response =
+                productService.fetchRecentlyViewedProducts(memberId, pageable);
+
+        return ResponseEntity
+                .status(200)
+                .body(SuccessResponse.from(ProductSuccessCode.RECENTLY_VIEWED_PRODUCTS_FETCHED, response));
+    }
 
 }
