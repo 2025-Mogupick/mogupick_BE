@@ -17,7 +17,7 @@ public record FetchProductReviewsResponse(
             String memberProfileImageUrl,
             Double reviewScore,
             String reviewContent,
-            String reviewImageUrl,
+            List<String> reviewImageUrls,
             Boolean isLikedByCurrentMember,
             Long likeCount,
             String timeAgo

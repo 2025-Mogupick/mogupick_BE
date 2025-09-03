@@ -58,7 +58,7 @@ public class ProductService {
         return FetchProductDetailResponse.builder()
                 .productId(product.getId())
                 .productName(product.getName())
-                .productImageUrl(product.getImageUrl())
+                .productImageUrls(null) // TODO: 다중 이미지 지원 시 구현
                 .price(product.getPrice())
                 .brandId(product.getBrand().getId())
                 .brandName(product.getBrandName())
