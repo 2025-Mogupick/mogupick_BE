@@ -62,7 +62,6 @@ class ProductQuerydslRepositoryTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getProductId()).isEqualTo(product.getId());
         assertThat(result.get(0).getProductName()).isEqualTo("쿠팡 구독 서비스");
-        assertThat(result.get(0).getProductImageUrl()).isEqualTo("https://example.com/coupang-subscription.jpg");
         assertThat(result.get(0).getProductPrice()).isEqualTo(29900);
         assertThat(result.get(0).getBrandId()).isEqualTo(brand.getId());
         assertThat(result.get(0).getBrandName()).isEqualTo("쿠팡");

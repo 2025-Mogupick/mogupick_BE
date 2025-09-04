@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import subscribenlike.mogupick.brand.BrandFixture;
@@ -110,7 +111,7 @@ class ProductViewCountServiceTest {
         when(valueOperations.get(anyString())).thenReturn(0L);
 
         // When
-        var result = productViewCountService.getMostDailyViewStatChangeProduct(5);
+        var result = productViewCountService.getMostDailyViewStatChangeProduct(PageRequest.of(0, 5));
 
         // Then
         assertThat(result).isEmpty();

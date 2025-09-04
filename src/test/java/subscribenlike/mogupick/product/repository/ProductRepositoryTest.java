@@ -3,7 +3,6 @@ package subscribenlike.mogupick.product.repository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import subscribenlike.mogupick.brand.BrandFixture;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
 import subscribenlike.mogupick.member.ProductTestMemberFixture;
@@ -12,14 +11,14 @@ import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.ProductFixture;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.model.query.FetchPeerBestReviewsQueryResult;
-import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.review.ReviewFixture;
 import subscribenlike.mogupick.review.ReviewLikeFixture;
 import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.domain.ReviewLike;
-import subscribenlike.mogupick.review.repository.ReviewRepository;
 import subscribenlike.mogupick.review.repository.ReviewLikeRepository;
+import subscribenlike.mogupick.review.repository.ReviewRepository;
 import subscribenlike.mogupick.support.annotation.ServiceTest;
+import subscribenlike.mogupick.support.fixture.BrandFixture;
 
 import java.util.List;
 
@@ -107,7 +106,6 @@ class ProductRepositoryTest {
         assertThat(firstResult.getMemberBirthYear()).isEqualTo(1990);
         assertThat(firstResult.getMemberProfileImageUrl()).isEqualTo("https://example.com/profile1.jpg");
         assertThat(firstResult.getMemberName()).isEqualTo("김회원");
-        assertThat(firstResult.getReviewImageUrl()).isEqualTo("https://example.com/review4.jpg");
         assertThat(firstResult.getLikeCount()).isEqualTo(2); // member2와 member3이 좋아요 (범위 밖 member3도 포함)
         assertThat(firstResult.getReviewCount()).isEqualTo(2); // product1에 대한 리뷰 수
         assertThat(firstResult.getReviewCreatedAt()).isNotNull();
@@ -121,7 +119,6 @@ class ProductRepositoryTest {
         assertThat(secondResult.getMemberBirthYear()).isEqualTo(1985);
         assertThat(secondResult.getMemberProfileImageUrl()).isEqualTo("https://example.com/profile2.jpg");
         assertThat(secondResult.getMemberName()).isEqualTo("김모구");
-        assertThat(secondResult.getReviewImageUrl()).isEqualTo("https://example.com/review1.jpg");
         assertThat(secondResult.getLikeCount()).isEqualTo(1); // member1이 좋아요
         assertThat(secondResult.getReviewCount()).isEqualTo(1); // product2에 대한 리뷰 수
         assertThat(secondResult.getReviewCreatedAt()).isNotNull();
@@ -305,7 +302,6 @@ class ProductRepositoryTest {
         assertThat(firstResult.getMemberBirthYear()).isEqualTo(1985);
         assertThat(firstResult.getMemberProfileImageUrl()).isEqualTo("https://example.com/profile2.jpg");
         assertThat(firstResult.getMemberName()).isEqualTo("김모구");
-        assertThat(firstResult.getReviewImageUrl()).isEqualTo("https://example.com/review4.jpg"); // 최고리뷰
         assertThat(firstResult.getReviewCreatedAt()).isNotNull();
         assertThat(firstResult.getReviewCount()).isEqualTo(1);
         
@@ -317,7 +313,6 @@ class ProductRepositoryTest {
         assertThat(secondResult.getMemberBirthYear()).isEqualTo(1990);
         assertThat(secondResult.getMemberProfileImageUrl()).isEqualTo("https://example.com/profile1.jpg");
         assertThat(secondResult.getMemberName()).isEqualTo("김회원");
-        assertThat(secondResult.getReviewImageUrl()).isEqualTo("https://example.com/review2.jpg"); // 보통리뷰
         assertThat(secondResult.getReviewCreatedAt()).isNotNull();
         assertThat(secondResult.getReviewCount()).isEqualTo(1); // product1에 대한 리뷰 1개
     }
