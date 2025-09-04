@@ -35,7 +35,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2User.getAttributes());
         String email = attributes.getEmail();
 
-        Member member = memberRepository.getByEmail(email);
+        Member member = memberRepository.findByEmailOrThrow(email);
 
         member.updateRefreshToken(tokenInfo.getRefreshToken());
 

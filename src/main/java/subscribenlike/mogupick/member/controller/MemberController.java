@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import subscribenlike.mogupick.global.dto.GlobalResponse;
+import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.member.dto.MemberResponse;
 import subscribenlike.mogupick.member.dto.MemberUpdateRequest;
 import subscribenlike.mogupick.member.service.MemberService;
@@ -18,7 +18,7 @@ import subscribenlike.mogupick.member.service.MemberService;
 @RestController
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
-public class MemberController {
+class MemberController {
 
     private final MemberService memberService;
 
@@ -30,7 +30,7 @@ public class MemberController {
             ),
     })
     @GetMapping("/me")
-    public GlobalResponse<MemberResponse> getMyInfo(@AuthenticationPrincipal UserDetails userDetails) {
+    public GlobalResponse<MemberResponse> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         String email = userDetails.getUsername();
         MemberResponse memberInfo = memberService.getMemberInfo(email);
         return GlobalResponse.success(memberInfo);
@@ -45,8 +45,9 @@ public class MemberController {
     })
     @PatchMapping("/me")
     public GlobalResponse<Void> updateMyNickname(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody MemberUpdateRequest request) {
+        Long memberId = userDetails.getMemberId();
         String email = userDetails.getUsername();
         memberService.updateNickname(email, request);
         return GlobalResponse.success(null);

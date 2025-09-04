@@ -26,7 +26,7 @@ public class AuthService {
     @Transactional
     public void logout(String email) {
 
-        Member member = memberRepository.getByEmail(email);
+        Member member = memberRepository.findByEmailOrThrow(email);
         member.updateRefreshToken(null);
     }
 

@@ -4,12 +4,14 @@ import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Component
@@ -21,12 +23,14 @@ public class DatabaseCleaner {
 
     private final EntityManager entityManager;
     private final DataSource dataSource;
+    private final RedisTemplate<String, Long> redisTemplate;
     private List<String> tableNames = new ArrayList<>();
 
     @Transactional
     public void execute() {
         entityManager.clear();
         executeTruncate();
+        clearRedis();
     }
 
     private void executeTruncate() {
@@ -37,6 +41,17 @@ public class DatabaseCleaner {
             entityManager.createNativeQuery(String.format(ID_RESET_FORMAT, tableName)).executeUpdate(); // AUTO_INCREMENT 리셋
         });
         entityManager.createNativeQuery(String.format(REFERENTIAL_FORMAT, "1")).executeUpdate(); // FOREIGN_KEY_CHECKS = 1
+    }
+
+    private void clearRedis() {
+        try {
+            Set<String> keys = redisTemplate.keys("*");
+            if (keys != null && !keys.isEmpty()) {
+                redisTemplate.delete(keys);
+            }
+        } catch (Exception e) {
+            // Redis 연결 실패 시 무시 (테스트 환경에서 Redis가 실행되지 않을 수 있음)
+        }
     }
 
     /**

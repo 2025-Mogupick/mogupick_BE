@@ -16,14 +16,14 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public MemberResponse getMemberInfo(String email) {
-        Member member = memberRepository.getByEmail(email);
+        Member member = memberRepository.findByEmailOrThrow(email);
 
         return new MemberResponse(member);
     }
 
     @Transactional
     public void updateNickname(String email, MemberUpdateRequest request) {
-        Member member = memberRepository.getByEmail(email);
+        Member member = memberRepository.findByEmailOrThrow(email);
 
         member.updateNickname(request.getNickname());
     }
