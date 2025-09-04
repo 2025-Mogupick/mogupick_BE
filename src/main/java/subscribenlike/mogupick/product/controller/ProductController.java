@@ -5,31 +5,25 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
-import subscribenlike.mogupick.category.domain.RootCategory;
-import subscribenlike.mogupick.common.success.SuccessResponse;
-import subscribenlike.mogupick.product.model.CreateProductRequest;
-import subscribenlike.mogupick.product.model.FetchPeerBestReviewsResponse;
-import subscribenlike.mogupick.product.model.ProductWithOptionResponse;
-import subscribenlike.mogupick.product.service.ProductService;
-import subscribenlike.mogupick.product.common.ProductSuccessCode;
-import subscribenlike.mogupick.product.model.FetchNewProductsInMonthResponse;
-import subscribenlike.mogupick.product.model.FetchProductDetailResponse;
-import subscribenlike.mogupick.common.model.PaginatedResponse;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.category.domain.RootCategory;
+import subscribenlike.mogupick.common.model.PaginatedResponse;
+import subscribenlike.mogupick.common.success.SuccessResponse;
+import subscribenlike.mogupick.global.security.CustomUserDetails;
+import subscribenlike.mogupick.product.common.ProductSuccessCode;
+import subscribenlike.mogupick.product.model.*;
 import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
+import subscribenlike.mogupick.product.service.ProductService;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,12 +62,12 @@ public class ProductController {
     })
     @GetMapping("/peer-best-reviews")
     public ResponseEntity<SuccessResponse<PaginatedResponse<FetchPeerBestReviewsResponse>>> fetchPeerBestReviews(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FetchPeerBestReviewsResponse> response =
-                productService.fetchPeerBestReview(memberId, pageable);
+                productService.fetchPeerBestReview(userDetails.getMemberId(), pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.PEER_BEST_REVIEW_FETCHED.getStatus())
@@ -111,7 +105,7 @@ public class ProductController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SuccessResponse<Void>> createProduct(
-            @ModelAttribute CreateProductRequest request) {
+            @ModelAttribute CreateProductRequest request) throws IOException {
 
         productService.createProduct(request);
 
@@ -129,13 +123,13 @@ public class ProductController {
     })
     @GetMapping("/recently-viewed")
     public ResponseEntity<SuccessResponse<Page<RecentlyViewProductsQueryResult>>> getRecentlyViewedProducts(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<RecentlyViewProductsQueryResult> response =
-                productService.fetchRecentlyViewedProducts(memberId, pageable);
+                productService.fetchRecentlyViewedProducts(userDetails.getMemberId(), pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.RECENTLY_VIEWED_PRODUCTS_FETCHED.getStatus())
