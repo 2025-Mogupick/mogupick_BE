@@ -1,9 +1,11 @@
 package subscribenlike.mogupick.product.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
 import subscribenlike.mogupick.category.CategoryService;
@@ -15,18 +17,15 @@ import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.model.*;
 import subscribenlike.mogupick.product.model.query.FetchPeerBestReviewsQueryResult;
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
+import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
+import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.product.repository.ProductViewCountRepository;
-import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
-import subscribenlike.mogupick.product.model.FetchProductDetailResponse;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 
 import java.util.List;
 import java.util.Map;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
 
 @Service
 @RequiredArgsConstructor
@@ -67,13 +66,20 @@ public class ProductService {
                 .build();
     }
 
-    public List<FetchNewProductsInMonthResponse> findAllNewProductsInMonth(int month) {
-        return productRepository.findAllProductsInMonth(month).stream()
+    public Page<FetchNewProductsInMonthResponse> findAllNewProductsInMonth(int month, Pageable pageable) {
+        List<FetchNewProductsInMonthResponse> content = productRepository.findAllProductsInMonth(month).stream()
                 .map(ProductService::createFetchNewProductsInMonthResponse)
                 .toList();
+
+        // 현재는 전체 데이터를 가져와서 페이지네이션 적용 (추후 쿼리 레벨에서 최적화 가능)
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), content.size());
+        List<FetchNewProductsInMonthResponse> pageContent = content.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, content.size());
     }
 
-    public List<FetchPeerBestReviewsResponse> fetchPeerBestReview(Long memberId, int limit) {
+    public Page<FetchPeerBestReviewsResponse> fetchPeerBestReview(Long memberId, Pageable pageable) {
         Member member = memberRepository.findOrThrow(memberId);
 
         int myBirthDateYear = member.getBirthDate().getYear();
@@ -81,14 +87,23 @@ public class ProductService {
         int fromYear = myBirthDateYear - PEER_STANDARD_AGE;
         int toYear = myBirthDateYear + PEER_STANDARD_AGE;
 
-        List<FetchPeerBestReviewsQueryResult> result =
-                productRepository.fetchPeerBestReviewNative(fromYear, toYear, limit);
+        List<FetchPeerBestReviewsQueryResult> allResults =
+                productRepository.fetchPeerBestReviewNative(fromYear, toYear, Integer.MAX_VALUE);
 
-        return result.stream().map(FetchPeerBestReviewsResponse::from).toList();
+        List<FetchPeerBestReviewsResponse> content = allResults.stream()
+                .map(FetchPeerBestReviewsResponse::from)
+                .toList();
+
+        // 현재는 전체 데이터를 가져와서 페이지네이션 적용 (추후 쿼리 레벨에서 최적화 가능)
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), content.size());
+        List<FetchPeerBestReviewsResponse> pageContent = content.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, content.size());
     }
 
     @Transactional
-    public void createProduct(CreateProductRequest request, MultipartFile image) {
+    public void createProduct(CreateProductRequest request) {
         Brand brand = brandRepository.findOrThrow(request.getBrandId());
         String imageUrl = "https://via.placeholder.com/150"; // TODO: 이미지 업로드 기능 구현 시 변경
 
@@ -103,8 +118,7 @@ public class ProductService {
         return ProductWithOptionResponse.of(product, productOption);
     }
 
-    public List<ProductWithOptionResponse> findProductWithOptionByRootCategory(RootCategory rootCategory) {
-        // TODO : 페이지네이션 필요시 구현
+    public Page<ProductWithOptionResponse> findProductWithOptionByRootCategory(RootCategory rootCategory, Pageable pageable) {
         List<ProductOption> productOptions = productOptionRepository.findAllByRootCategory(rootCategory);
         List<Long> productIds = productOptions.stream()
                 .map(ProductOption::getProductId)
@@ -112,9 +126,16 @@ public class ProductService {
 
         Map<Long, Product> products = productRepository.findAllByIdInMaps(productIds);
 
-        return productOptions.stream()
+        List<ProductWithOptionResponse> content = productOptions.stream()
                 .map(option -> createProductWithOptionResponse(products, option))
                 .toList();
+
+        // 현재는 전체 데이터를 가져와서 페이지네이션 적용 (추후 쿼리 레벨에서 최적화 가능)
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), content.size());
+        List<ProductWithOptionResponse> pageContent = content.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, content.size());
     }
 
 

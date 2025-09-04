@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +58,16 @@ public class ProductViewCountService {
                         .toList();
     }
 
-    public List<FetchProductMostDailyViewStatChangeResponse> getMostDailyViewStatChangeProduct(int limit) {
+    public Page<FetchProductMostDailyViewStatChangeResponse> getMostDailyViewStatChangeProduct(Pageable pageable) {
         if (currentViewStatChanges == null) {
-            return new ArrayList<>();
+            return new PageImpl<>(new ArrayList<>(), pageable, 0);
         }
 
-        return currentViewStatChanges.subList(0, limit);
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), currentViewStatChanges.size());
+        List<FetchProductMostDailyViewStatChangeResponse> pageContent = currentViewStatChanges.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, currentViewStatChanges.size());
     }
 
     public FetchProductMostDailyViewStatChangeResponse getMostDailyViewStatChange(Long productId, long hourRange) {
