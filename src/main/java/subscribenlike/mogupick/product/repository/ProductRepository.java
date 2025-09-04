@@ -36,11 +36,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
             YEAR(m.birth_date) AS memberBirthYear,
             m.profile_image AS memberProfileImageUrl,
             m.name AS memberName,
-            r.review_image AS reviewImageUrl,
             r.created_at AS reviewCreatedAt,
             AVG(r.score) AS reviewScore,
             COALESCE(rl.review_like, 0) AS likeCount,
-            COALESCE(rc.review_count, 0) AS reviewCount
+            COALESCE(rc.review_count, 0) AS reviewCount,
+            pi.image_url AS productImageUrl,
+            ri.image_url AS reviewImageUrl
         FROM review r
         JOIN member m ON r.member_id = m.id
         JOIN product p ON r.product_id = p.id
@@ -59,11 +60,31 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
             FROM review
             GROUP BY product_id
         ) AS rc ON p.id = rc.product_id
+        LEFT JOIN (
+            SELECT pm.product_id, pm.image_url
+            FROM product_media pm
+            INNER JOIN (
+                SELECT product_id, MIN(created_at) as min_created_at
+                FROM product_media
+                GROUP BY product_id
+            ) first_images ON pm.product_id = first_images.product_id
+            AND pm.created_at = first_images.min_created_at
+        ) AS pi ON p.id = pi.product_id
+        LEFT JOIN (
+            SELECT rm.review_id, rm.image_url
+            FROM review_media rm
+            INNER JOIN (
+                SELECT review_id, MIN(created_at) as min_created_at
+                FROM review_media
+                GROUP BY review_id
+            ) first_review_images ON rm.review_id = first_review_images.review_id
+            AND rm.created_at = first_review_images.min_created_at
+        ) AS ri ON r.id = ri.review_id
         WHERE YEAR(m.birth_date) BETWEEN :fromYear AND :toYear
         GROUP BY(
             p.id, b.name, p.name, p.price, m.birth_date,
-            m.profile_image, m.name, r.review_image, r.created_at,
-            rl.review_like, rc.review_count)
+            m.profile_image, m.name, r.created_at,
+            rl.review_like, rc.review_count, pi.image_url, ri.image_url)
         ORDER BY likeCount DESC
         LIMIT :limit
     """,

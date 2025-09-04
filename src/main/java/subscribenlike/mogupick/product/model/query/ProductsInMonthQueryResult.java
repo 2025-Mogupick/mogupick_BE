@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProductsInMonthQueryResult {
     private Long productId;
-    private String productImageUrl;
     private String productName;
     private Integer productPrice;
     private LocalDateTime createdAt;
@@ -17,4 +16,5 @@ public class ProductsInMonthQueryResult {
     private String brandName;
     private Double rating;
     private Long reviewCount;
+    private String productImageUrl;
 }

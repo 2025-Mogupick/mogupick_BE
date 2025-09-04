@@ -22,6 +22,7 @@ public class FetchPeerBestReviewsResponse {
         private String productName;      // 상품명
         private Integer price;        // 가격
         private String brandName;        // 브랜드명
+        private String productImageUrl;  // 상품 대표 이미지
     }
 
     @Getter
@@ -48,7 +49,8 @@ public class FetchPeerBestReviewsResponse {
                         queryResult.getProductId(),
                         queryResult.getProductName(),
                         queryResult.getPrice(),
-                        queryResult.getBrandName()
+                        queryResult.getBrandName(),
+                        queryResult.getProductImageUrl()
                 ),
                 MemberResponse.of(
                         queryResult.getMemberBirthYear(),

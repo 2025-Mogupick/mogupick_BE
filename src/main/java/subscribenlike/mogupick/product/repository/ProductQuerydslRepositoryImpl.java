@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import subscribenlike.mogupick.brand.domain.QBrand;
 import subscribenlike.mogupick.product.domain.QProduct;
+import subscribenlike.mogupick.product.domain.QProductMedia;
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
 import subscribenlike.mogupick.review.domain.QReview;
 
@@ -22,22 +23,22 @@ public class ProductQuerydslRepositoryImpl implements ProductQuerydslRepository 
         return query
                 .select(Projections.constructor(ProductsInMonthQueryResult.class,
                         QProduct.product.id,
-                        QProduct.product.imageUrl,
                         QProduct.product.name,
                         QProduct.product.price,
                         QProduct.product.createdAt,
                         QProduct.product.brand.id,
                         QProduct.product.brand.name,
                         QReview.review.score.avg(),
-                        QReview.review.count()
+                        QReview.review.count(),
+                        QProductMedia.productMedia.imageUrl.min() // 대표 이미지 (첫 번째 이미지)
                         ))
                 .from(QProduct.product)
                 .leftJoin(QProduct.product.brand, QBrand.brand)
                 .leftJoin(QReview.review).on(QReview.review.product.eq(QProduct.product))
+                .leftJoin(QProductMedia.productMedia).on(QProductMedia.productMedia.product.eq(QProduct.product))
                 .where(QProduct.product.createdAt.month().eq(month))
                 .groupBy(
                         QProduct.product.id,
-                        QProduct.product.imageUrl,
                         QProduct.product.name,
                         QProduct.product.price,
                         QProduct.product.createdAt,

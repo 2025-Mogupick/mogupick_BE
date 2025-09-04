@@ -10,20 +10,20 @@ import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
 import subscribenlike.mogupick.category.CategoryService;
 import subscribenlike.mogupick.category.domain.RootCategory;
+import org.springframework.web.multipart.MultipartFile;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.domain.ProductMedia;
 import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.model.*;
 import subscribenlike.mogupick.product.model.query.FetchPeerBestReviewsQueryResult;
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
 import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
-import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
-import subscribenlike.mogupick.product.repository.ProductOptionRepository;
-import subscribenlike.mogupick.product.repository.ProductRepository;
-import subscribenlike.mogupick.product.repository.ProductViewCountRepository;
+import subscribenlike.mogupick.product.repository.*;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +32,7 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductMediaRepository productMediaRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ProductViewCountRepository productViewCountRepository;
     private final MemberProductViewCountRepository memberProductViewCountRepository;
@@ -46,6 +47,9 @@ public class ProductService {
     public FetchProductDetailResponse findProductDetailById(Long productId) {
         Product product = productRepository.getById(productId);
 
+        // 상품 이미지 URL 리스트 조회
+        List<String> productImageUrls = productMediaRepository.findImageUrlsByProductId(productId);
+
         // 리뷰 평균 평점과 리뷰 수 조회
         Double averageRating = reviewRepository.findByProductId(productId).stream()
                 .mapToDouble(review -> review.getScore())
@@ -57,7 +61,7 @@ public class ProductService {
         return FetchProductDetailResponse.builder()
                 .productId(product.getId())
                 .productName(product.getName())
-                .productImageUrls(null) // TODO: 다중 이미지 지원 시 구현
+                .productImageUrls(productImageUrls)
                 .price(product.getPrice())
                 .brandId(product.getBrand().getId())
                 .brandName(product.getBrandName())
@@ -68,7 +72,7 @@ public class ProductService {
 
     public Page<FetchNewProductsInMonthResponse> findAllNewProductsInMonth(int month, Pageable pageable) {
         List<FetchNewProductsInMonthResponse> content = productRepository.findAllProductsInMonth(month).stream()
-                .map(ProductService::createFetchNewProductsInMonthResponse)
+                .map(this::createFetchNewProductsInMonthResponse)
                 .toList();
 
         // 현재는 전체 데이터를 가져와서 페이지네이션 적용 (추후 쿼리 레벨에서 최적화 가능)
@@ -103,11 +107,15 @@ public class ProductService {
     }
 
     @Transactional
-    public void createProduct(CreateProductRequest request) {
+    public void createProduct(CreateProductRequest request) throws IOException {
         Brand brand = brandRepository.findOrThrow(request.getBrandId());
-        String imageUrl = "https://via.placeholder.com/150"; // TODO: 이미지 업로드 기능 구현 시 변경
 
-        Product product = createProduct(request, brand, imageUrl);
+        // 상품 생성
+        Product product = createProduct(request, brand);
+
+        // 다중 이미지 업로드 및 ProductMedia 생성
+        uploadAndSaveProductImages(request.getImage(), product);
+
         createProductOption(request, product);
     }
 
@@ -147,8 +155,30 @@ public class ProductService {
         return ProductWithOptionResponse.of(products.get(option.getProductId()), option);
     }
 
-    private Product createProduct(CreateProductRequest request, Brand brand, String imageUrl) {
-        return productRepository.save(request.toProduct(brand, imageUrl));
+    private void uploadAndSaveProductImages(List<MultipartFile> images, Product product) throws IOException {
+        if (images == null || images.isEmpty()) {
+            return; // 이미지가 없는 경우 아무것도 하지 않음
+        }
+
+        List<ProductMedia> productMedias = images.stream()
+                .filter(image -> !image.isEmpty())
+                .map(image -> {
+                    // TODO: 테스트용 더미 URL 생성, S3Bucket 적용
+                    String imageUrl = "https://test-bucket.s3.amazonaws.com/" + image.getOriginalFilename();
+                    return ProductMedia.builder()
+                            .imageUrl(imageUrl)
+                            .product(product)
+                            .build();
+                })
+                .toList();
+
+        if (!productMedias.isEmpty()) {
+            productMediaRepository.saveAll(productMedias);
+        }
+    }
+
+    private Product createProduct(CreateProductRequest request, Brand brand) {
+        return productRepository.save(request.toProduct(brand));
     }
 
     private ProductOption createProductOption(CreateProductRequest request, Product product) {
@@ -156,11 +186,17 @@ public class ProductService {
         return productOptionRepository.save(request.toProductOption(product));
     }
 
-    private static FetchNewProductsInMonthResponse createFetchNewProductsInMonthResponse(ProductsInMonthQueryResult product) {
+    private FetchNewProductsInMonthResponse createFetchNewProductsInMonthResponse(ProductsInMonthQueryResult product) {
+        // 상품 대표 이미지 URL 조회 (쿼리에서 가져온 값이 있으면 사용, 없으면 별도 조회)
+        String productImageUrl = product.getProductImageUrl();
+        if (productImageUrl == null) {
+            productImageUrl = productMediaRepository.findFirstImageUrlByProductId(product.getProductId());
+        }
+
         return FetchNewProductsInMonthResponse.of(
                 FetchProductResponse.of(
                         product.getProductId(),
-                        product.getProductImageUrl(),
+                        productImageUrl,
                         product.getProductName(),
                         product.getProductPrice(),
                         product.getCreatedAt()

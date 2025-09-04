@@ -27,13 +27,12 @@ public class CreateProductRequest {
     private Map<String, String> options;
     private List<MultipartFile> image;
 
-    public Product toProduct( Brand brand, String imageUrl) {
+    public Product toProduct(Brand brand) {
         return new Product(
                 this.name,
                 this.description,
                 this.origin,
                 this.price,
-                imageUrl,
                 brand
         );
     }
