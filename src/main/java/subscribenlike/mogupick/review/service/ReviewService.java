@@ -13,6 +13,8 @@ import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.domain.ProductMedia;
 import subscribenlike.mogupick.product.repository.ProductRepository;
+import subscribenlike.mogupick.review.common.ReviewErrorCode;
+import subscribenlike.mogupick.review.common.ReviewException;
 import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.domain.ReviewLike;
 import subscribenlike.mogupick.review.domain.ReviewMedia;
@@ -170,5 +172,32 @@ public class ReviewService {
                 .productReviewCount(reviewCount)
                 .reviews(reviewPage.getContent())
                 .build();
+    }
+
+    @Transactional
+    public void addLikeToReview(Long reviewId, Long memberId) {
+        Member member = memberRepository.findOrThrow(memberId);
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        // 이미 좋아요가 있는지 확인
+        boolean alreadyLiked = reviewLikeRepository.findByReviewIdAndMemberId(reviewId, memberId).isPresent();
+        if (alreadyLiked) {
+            throw new ReviewException(ReviewErrorCode.REVIEW_LIKE_ALREADY_EXISTS);
+        }
+
+        // 좋아요 생성 및 저장
+        ReviewLike reviewLike = new ReviewLike(review, member);
+        reviewLikeRepository.save(reviewLike);
+    }
+
+    @Transactional
+    public void removeLikeFromReview(Long reviewId, Long memberId) {
+        // 좋아요가 있는지 확인
+        ReviewLike reviewLike = reviewLikeRepository.findByReviewIdAndMemberId(reviewId, memberId)
+                .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_LIKE_NOT_FOUND));
+
+        // 좋아요 삭제
+        reviewLikeRepository.delete(reviewLike);
     }
 }
