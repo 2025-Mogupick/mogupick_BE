@@ -4,16 +4,17 @@ package subscribenlike.mogupick.product.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import subscribenlike.mogupick.common.model.PaginatedResponse;
 import subscribenlike.mogupick.common.success.SuccessResponse;
+import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.product.common.ProductViewCountSuccessCode;
 import subscribenlike.mogupick.product.model.FetchProductMostDailyViewStatChangeResponse;
 import subscribenlike.mogupick.product.service.ProductViewCountService;
@@ -34,9 +35,9 @@ public class ProductViewCountController {
     })
     @PutMapping("/{productId}/increment")
     public ResponseEntity<SuccessResponse<Void>> updateProductViewCount(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long productId) {
-        productViewCountService.incrementProductViewCount(productId, memberId);
+        productViewCountService.incrementProductViewCount(productId, userDetails.getMemberId());
         return ResponseEntity
                 .status(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED.getStatus())
                 .body(SuccessResponse.from(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED));
@@ -52,7 +53,7 @@ public class ProductViewCountController {
     @GetMapping("/most-daily-view-stat-change")
     public ResponseEntity<SuccessResponse<PaginatedResponse<FetchProductMostDailyViewStatChangeResponse>>> fetchMostDailyViewStatChange(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @Min(1) @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FetchProductMostDailyViewStatChangeResponse> response =
                 productViewCountService.getMostDailyViewStatChangeProduct(pageable);

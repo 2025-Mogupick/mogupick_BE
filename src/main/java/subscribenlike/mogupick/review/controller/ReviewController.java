@@ -8,8 +8,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import subscribenlike.mogupick.common.success.SuccessResponse;
+import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.review.common.ReviewSuccessCode;
 import subscribenlike.mogupick.review.model.CreateReviewRequest;
 import subscribenlike.mogupick.review.model.FetchProductReviewsResponse;
@@ -38,7 +42,7 @@ public class ReviewController {
             )
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<SuccessResponse<Void>> createReview(@ModelAttribute CreateReviewRequest request) {
+    public ResponseEntity<SuccessResponse<Void>> createReview(@ModelAttribute CreateReviewRequest request) throws IOException {
         reviewService.createReview(request);
 
         return ResponseEntity
@@ -60,12 +64,12 @@ public class ReviewController {
     @GetMapping("/products/{productId}")
     public ResponseEntity<SuccessResponse<FetchProductReviewsResponse>> getProductReviews(
             @PathVariable Long productId,
-            @RequestParam Long memberId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        FetchProductReviewsResponse response = reviewService.getProductReviewsWithStats(productId, memberId, pageable);
+        FetchProductReviewsResponse response = reviewService.getProductReviewsWithStats(productId, userDetails.getMemberId(), pageable);
 
         return ResponseEntity
                 .status(200)
