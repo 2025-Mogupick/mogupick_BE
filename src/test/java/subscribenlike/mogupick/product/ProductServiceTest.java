@@ -3,6 +3,9 @@ package subscribenlike.mogupick.product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import subscribenlike.mogupick.brand.BrandFixture;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
@@ -25,6 +28,7 @@ import subscribenlike.mogupick.review.repository.ReviewRepository;
 import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.support.annotation.ServiceTest;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -72,15 +76,15 @@ class ProductServiceTest {
         reviewRepository.save(review);
 
         // When
-        List<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(LocalDateTime.now().getMonthValue());
+        Page<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(LocalDateTime.now().getMonthValue(), PageRequest.of(0, 10));
 
         // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).product().productId()).isEqualTo(product.getId());
-        assertThat(result.get(0).product().productName()).isEqualTo("쿠팡 구독 서비스");
-        assertThat(result.get(0).brand().brandName()).isEqualTo("쿠팡");
-        assertThat(result.get(0).review().rating()).isEqualTo(4.5);
-        assertThat(result.get(0).review().reviewCount()).isEqualTo(1);
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).product().productId()).isEqualTo(product.getId());
+        assertThat(result.getContent().get(0).product().productName()).isEqualTo("쿠팡 구독 서비스");
+        assertThat(result.getContent().get(0).brand().brandName()).isEqualTo("쿠팡");
+        assertThat(result.getContent().get(0).review().rating()).isEqualTo(4.5);
+        assertThat(result.getContent().get(0).review().reviewCount()).isEqualTo(1);
     }
 
     @Test
@@ -96,10 +100,10 @@ class ProductServiceTest {
         productRepository.save(product);
 
         // When - 다른 달로 조회
-        List<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(12);
+        Page<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(12, PageRequest.of(0, 10));
 
         // Then
-        assertThat(result).isEmpty();
+        assertThat(result.getContent()).isEmpty();
     }
 
     @Test
@@ -124,13 +128,13 @@ class ProductServiceTest {
         reviewRepository.save(review2);
 
         // When
-        List<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(LocalDateTime.now().getMonthValue());
+        Page<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(LocalDateTime.now().getMonthValue(), PageRequest.of(0, 10));
 
         // Then
-        assertThat(result).hasSize(2);
-        assertThat(result).extracting("product.productName")
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent()).extracting("product.productName")
                 .containsExactlyInAnyOrder("쿠팡 구독 서비스", "네이버 구독 서비스");
-        assertThat(result).extracting("brand.brandName")
+        assertThat(result.getContent()).extracting("brand.brandName")
                 .containsExactlyInAnyOrder("쿠팡", "네이버");
     }
 
@@ -147,17 +151,17 @@ class ProductServiceTest {
         productRepository.save(product);
 
         // When
-        List<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(LocalDateTime.now().getMonthValue());
+        Page<FetchNewProductsInMonthResponse> result = productService.findAllNewProductsInMonth(LocalDateTime.now().getMonthValue(), PageRequest.of(0, 10));
 
         // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).product().productId()).isEqualTo(product.getId());
-        assertThat(result.get(0).review().rating()).isEqualTo(0.0);
-        assertThat(result.get(0).review().reviewCount()).isEqualTo(0);
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).product().productId()).isEqualTo(product.getId());
+        assertThat(result.getContent().get(0).review().rating()).isEqualTo(0.0);
+        assertThat(result.getContent().get(0).review().reviewCount()).isEqualTo(0);
     }
 
     @Test
-    void 상품을_생성할_수_있다() {
+    void 상품을_생성할_수_있다() throws IOException {
         // Given
         Member member = ProductTestMemberFixture.김회원();
         memberRepository.save(member);
@@ -181,7 +185,7 @@ class ProductServiceTest {
                 "한국",
                 15000,
                 Map.of("PRICE", "15000원", "RATING", "4.5"),
-                image
+                List.of(image)
         );
 
         // Mock ProductOptionRepository
@@ -190,7 +194,7 @@ class ProductServiceTest {
         when(productOptionRepository.save(any(ProductOption.class))).thenReturn(mockProductOption);
 
         // When
-        productService.createProduct(request, image);
+        productService.createProduct(request);
 
         // Then
         assertThat(productRepository.count()).isEqualTo(1);
@@ -255,13 +259,13 @@ class ProductServiceTest {
                 .thenReturn(List.of(option1, option2));
 
         // When
-        List<ProductWithOptionResponse> result = productService.findProductWithOptionByRootCategory(RootCategory.CONVENIENCE_FOOD);
+        Page<ProductWithOptionResponse> result = productService.findProductWithOptionByRootCategory(RootCategory.CONVENIENCE_FOOD, PageRequest.of(0, 10));
 
         // Then
-        assertThat(result).hasSize(2);
-        assertThat(result).extracting("product.name")
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent()).extracting("product.name")
                 .containsExactlyInAnyOrder("쿠팡 구독 서비스", "네이버 구독 서비스");
-        assertThat(result).extracting("option.rootCategory")
+        assertThat(result.getContent()).extracting("option.rootCategory")
                 .containsOnly(RootCategory.CONVENIENCE_FOOD);
     }
 
@@ -272,10 +276,10 @@ class ProductServiceTest {
         when(productOptionRepository.findAllByRootCategory(emptyCategory)).thenReturn(List.of());
 
         // When
-        List<ProductWithOptionResponse> result = productService.findProductWithOptionByRootCategory(emptyCategory);
+        Page<ProductWithOptionResponse> result = productService.findProductWithOptionByRootCategory(emptyCategory, PageRequest.of(0, 10));
 
         // Then
-        assertThat(result).isEmpty();
+        assertThat(result.getContent()).isEmpty();
     }
 
     @Test
@@ -298,11 +302,11 @@ class ProductServiceTest {
                 "한국",
                 15000,
                 Map.of("PRICE", "15000원", "RATING", "4.5"),
-                image
+                List.of(image)
         );
 
         // When & Then
-        assertThatThrownBy(() -> productService.createProduct(request, image))
+        assertThatThrownBy(() -> productService.createProduct(request))
                 .isInstanceOf(org.springframework.dao.InvalidDataAccessApiUsageException.class);
     }
 
@@ -331,7 +335,7 @@ class ProductServiceTest {
                 "한국",
                 15000,
                 Map.of("INVALID_OPTION", "잘못된 옵션"), // 유효하지 않은 옵션
-                image
+                List.of(image)
         );
 
         // Mock CategoryService에서 예외 발생
@@ -340,12 +344,12 @@ class ProductServiceTest {
                         subscribenlike.mogupick.category.common.exception.CategoryErrorCode.INVALID_INPUT_VALUE));
 
         // When & Then
-        assertThatThrownBy(() -> productService.createProduct(request, image))
+        assertThatThrownBy(() -> productService.createProduct(request))
                 .isInstanceOf(subscribenlike.mogupick.category.common.exception.CategoryException.class);
     }
 
     @Test
-    void 상품_생성_시_이미지가_null이어도_상품은_생성된다() {
+    void 상품_생성_시_이미지가_null이어도_상품은_생성된다() throws IOException {
         // Given
         Member member = ProductTestMemberFixture.김회원();
         memberRepository.save(member);
@@ -371,7 +375,7 @@ class ProductServiceTest {
         when(productOptionRepository.save(any(ProductOption.class))).thenReturn(mockProductOption);
 
         // When
-        productService.createProduct(request, null);
+        productService.createProduct(request);
 
         // Then
         assertThat(productRepository.count()).isEqualTo(1);
