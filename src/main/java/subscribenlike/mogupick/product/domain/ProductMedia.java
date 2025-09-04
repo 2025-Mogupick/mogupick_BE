@@ -2,6 +2,7 @@ package subscribenlike.mogupick.product.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
@@ -18,4 +19,10 @@ public class ProductMedia extends BaseEntity {
 
     @ManyToOne
     private Product product;
+
+    @Builder
+    public ProductMedia(String imageUrl, Product product) {
+        this.imageUrl = imageUrl;
+        this.product = product;
+    }
 }
