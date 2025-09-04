@@ -12,6 +12,7 @@ import subscribenlike.mogupick.brand.domain.QBrand;
 import subscribenlike.mogupick.member.domain.QMember;
 import subscribenlike.mogupick.product.domain.QMemberProductViewCount;
 import subscribenlike.mogupick.product.domain.QProduct;
+import subscribenlike.mogupick.product.domain.QProductMedia;
 import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
 import subscribenlike.mogupick.review.domain.QReview;
 
@@ -28,7 +29,7 @@ public class MemberProductViewCountQuerydslRepositoryImpl implements MemberProdu
         List<RecentlyViewProductsQueryResult> content = query
                 .select(Projections.constructor(RecentlyViewProductsQueryResult.class,
                         QProduct.product.id,
-                        QProduct.product.imageUrl,
+                        QProductMedia.productMedia.imageUrl,
                         QProduct.product.name,
                         QProduct.product.price,
                         QProduct.product.brand.id,
@@ -42,11 +43,12 @@ public class MemberProductViewCountQuerydslRepositoryImpl implements MemberProdu
                 .join(QMemberProductViewCount.memberProductViewCount.product, QProduct.product)
                 .join(QMemberProductViewCount.memberProductViewCount.member, QMember.member)
                 .leftJoin(QProduct.product.brand, QBrand.brand)
+                .leftJoin(QProductMedia.productMedia).on(QProductMedia.productMedia.product.eq(QProduct.product))
                 .leftJoin(QReview.review).on(QReview.review.product.eq(QProduct.product))
                 .where(QMember.member.id.eq(memberId))
                 .groupBy(
                         QProduct.product.id,
-                        QProduct.product.imageUrl,
+                        QProductMedia.productMedia.imageUrl,
                         QProduct.product.name,
                         QProduct.product.price,
                         QProduct.product.brand.id,

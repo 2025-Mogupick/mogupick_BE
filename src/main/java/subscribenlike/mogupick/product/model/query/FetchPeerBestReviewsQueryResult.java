@@ -15,4 +15,5 @@ public interface FetchPeerBestReviewsQueryResult {
     LocalDateTime getReviewCreatedAt();
     Long getLikeCount();
     Long getReviewCount();
+    String getProductImageUrl();
 }

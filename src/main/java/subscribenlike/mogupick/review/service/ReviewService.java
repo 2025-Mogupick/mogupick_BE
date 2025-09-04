@@ -1,27 +1,25 @@
 package subscribenlike.mogupick.review.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import subscribenlike.mogupick.member.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.review.domain.Review;
+import subscribenlike.mogupick.review.domain.ReviewMedia;
 import subscribenlike.mogupick.review.model.CreateReviewRequest;
-import subscribenlike.mogupick.review.repository.ReviewRepository;
-
-import subscribenlike.mogupick.review.domain.ReviewLike;
 import subscribenlike.mogupick.review.model.FetchProductReviewsResponse;
 import subscribenlike.mogupick.review.repository.ReviewLikeRepository;
+import subscribenlike.mogupick.review.repository.ReviewMediaRepository;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,9 +32,51 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewMediaRepository reviewMediaRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+
+    @Transactional
+    public void createReview(CreateReviewRequest request) throws IOException {
+        Member member = memberRepository.findOrThrow(request.getMemberId());
+        Product product = productRepository.getById(request.getProductId());
+
+        // 리뷰 생성
+        Review review = new Review(
+                request.getContent(),
+                request.getScore(),
+                member,
+                product
+        );
+
+        Review savedReview = reviewRepository.save(review);
+
+        // 다중 이미지 업로드 및 ReviewMedia 생성
+        uploadAndSaveReviewImages(request.getImages(), savedReview);
+    }
+
+    private void uploadAndSaveReviewImages(List<MultipartFile> images, Review review) throws IOException {
+        if (images == null || images.isEmpty()) {
+            return; // 이미지가 없는 경우 아무것도 하지 않음
+        }
+
+        List<ReviewMedia> reviewMedias = images.stream()
+                .filter(image -> !image.isEmpty())
+                .map(image -> {
+                    // 테스트용 더미 URL 생성
+                    String imageUrl = "https://test-bucket.s3.amazonaws.com/" + image.getOriginalFilename();
+                    return ReviewMedia.builder()
+                            .imageUrl(imageUrl)
+                            .review(review)
+                            .build();
+                })
+                .toList();
+
+        if (!reviewMedias.isEmpty()) {
+            reviewMediaRepository.saveAll(reviewMedias);
+        }
+    }
 
     public Page<FetchProductReviewsResponse.ReviewResponse> getProductReviews(Long productId, Long currentMemberId, Pageable pageable) {
         Product product = productRepository.getById(productId);
@@ -81,13 +121,16 @@ public class ReviewService {
         Boolean isLiked = likedReviewIds.contains(review.getId());
         String timeAgo = calculateTimeAgo(review.getCreatedAt());
 
+        // 리뷰 이미지 URL 리스트 조회
+        List<String> reviewImageUrls = reviewMediaRepository.findImageUrlsByReviewId(review.getId());
+
         return FetchProductReviewsResponse.ReviewResponse.builder()
                 .reviewId(review.getId())
                 .memberName(review.getMember().getName())
                 .memberProfileImageUrl(review.getMember().getProfileImage())
                 .reviewScore(review.getScore())
                 .reviewContent(review.getContent())
-                .reviewImageUrls(null) // TODO: 다중 이미지 지원 시 구현
+                .reviewImageUrls(reviewImageUrls)
                 .isLikedByCurrentMember(isLiked)
                 .likeCount(likeCount)
                 .timeAgo(timeAgo)
