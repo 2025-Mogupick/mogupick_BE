@@ -38,7 +38,7 @@ public class ReviewController {
             )
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createReview(@ModelAttribute CreateReviewRequest request) {
+    public ResponseEntity<SuccessResponse<Void>> createReview(@ModelAttribute CreateReviewRequest request) {
         reviewService.createReview(request);
 
         return ResponseEntity
@@ -58,7 +58,7 @@ public class ReviewController {
             )
     })
     @GetMapping("/products/{productId}")
-    public ResponseEntity<?> getProductReviews(
+    public ResponseEntity<SuccessResponse<FetchProductReviewsResponse>> getProductReviews(
             @PathVariable Long productId,
             @RequestParam Long memberId,
             @RequestParam(defaultValue = "0") int page,

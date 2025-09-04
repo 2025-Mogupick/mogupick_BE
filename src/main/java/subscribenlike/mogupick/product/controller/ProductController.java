@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.common.success.SuccessResponse;
@@ -17,6 +19,7 @@ import subscribenlike.mogupick.product.service.ProductService;
 import subscribenlike.mogupick.product.common.ProductSuccessCode;
 import subscribenlike.mogupick.product.model.FetchNewProductsInMonthResponse;
 import subscribenlike.mogupick.product.model.FetchProductDetailResponse;
+import subscribenlike.mogupick.common.model.PaginatedResponse;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -43,14 +46,17 @@ public class ProductController {
             )
     })
     @GetMapping("/new")
-    public ResponseEntity<?> getNewSubscriptionProducts() {
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchNewProductsInMonthResponse>>> getNewSubscriptionProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         LocalDate now = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        List<FetchNewProductsInMonthResponse> response =
-                productService.findAllNewProductsInMonth(now.getMonthValue());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FetchNewProductsInMonthResponse> response =
+                productService.findAllNewProductsInMonth(now.getMonthValue(), pageable);
 
         return ResponseEntity
-                .status(200)
-                .body(SuccessResponse.from(ProductSuccessCode.NEW_PRODUCTS_IN_MONTH_FETCHED, response));
+                .status(ProductSuccessCode.NEW_PRODUCTS_IN_MONTH_FETCHED.getStatus())
+                .body(SuccessResponse.from(ProductSuccessCode.NEW_PRODUCTS_IN_MONTH_FETCHED, PaginatedResponse.from(response)));
     }
 
     @Operation(summary = "내 또래 상품 베스트 리뷰 조회", description = "내 또래 상품 베스트 리뷰를 상위 10개 조회합니다.")
@@ -61,13 +67,17 @@ public class ProductController {
             )
     })
     @GetMapping("/peer-best-reviews")
-    public ResponseEntity<?> fetchPeerBestReviews(@RequestParam Long memberId) {
-        List<FetchPeerBestReviewsResponse> response =
-                productService.fetchPeerBestReview(memberId, 10);
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchPeerBestReviewsResponse>>> fetchPeerBestReviews(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FetchPeerBestReviewsResponse> response =
+                productService.fetchPeerBestReview(memberId, pageable);
 
         return ResponseEntity
-                .status(200)
-                .body(SuccessResponse.from(ProductSuccessCode.PEER_BEST_REVIEW_FETCHED, response));
+                .status(ProductSuccessCode.PEER_BEST_REVIEW_FETCHED.getStatus())
+                .body(SuccessResponse.from(ProductSuccessCode.PEER_BEST_REVIEW_FETCHED, PaginatedResponse.from(response)));
     }
 
     @Operation(summary = "루트 카테고리에 대한 상품 목록 조회", description = "하나의 루트 카테고리에 대한 상품 목록을 조회합니다.")
@@ -78,15 +88,17 @@ public class ProductController {
             )
     })
     @GetMapping("/category")
-    public ResponseEntity<?> createProduct(
-            @RequestParam RootCategory rootCategory) {
-
-        List<ProductWithOptionResponse> response =
-                productService.findProductWithOptionByRootCategory(rootCategory);
+    public ResponseEntity<SuccessResponse<PaginatedResponse<ProductWithOptionResponse>>> createProduct(
+            @RequestParam RootCategory rootCategory,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductWithOptionResponse> response =
+                productService.findProductWithOptionByRootCategory(rootCategory, pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.PRODUCT_GROUP_BY_ROOT_CATEGORY_FETCHED.getStatus())
-                .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_GROUP_BY_ROOT_CATEGORY_FETCHED, response));
+                .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_GROUP_BY_ROOT_CATEGORY_FETCHED, PaginatedResponse.from(response)));
     }
 
 
@@ -98,10 +110,10 @@ public class ProductController {
             )
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createProduct(
+    public ResponseEntity<SuccessResponse<Void>> createProduct(
             @ModelAttribute CreateProductRequest request) {
 
-        productService.createProduct(request, request.getImage());
+        productService.createProduct(request);
 
         return ResponseEntity
                 .status(ProductSuccessCode.PRODUCT_CREATED.getStatus())
@@ -116,8 +128,8 @@ public class ProductController {
             )
     })
     @GetMapping("/recently-viewed")
-    public ResponseEntity<?> getRecentlyViewedProducts(
-            @RequestParam Long memberId,
+    public ResponseEntity<SuccessResponse<Page<RecentlyViewProductsQueryResult>>> getRecentlyViewedProducts(
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
@@ -126,7 +138,7 @@ public class ProductController {
                 productService.fetchRecentlyViewedProducts(memberId, pageable);
 
         return ResponseEntity
-                .status(200)
+                .status(ProductSuccessCode.RECENTLY_VIEWED_PRODUCTS_FETCHED.getStatus())
                 .body(SuccessResponse.from(ProductSuccessCode.RECENTLY_VIEWED_PRODUCTS_FETCHED, response));
     }
 
@@ -142,11 +154,11 @@ public class ProductController {
             )
     })
     @GetMapping("/{productId}/detail")
-    public ResponseEntity<?> getProductDetail(@PathVariable Long productId) {
+    public ResponseEntity<SuccessResponse<FetchProductDetailResponse>> getProductDetail(@PathVariable Long productId) {
         FetchProductDetailResponse response = productService.findProductDetailById(productId);
 
         return ResponseEntity
-                .status(200)
+                .status(ProductSuccessCode.PRODUCT_DETAIL_FETCHED.getStatus())
                 .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_DETAIL_FETCHED, response));
     }
 
