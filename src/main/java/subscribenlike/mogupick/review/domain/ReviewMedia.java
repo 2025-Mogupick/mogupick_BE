@@ -2,6 +2,7 @@ package subscribenlike.mogupick.review.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
@@ -13,8 +14,15 @@ public class ReviewMedia extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String imageUrl;
 
     @ManyToOne
     private Review review;
+
+    @Builder
+    public ReviewMedia(String imageUrl, Review review) {
+        this.imageUrl = imageUrl;
+        this.review = review;
+    }
 }
