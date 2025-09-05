@@ -11,6 +11,7 @@ import subscribenlike.mogupick.category.common.sucess.CategorySuccessCode;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.category.model.CategoryOptionAndFilterResponse;
 import subscribenlike.mogupick.category.model.CategoryOptionResponse;
+import subscribenlike.mogupick.category.model.CategoryOptionsResponse;
 import subscribenlike.mogupick.category.model.RootCategoryResponse;
 import subscribenlike.mogupick.common.success.SuccessResponse;
 
@@ -33,13 +34,13 @@ public class CategoryController {
     public ResponseEntity<SuccessResponse<List<CategoryOptionResponse>>> getOptions(@RequestParam RootCategory rootCategory){
         return ResponseEntity
                 .status(CategorySuccessCode.CATEGORY_OPTIONS_FETCHED.getStatus())
-                .body(SuccessResponse.from(CategorySuccessCode.CATEGORY_OPTIONS_FETCHED,categoryService.getCategoryOptionDtoByRootCategory(rootCategory)));
+                .body(SuccessResponse.from(CategorySuccessCode.CATEGORY_OPTIONS_FETCHED,categoryService.getOptionByRootCategory(rootCategory)));
     }
 
     @GetMapping("/options-filters")
-    public ResponseEntity<SuccessResponse<List<CategoryOptionAndFilterResponse>>> getOptionsAndFilters(@RequestParam RootCategory rootCategory){
+    public ResponseEntity<SuccessResponse<CategoryOptionsResponse>> getOptionsAndFilters(@RequestParam RootCategory rootCategory){
         return ResponseEntity
                 .status(CategorySuccessCode.CATEGORY_OPTIONS_AND_FILTERS_FETCHED.getStatus())
-                .body(SuccessResponse.from(CategorySuccessCode.CATEGORY_OPTIONS_AND_FILTERS_FETCHED,categoryService.getFiltersByRootCategoryAndOption(rootCategory)));
+                .body(SuccessResponse.from(CategorySuccessCode.CATEGORY_OPTIONS_AND_FILTERS_FETCHED,categoryService.getAllOptionsAndFiltersByRootCategory(rootCategory)));
     }
 }
