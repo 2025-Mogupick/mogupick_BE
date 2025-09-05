@@ -1,6 +1,7 @@
 package subscribenlike.mogupick.global.dto;
 
 import lombok.Getter;
+import subscribenlike.mogupick.common.success.SuccessCode;
 
 @Getter
 public class GlobalResponse<T> {
@@ -15,11 +16,23 @@ public class GlobalResponse<T> {
         this.data = data;
     }
 
-    public static <T> GlobalResponse<T> success(T data) {
-        return new GlobalResponse<>(200, "success", data);
-    }
-
     public static GlobalResponse<?> error(int status, String message) {
         return new GlobalResponse<>(status, message, null);
+    }
+
+    public static <T> GlobalResponse<T> from(SuccessCode successCode, T data) {
+        return new GlobalResponse<>(
+                successCode.getStatus().value(),
+                successCode.getMessage(),
+                data
+        );
+    }
+
+    public static GlobalResponse<Void> from(SuccessCode successCode) {
+        return new GlobalResponse<>(
+                successCode.getStatus().value(),
+                successCode.getMessage(),
+                null
+        );
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import subscribenlike.mogupick.auth.common.exception.AuthErrorCode;
+import subscribenlike.mogupick.auth.common.exception.AuthException;
 import subscribenlike.mogupick.auth.dto.SocialLoginRequest;
 import subscribenlike.mogupick.auth.dto.TokenReissueDto;
 import subscribenlike.mogupick.global.jwt.JwtProvider;
@@ -39,7 +41,6 @@ public class AuthService {
 
     @Transactional
     public void logout(String email) {
-
         Member member = memberRepository.findByEmailOrThrow(email);
         member.updateRefreshToken(null);
     }
@@ -48,11 +49,11 @@ public class AuthService {
     public TokenInfo reissue(TokenReissueDto tokenReissueDto) {
         String refreshToken = tokenReissueDto.getRefreshToken();
         if (!jwtProvider.validateToken(refreshToken)) {
-            throw new IllegalArgumentException("유효하지 않은 Refresh Token 입니다.");
+            throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         Member member = memberRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("해당 Refresh Token을 가진 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND_FOR_TOKEN));
 
         GrantedAuthority authority = new SimpleGrantedAuthority(member.getRole().name());
         Authentication authentication = new UsernamePasswordAuthenticationToken(member.getEmail(), null, Collections.singleton(authority));
@@ -67,7 +68,7 @@ public class AuthService {
     public TokenInfo socialLogin(SocialLoginRequest request) {
         OAuthClient client = clients.get(request.getProvider());
         if (client == null) {
-            throw new IllegalArgumentException("지원하지 않는 소셜 로그인입니다.");
+            throw new AuthException(AuthErrorCode.UNSUPPORTED_SOCIAL_LOGIN);
         }
 
         Map<String, Object> userAttributes = client.getOAuthUserAttributes(request.getAccessToken());

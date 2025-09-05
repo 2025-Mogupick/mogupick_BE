@@ -3,6 +3,8 @@ package subscribenlike.mogupick.member.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import subscribenlike.mogupick.member.common.exception.MemberErrorCode;
+import subscribenlike.mogupick.member.common.exception.MemberException;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.dto.MemberResponse;
 import subscribenlike.mogupick.member.dto.MemberUpdateRequest;
@@ -16,14 +18,16 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public MemberResponse getMemberInfo(String email) {
-        Member member = memberRepository.findByEmailOrThrow(email);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         return new MemberResponse(member);
     }
 
     @Transactional
     public void updateNickname(String email, MemberUpdateRequest request) {
-        Member member = memberRepository.findByEmailOrThrow(email);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         member.updateNickname(request.getNickname());
     }
