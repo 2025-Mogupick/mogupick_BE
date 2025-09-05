@@ -75,4 +75,54 @@ public class ReviewController {
                 .status(200)
                 .body(SuccessResponse.from(ReviewSuccessCode.PRODUCT_REVIEWS_FETCHED, response));
     }
+
+    @Operation(summary = "리뷰 좋아요 추가", description = "특정 리뷰에 좋아요를 추가합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "리뷰 좋아요 추가 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "리뷰 또는 회원을 찾을 수 없음"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "이미 해당 리뷰에 좋아요를 눌렀음"
+            )
+    })
+    @PostMapping("/{reviewId}/likes")
+    public ResponseEntity<SuccessResponse<Void>> addLikeToReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        reviewService.addLikeToReview(reviewId, userDetails.getMemberId());
+
+        return ResponseEntity
+                .status(ReviewSuccessCode.REVIEW_LIKE_ADDED.getStatus())
+                .body(SuccessResponse.from(ReviewSuccessCode.REVIEW_LIKE_ADDED));
+    }
+
+    @Operation(summary = "리뷰 좋아요 제거", description = "특정 리뷰에 대한 좋아요를 제거합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "리뷰 좋아요 제거 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "리뷰 또는 회원을 찾을 수 없음, 또는 좋아요가 존재하지 않음"
+            )
+    })
+    @DeleteMapping("/{reviewId}/likes")
+    public ResponseEntity<SuccessResponse<Void>> removeLikeFromReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        reviewService.removeLikeFromReview(reviewId, userDetails.getMemberId());
+
+        return ResponseEntity
+                .status(ReviewSuccessCode.REVIEW_LIKE_REMOVED.getStatus())
+                .body(SuccessResponse.from(ReviewSuccessCode.REVIEW_LIKE_REMOVED));
+    }
 }

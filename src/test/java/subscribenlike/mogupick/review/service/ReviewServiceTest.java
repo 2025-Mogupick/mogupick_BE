@@ -11,6 +11,7 @@ import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.domain.ReviewLike;
+import subscribenlike.mogupick.review.common.ReviewException;
 import subscribenlike.mogupick.review.model.FetchProductReviewsResponse;
 import subscribenlike.mogupick.review.repository.ReviewLikeRepository;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
@@ -19,7 +20,9 @@ import subscribenlike.mogupick.support.fixture.BrandFixture;
 import subscribenlike.mogupick.support.fixture.MemberFixture;
 import subscribenlike.mogupick.support.fixture.ProductFixture;
 import subscribenlike.mogupick.support.fixture.ReviewFixture;
+import subscribenlike.mogupick.review.ReviewLikeFixture;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ServiceTest
 class ReviewServiceTest {
@@ -127,5 +130,109 @@ class ReviewServiceTest {
         // Then: 결과 검증
         assertThat(result.productReviewCount()).isEqualTo(5);
         assertThat(result.reviews()).hasSize(3); // 페이지 크기만큼만 반환
+    }
+
+    @Test
+    void 리뷰에_좋아요를_추가할_수_있다() {
+        // Given: 테스트 데이터 준비
+        Member member = memberRepository.save(MemberFixture.김회원());
+        Member otherMember = memberRepository.save(MemberFixture.김모구());
+        Brand brand = brandRepository.save(BrandFixture.쿠팡(member));
+        Product product = productRepository.save(ProductFixture.구독상품1(brand));
+        Review review = reviewRepository.save(ReviewFixture.상품리뷰1(member, product));
+
+        // 좋아요가 없는 상태 확인
+        assertThat(reviewLikeRepository.countByReviewId(review.getId())).isEqualTo(0);
+
+        // When: 리뷰에 좋아요 추가
+        reviewService.addLikeToReview(review.getId(), otherMember.getId());
+
+        // Then: 좋아요가 정상적으로 추가되었는지 검증
+        assertThat(reviewLikeRepository.countByReviewId(review.getId())).isEqualTo(1);
+        assertThat(reviewLikeRepository.findByReviewIdAndMemberId(review.getId(), otherMember.getId())).isPresent();
+    }
+
+    @Test
+    void 이미_좋아요가_있는_리뷰에_다시_좋아요를_추가하면_실패한다() {
+        // Given: 이미 좋아요가 있는 리뷰
+        Member member = memberRepository.save(MemberFixture.김회원());
+        Member otherMember = memberRepository.save(MemberFixture.김모구());
+        Brand brand = brandRepository.save(BrandFixture.쿠팡(member));
+        Product product = productRepository.save(ProductFixture.구독상품1(brand));
+        Review review = reviewRepository.save(ReviewFixture.상품리뷰1(member, product));
+
+        // 먼저 좋아요 추가
+        reviewLikeRepository.save(ReviewLikeFixture.기본좋아요(review, otherMember));
+
+        // When & Then: 같은 리뷰에 다시 좋아요 추가 시도하면 예외 발생
+        assertThatThrownBy(() -> reviewService.addLikeToReview(review.getId(), otherMember.getId()))
+                .isInstanceOf(ReviewException.class)
+                .hasMessageContaining("이미 해당 리뷰에 좋아요를 눌렀습니다");
+    }
+
+    @Test
+    void 리뷰의_좋아요를_제거할_수_있다() {
+        // Given: 좋아요가 있는 리뷰
+        Member member = memberRepository.save(MemberFixture.김회원());
+        Member otherMember = memberRepository.save(MemberFixture.김모구());
+        Brand brand = brandRepository.save(BrandFixture.쿠팡(member));
+        Product product = productRepository.save(ProductFixture.구독상품1(brand));
+        Review review = reviewRepository.save(ReviewFixture.상품리뷰1(member, product));
+
+        // 좋아요 추가
+        ReviewLike reviewLike = reviewLikeRepository.save(ReviewLikeFixture.기본좋아요(review, otherMember));
+
+        // 좋아요가 정상적으로 추가되었는지 확인
+        assertThat(reviewLikeRepository.countByReviewId(review.getId())).isEqualTo(1);
+        assertThat(reviewLikeRepository.findByReviewIdAndMemberId(review.getId(), otherMember.getId())).isPresent();
+
+        // When: 리뷰 좋아요 제거
+        reviewService.removeLikeFromReview(review.getId(), otherMember.getId());
+
+        // Then: 좋아요가 정상적으로 제거되었는지 검증
+        assertThat(reviewLikeRepository.countByReviewId(review.getId())).isEqualTo(0);
+        assertThat(reviewLikeRepository.findByReviewIdAndMemberId(review.getId(), otherMember.getId())).isEmpty();
+    }
+
+    @Test
+    void 좋아요가_없는_리뷰의_좋아요를_제거하면_실패한다() {
+        // Given: 좋아요가 없는 리뷰
+        Member member = memberRepository.save(MemberFixture.김회원());
+        Member otherMember = memberRepository.save(MemberFixture.김모구());
+        Brand brand = brandRepository.save(BrandFixture.쿠팡(member));
+        Product product = productRepository.save(ProductFixture.구독상품1(brand));
+        Review review = reviewRepository.save(ReviewFixture.상품리뷰1(member, product));
+
+        // 좋아요가 없는 상태 확인
+        assertThat(reviewLikeRepository.countByReviewId(review.getId())).isEqualTo(0);
+
+        // When & Then: 좋아요가 없는 리뷰의 좋아요 제거 시도하면 예외 발생
+        assertThatThrownBy(() -> reviewService.removeLikeFromReview(review.getId(), otherMember.getId()))
+                .isInstanceOf(ReviewException.class)
+                .hasMessageContaining("해당 리뷰에 대한 좋아요가 존재하지 않습니다");
+    }
+
+    @Test
+    void 존재하지_않는_리뷰에_좋아요를_추가하면_실패한다() {
+        // Given: 존재하지 않는 리뷰 ID
+        Member member = memberRepository.save(MemberFixture.김회원());
+        Long nonExistentReviewId = 999L;
+
+        // When & Then: 존재하지 않는 리뷰에 좋아요 추가 시도하면 예외 발생
+        assertThatThrownBy(() -> reviewService.addLikeToReview(nonExistentReviewId, member.getId()))
+                .isInstanceOf(ReviewException.class)
+                .hasMessageContaining("존재하지 않는 리뷰입니다");
+    }
+
+    @Test
+    void 존재하지_않는_리뷰의_좋아요를_제거하면_실패한다() {
+        // Given: 존재하지 않는 리뷰 ID
+        Member member = memberRepository.save(MemberFixture.김회원());
+        Long nonExistentReviewId = 999L;
+
+        // When & Then: 존재하지 않는 리뷰의 좋아요 제거 시도하면 예외 발생
+        assertThatThrownBy(() -> reviewService.removeLikeFromReview(nonExistentReviewId, member.getId()))
+                .isInstanceOf(ReviewException.class)
+                .hasMessageContaining("존재하지 않는 리뷰입니다");
     }
 }
