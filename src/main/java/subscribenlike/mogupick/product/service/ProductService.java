@@ -11,6 +11,7 @@ import subscribenlike.mogupick.brand.repository.BrandRepository;
 import subscribenlike.mogupick.category.CategoryService;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import org.springframework.web.multipart.MultipartFile;
+import subscribenlike.mogupick.common.utils.S3Service;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
@@ -39,6 +40,7 @@ public class ProductService {
     private final ReviewRepository reviewRepository;
     private final BrandRepository brandRepository;
     private final MemberRepository memberRepository;
+    private final S3Service s3Service;
 
     private final CategoryService categoryService;
 
@@ -156,20 +158,12 @@ public class ProductService {
     }
 
     private void uploadAndSaveProductImages(List<MultipartFile> images, Product product) throws IOException {
-        if (images == null || images.isEmpty()) {
-            return; // 이미지가 없는 경우 아무것도 하지 않음
-        }
-
         List<ProductMedia> productMedias = images.stream()
                 .filter(image -> !image.isEmpty())
-                .map(image -> {
-                    // TODO: 테스트용 더미 URL 생성, S3Bucket 적용
-                    String imageUrl = "https://test-bucket.s3.amazonaws.com/" + image.getOriginalFilename();
-                    return ProductMedia.builder()
-                            .imageUrl(imageUrl)
+                .map(image -> ProductMedia.builder()
+                            .imageUrl(s3Service.uploadFile(image))
                             .product(product)
-                            .build();
-                })
+                            .build())
                 .toList();
 
         if (!productMedias.isEmpty()) {
