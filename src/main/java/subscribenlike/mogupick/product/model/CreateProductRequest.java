@@ -21,17 +21,14 @@ public class CreateProductRequest {
     private SubCategory subCategory;
     private Long brandId;
     private String name;
-    private String description;
-    private String origin;
     private int price;
     private Map<String, String> options;
-    private List<MultipartFile> image;
+    private List<MultipartFile> productImages;
+    private List<MultipartFile> productDescriptionImages;
 
     public Product toProduct(Brand brand) {
         return new Product(
                 this.name,
-                this.description,
-                this.origin,
                 this.price,
                 brand
         );
