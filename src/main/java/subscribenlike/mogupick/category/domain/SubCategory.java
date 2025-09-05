@@ -39,10 +39,11 @@ public enum SubCategory {
     PERSONAL_HYGIENE("개인 위생", RootCategory.HYGIENE),
     HYGIENE_CONSUMABLES("생리대/성인용 기저귀", RootCategory.HYGIENE),
 
-    DOG_FOOD("강아지 식품", RootCategory.PET_SUPPLIES),
-    CAT_FOOD("고양이 식품", RootCategory.PET_SUPPLIES),
-    PET_HYGIENE("위생·관리", RootCategory.PET_SUPPLIES),
-    PET_TOY_HOUSE("장난감·하우스", RootCategory.PET_SUPPLIES),
+    DOG_GOODS("강아지 용품", RootCategory.PET_SUPPLIES),
+    DOG_FOOD("강아지 사료 및 간식", RootCategory.PET_SUPPLIES),
+    CAT_FOOD("고양이 사료 및 간식", RootCategory.PET_SUPPLIES),
+    CAT_GOODS("고양이 용품", RootCategory.PET_SUPPLIES),
+    FISH_GOODS("관상어 용품", RootCategory.PET_SUPPLIES),
 
     DIAPER("기저귀", RootCategory.BABY_SUPPLIES),
     WIPES("물티슈", RootCategory.BABY_SUPPLIES),

@@ -8,8 +8,8 @@ import subscribenlike.mogupick.category.config.dairy_beverage.DairyBeverageCateg
 import subscribenlike.mogupick.category.config.health_supplements.HealthSupplementsCategoryOptionConfig;
 import subscribenlike.mogupick.category.config.hygiene.HygieneCategoryOptionConfig;
 import subscribenlike.mogupick.category.config.meat_seafood.MeatSeafoodCategoryOptionConfig;
-import subscribenlike.mogupick.category.config.PetSuppliesCategoryOptionConfig;
-import subscribenlike.mogupick.category.config.snack.SnackCategoryOptionConfig;
+import subscribenlike.mogupick.category.config.pet_supplies.PetSuppliesCategoryOptionConfig;
+import subscribenlike.mogupick.category.config.snack.SnacksCategoryOptionConfig;
 import subscribenlike.mogupick.category.config.fresh_food.FreshFoodCategoryOptionConfig;
 import subscribenlike.mogupick.category.domain.CategoryOption;
 import subscribenlike.mogupick.category.domain.RootCategory;
@@ -38,7 +38,7 @@ public class CategoryOptionMappingGraph {
                 RootCategory.CONVENIENCE_FOOD, new ConvenienceFoodCategoryOptionConfig(),
                 RootCategory.MEAT_SEAFOOD, new MeatSeafoodCategoryOptionConfig(),
                 RootCategory.DAIRY_BEVERAGE, new DairyBeverageCategoryOptionConfig(),
-                RootCategory.SNACK, new SnackCategoryOptionConfig(),
+                RootCategory.SNACK, new SnacksCategoryOptionConfig(),
                 RootCategory.HEALTH_SUPPLEMENTS, new HealthSupplementsCategoryOptionConfig(),
                 RootCategory.DAILY_GOODS, new DailyGoodsCategoryOptionConfig(),
                 RootCategory.HYGIENE, new HygieneCategoryOptionConfig(),

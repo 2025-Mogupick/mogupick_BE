@@ -48,8 +48,7 @@ public class HealthSupplementsCategoryOptionConfig implements CategoryOptionConf
                         CategoryOptionFilter.of("10,000원 이상-20,000원 미만", "[10000,20000)"),
                         CategoryOptionFilter.of("20,000원 이상-30,000원 미만", "[20000,30000)"),
                         CategoryOptionFilter.of("30,000원 이상-40,000원 미만", "[30000,40000)"),
-                        CategoryOptionFilter.of("40,000원 이상", "[40000,)"),
-                        CategoryOptionFilter.of("범위", "RANGE")
+                        CategoryOptionFilter.of("40,000원 이상", "[40000,)")
                 ),
                 CategoryOption.RATING, Arrays.asList(
                         CategoryOptionFilter.of("1개", "1"),
