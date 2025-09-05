@@ -11,6 +11,7 @@ import subscribenlike.mogupick.category.domain.SubCategory;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.domain.ProductOption;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -24,15 +25,14 @@ public class CreateProductRequest {
     private String origin;
     private int price;
     private Map<String, String> options;
-    private MultipartFile image;
+    private List<MultipartFile> image;
 
-    public Product toProduct( Brand brand, String imageUrl) {
+    public Product toProduct(Brand brand) {
         return new Product(
                 this.name,
                 this.description,
                 this.origin,
                 this.price,
-                imageUrl,
                 brand
         );
     }

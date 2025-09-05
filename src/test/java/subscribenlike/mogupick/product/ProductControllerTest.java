@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+
 import subscribenlike.mogupick.brand.BrandFixture;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
@@ -13,8 +14,6 @@ import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.member.ProductTestMemberFixture;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
-import subscribenlike.mogupick.product.ProductFixture;
-import subscribenlike.mogupick.product.ProductOptionFixture;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
@@ -76,12 +75,12 @@ class ProductControllerTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("status", equalTo(200))
                 .body("message", equalTo("이번 달 새로나온 구독 상품 리스트를 조회하였습니다."))
-                .body("data", hasSize(1))
-                .body("data[0].product.productId", equalTo(product.getId().intValue()))
-                .body("data[0].product.productName", equalTo("쿠팡 구독 서비스"))
-                .body("data[0].brand.brandName", equalTo("쿠팡"))
-                .body("data[0].review.rating", equalTo(4.5f))
-                .body("data[0].review.reviewCount", equalTo(1));
+                .body("data.content", hasSize(1))
+                .body("data.content[0].product.productId", equalTo(product.getId().intValue()))
+                .body("data.content[0].product.productName", equalTo("쿠팡 구독 서비스"))
+                .body("data.content[0].brand.brandName", equalTo("쿠팡"))
+                .body("data.content[0].review.rating", equalTo(4.5f))
+                .body("data.content[0].review.reviewCount", equalTo(1));
     }
 
     @Test
@@ -97,7 +96,7 @@ class ProductControllerTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("status", equalTo(200))
                 .body("message", equalTo("이번 달 새로나온 구독 상품 리스트를 조회하였습니다."))
-                .body("data", hasSize(0));
+                .body("data.content", hasSize(0));
     }
 
     @Test
@@ -130,9 +129,9 @@ class ProductControllerTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("status", equalTo(200))
                 .body("message", equalTo("이번 달 새로나온 구독 상품 리스트를 조회하였습니다."))
-                .body("data", hasSize(2))
-                .body("data.product.productName", hasItems("쿠팡 구독 서비스", "네이버 구독 서비스"))
-                .body("data.brand.brandName", hasItems("쿠팡", "네이버"));
+                .body("data.content", hasSize(2))
+                .body("data.content.product.productName", hasItems("쿠팡 구독 서비스", "네이버 구독 서비스"))
+                .body("data.content.brand.brandName", hasItems("쿠팡", "네이버"));
     }
 
     @Test
@@ -161,9 +160,9 @@ class ProductControllerTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("status", equalTo(200))
                 .body("message", equalTo("루트 카테고리의 상품 목록을 조회하였습니다."))
-                .body("data", hasSize(1))
-                .body("data[0].product.name", equalTo("쿠팡 구독 서비스"))
-                .body("data[0].option.rootCategory", equalTo("CONVENIENCE_FOOD"));
+                .body("data.content", hasSize(1))
+                .body("data.content[0].product.name", equalTo("쿠팡 구독 서비스"))
+                .body("data.content[0].option.rootCategory", equalTo("CONVENIENCE_FOOD"));
     }
 
     @Test
@@ -182,7 +181,7 @@ class ProductControllerTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("status", equalTo(200))
                 .body("message", equalTo("루트 카테고리의 상품 목록을 조회하였습니다."))
-                .body("data", hasSize(0));
+                .body("data.content", hasSize(0));
     }
 
     @Test
@@ -339,6 +338,6 @@ class ProductControllerTest {
                 .statusCode(200)
                 .body("status", equalTo(200))
                 .body("message", equalTo("내 또래 상품 베스트 리뷰 리스트를 조회하였습니다."))
-                .body("data", instanceOf(java.util.List.class));
+                .body("data.content", instanceOf(java.util.List.class));
     }
 }

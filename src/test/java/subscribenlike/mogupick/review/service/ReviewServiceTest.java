@@ -74,7 +74,7 @@ class ReviewServiceTest {
         assertThat(firstReview.memberProfileImageUrl()).isEqualTo(member1.getProfileImage());
         assertThat(firstReview.reviewScore()).isEqualTo(4.5);
         assertThat(firstReview.reviewContent()).isEqualTo("정말 좋은 상품입니다!");
-        assertThat(firstReview.reviewImageUrls()).isNull(); // 다중 이미지 지원 전이므로 null
+        assertThat(firstReview.reviewImageUrls()).isEmpty(); // 다중 이미지 지원 전이므로 null
         assertThat(firstReview.isLikedByCurrentMember()).isFalse(); // member1이 자신의 리뷰를 좋아요하지 않음
         assertThat(firstReview.likeCount()).isEqualTo(1); // member2가 좋아요
         assertThat(firstReview.timeAgo()).isNotNull();
@@ -85,7 +85,7 @@ class ReviewServiceTest {
         assertThat(secondReview.memberName()).isEqualTo(member2.getName());
         assertThat(secondReview.reviewScore()).isEqualTo(5.0);
         assertThat(secondReview.reviewContent()).isEqualTo("배송이 빨라서 좋았어요");
-        assertThat(secondReview.reviewImageUrls()).isNull();
+        assertThat(secondReview.reviewImageUrls()).isEmpty();
         assertThat(secondReview.isLikedByCurrentMember()).isTrue(); // member1이 이 리뷰를 좋아요함
         assertThat(secondReview.likeCount()).isEqualTo(1);
     }

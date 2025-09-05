@@ -25,20 +25,24 @@ public class S3Service {
         this.region = region;
     }
 
-    public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+    public String uploadFile(MultipartFile file) {
+        try{
+            String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(fileName)
-                .contentType(file.getContentType())
-                .acl(ObjectCannedACL.PUBLIC_READ)
-                .build();
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .contentType(file.getContentType())
+                    .acl(ObjectCannedACL.PUBLIC_READ)
+                    .build();
 
-        s3Client.putObject(putObjectRequest,
-                RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            s3Client.putObject(putObjectRequest,
+                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
+            return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
+        }catch (IOException e){
+            throw new RuntimeException("Failed to upload file to S3", e);
+        }
     }
 }
 

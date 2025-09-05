@@ -4,15 +4,20 @@ package subscribenlike.mogupick.product.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.common.model.PaginatedResponse;
 import subscribenlike.mogupick.common.success.SuccessResponse;
+import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.product.common.ProductViewCountSuccessCode;
 import subscribenlike.mogupick.product.model.FetchProductMostDailyViewStatChangeResponse;
 import subscribenlike.mogupick.product.service.ProductViewCountService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,25 +34,10 @@ public class ProductViewCountController {
             )
     })
     @PutMapping("/{productId}/increment")
-    public ResponseEntity<?> updateProductViewCount(@PathVariable Long productId) {
-        productViewCountService.incrementProductViewCount(productId);
-        return ResponseEntity
-                .status(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED.getStatus())
-                .body(SuccessResponse.from(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED));
-    }
-
-    @Operation(summary = "멤버별 상품 조회수 증가", description = "특정 멤버의 상품 조회수를 증가시키고 MemberProductViewCount를 생성/업데이트합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "멤버별 상품 조회수 증가 성공"
-            )
-    })
-    @PutMapping("/{productId}/member/{memberId}/increment")
-    public ResponseEntity<?> updateMemberProductViewCount(
-            @PathVariable Long productId,
-            @PathVariable Long memberId) {
-        productViewCountService.incrementProductViewCount(productId, memberId);
+    public ResponseEntity<SuccessResponse<Void>> updateProductViewCount(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long productId) {
+        productViewCountService.incrementProductViewCount(productId, userDetails.getMemberId());
         return ResponseEntity
                 .status(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED.getStatus())
                 .body(SuccessResponse.from(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED));
@@ -61,12 +51,15 @@ public class ProductViewCountController {
             )
     })
     @GetMapping("/most-daily-view-stat-change")
-    public ResponseEntity<?> fetchMostDailyViewStatChange(@RequestParam(defaultValue = "10") int size) {
-        List<FetchProductMostDailyViewStatChangeResponse> response =
-                productViewCountService.getMostDailyViewStatChangeProduct(size);
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchProductMostDailyViewStatChangeResponse>>> fetchMostDailyViewStatChange(
+            @RequestParam(defaultValue = "0") int page,
+            @Min(1) @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FetchProductMostDailyViewStatChangeResponse> response =
+                productViewCountService.getMostDailyViewStatChangeProduct(pageable);
 
         return ResponseEntity
                 .status(ProductViewCountSuccessCode.MOST_DAILY_VIEW_STAT_CHANGE_PRODUCTS_FETCHED.getStatus())
-                .body(SuccessResponse.from(ProductViewCountSuccessCode.MOST_DAILY_VIEW_STAT_CHANGE_PRODUCTS_FETCHED, response));
+                .body(SuccessResponse.from(ProductViewCountSuccessCode.MOST_DAILY_VIEW_STAT_CHANGE_PRODUCTS_FETCHED, PaginatedResponse.from(response)));
     }
 }

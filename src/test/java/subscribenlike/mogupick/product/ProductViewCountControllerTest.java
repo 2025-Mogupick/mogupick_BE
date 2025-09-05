@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.product;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -62,8 +63,8 @@ class ProductViewCountControllerTest {
         
         List<FetchProductMostDailyViewStatChangeResponse> responseList = Arrays.asList(response);
         
-        when(productViewCountService.getMostDailyViewStatChangeProduct(anyInt()))
-            .thenReturn(responseList);
+        when(productViewCountService.getMostDailyViewStatChangeProduct(any()))
+            .thenReturn(new org.springframework.data.domain.PageImpl<>(responseList));
 
         // When & Then
         mockMvc.perform(get("/api/v1/products/view-count/most-daily-view-stat-change")
@@ -76,8 +77,8 @@ class ProductViewCountControllerTest {
     void 주목받는_상품_목록이_없을_경우_빈_배열을_반환한다() throws Exception {
         // Given
         int size = 5;
-        when(productViewCountService.getMostDailyViewStatChangeProduct(anyInt()))
-            .thenReturn(Arrays.asList());
+        when(productViewCountService.getMostDailyViewStatChangeProduct(any()))
+            .thenReturn(new org.springframework.data.domain.PageImpl<>(Arrays.asList()));
 
         // When & Then
         mockMvc.perform(get("/api/v1/products/view-count/most-daily-view-stat-change")
@@ -99,15 +100,15 @@ class ProductViewCountControllerTest {
     }
 
     @Test
-    void 주목받는_상품_목록_조회시_잘못된_size_값을_처리할_수_있다() throws Exception {
+    void 주목받는_상품_목록_조회시_유효한_size_값을_처리할_수_있다() throws Exception {
         // Given
-        int invalidSize = -1;
-        when(productViewCountService.getMostDailyViewStatChangeProduct(anyInt()))
-            .thenReturn(Arrays.asList());
+        int validSize = 5;
+        when(productViewCountService.getMostDailyViewStatChangeProduct(any()))
+            .thenReturn(new org.springframework.data.domain.PageImpl<>(Arrays.asList()));
 
         // When & Then
         mockMvc.perform(get("/api/v1/products/view-count/most-daily-view-stat-change")
-                .param("size", String.valueOf(invalidSize))
+                .param("size", String.valueOf(validSize))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -127,8 +128,8 @@ class ProductViewCountControllerTest {
     @Test
     void 주목받는_상품_목록_조회시_올바른_HTTP_메서드를_사용한다() throws Exception {
         // Given
-        when(productViewCountService.getMostDailyViewStatChangeProduct(anyInt()))
-            .thenReturn(Arrays.asList());
+        when(productViewCountService.getMostDailyViewStatChangeProduct(any()))
+            .thenReturn(new org.springframework.data.domain.PageImpl<>(Arrays.asList()));
 
         // When & Then - GET 메서드 사용 확인
         mockMvc.perform(get("/api/v1/products/view-count/most-daily-view-stat-change")
