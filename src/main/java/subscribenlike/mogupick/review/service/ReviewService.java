@@ -11,7 +11,6 @@ import subscribenlike.mogupick.common.utils.S3Service;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
-import subscribenlike.mogupick.product.domain.ProductMedia;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.review.common.ReviewErrorCode;
 import subscribenlike.mogupick.review.common.ReviewException;
@@ -75,12 +74,6 @@ public class ReviewService {
         if (!reviewMedia.isEmpty()) {
             reviewMediaRepository.saveAll(reviewMedia);
         }
-    }
-
-    private String uploadReviewImage(MultipartFile image) {
-        // TODO: 이미지 업로드 구현
-        // S3나 다른 스토리지에 업로드하고 URL 반환
-        return "https://via.placeholder.com/150";
     }
 
     public Page<FetchProductReviewsResponse.ReviewResponse> getProductReviews(Long productId, Long currentMemberId, Pageable pageable) {
