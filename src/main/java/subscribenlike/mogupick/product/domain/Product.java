@@ -17,19 +17,13 @@ public class Product extends BaseEntity {
 
     private String name;
 
-    private String description;
-
-    private String origin;
-
     private int price;
 
     @ManyToOne
     private Brand brand;
 
-    public Product(String name, String description, String origin, int price, Brand brand) {
+    public Product(String name, int price, Brand brand) {
         this.name = name;
-        this.description = description;
-        this.origin = origin;
         this.price = price;
         this.brand = brand;
     }
