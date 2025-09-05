@@ -6,4 +6,6 @@ import subscribenlike.mogupick.review.domain.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByProductId(Long productId);
+
+    long countByProductId(Long productId);
 }

@@ -16,12 +16,17 @@ import subscribenlike.mogupick.product.model.ProductWithOptionResponse;
 import subscribenlike.mogupick.product.service.ProductService;
 import subscribenlike.mogupick.product.common.ProductSuccessCode;
 import subscribenlike.mogupick.product.model.FetchNewProductsInMonthResponse;
+import subscribenlike.mogupick.product.model.FetchProductDetailResponse;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
 
 @RestController
 @RequiredArgsConstructor
@@ -103,5 +108,46 @@ public class ProductController {
                 .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_CREATED));
     }
 
+    @Operation(summary = "멤버의 최근 본 상품 목록 조회", description = "멤버가 최근에 본 상품 목록을 조회합니다. lastViewedAt 기준 내림차순으로 정렬됩니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "최근 본 상품 목록 조회 성공"
+            )
+    })
+    @GetMapping("/recently-viewed")
+    public ResponseEntity<?> getRecentlyViewedProducts(
+            @RequestParam Long memberId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RecentlyViewProductsQueryResult> response =
+                productService.fetchRecentlyViewedProducts(memberId, pageable);
+
+        return ResponseEntity
+                .status(200)
+                .body(SuccessResponse.from(ProductSuccessCode.RECENTLY_VIEWED_PRODUCTS_FETCHED, response));
+    }
+
+    @Operation(summary = "상품 상세 조회", description = "상품의 상세 정보를 조회합니다. 상품명, 브랜드명, 브랜드ID, 평균 평점, 리뷰 수, 가격 정보를 포함합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "상품 상세 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "상품을 찾을 수 없음"
+            )
+    })
+    @GetMapping("/{productId}/detail")
+    public ResponseEntity<?> getProductDetail(@PathVariable Long productId) {
+        FetchProductDetailResponse response = productService.findProductDetailById(productId);
+
+        return ResponseEntity
+                .status(200)
+                .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_DETAIL_FETCHED, response));
+    }
 
 }

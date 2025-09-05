@@ -17,9 +17,16 @@ import subscribenlike.mogupick.product.model.query.FetchPeerBestReviewsQueryResu
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
+import subscribenlike.mogupick.product.repository.ProductViewCountRepository;
+import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
+import subscribenlike.mogupick.product.model.FetchProductDetailResponse;
+import subscribenlike.mogupick.review.repository.ReviewRepository;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +34,38 @@ import java.util.Map;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
+    private final ProductViewCountRepository productViewCountRepository;
+    private final MemberProductViewCountRepository memberProductViewCountRepository;
+    private final ReviewRepository reviewRepository;
     private final BrandRepository brandRepository;
     private final MemberRepository memberRepository;
 
     private final CategoryService categoryService;
 
     private final static int PEER_STANDARD_AGE = 5;
+
+    public FetchProductDetailResponse findProductDetailById(Long productId) {
+        Product product = productRepository.getById(productId);
+
+        // 리뷰 평균 평점과 리뷰 수 조회
+        Double averageRating = reviewRepository.findByProductId(productId).stream()
+                .mapToDouble(review -> review.getScore())
+                .average()
+                .orElse(0.0);
+
+        Long reviewCount = reviewRepository.countByProductId(productId);
+
+        return FetchProductDetailResponse.builder()
+                .productId(product.getId())
+                .productName(product.getName())
+                .productImageUrls(null) // TODO: 다중 이미지 지원 시 구현
+                .price(product.getPrice())
+                .brandId(product.getBrand().getId())
+                .brandName(product.getBrandName())
+                .averageRating(averageRating)
+                .reviewCount(reviewCount)
+                .build();
+    }
 
     public List<FetchNewProductsInMonthResponse> findAllNewProductsInMonth(int month) {
         return productRepository.findAllProductsInMonth(month).stream()
@@ -82,6 +115,11 @@ public class ProductService {
         return productOptions.stream()
                 .map(option -> createProductWithOptionResponse(products, option))
                 .toList();
+    }
+
+
+    public Page<RecentlyViewProductsQueryResult> fetchRecentlyViewedProducts(Long memberId, Pageable pageable) {
+        return memberProductViewCountRepository.findRecentlyViewedProductsByMemberId(pageable, memberId);
     }
 
     private static ProductWithOptionResponse createProductWithOptionResponse(Map<Long, Product> products, ProductOption option) {

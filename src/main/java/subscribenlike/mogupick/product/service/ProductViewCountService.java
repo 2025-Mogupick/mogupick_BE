@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subscribenlike.mogupick.common.utils.GlobalLogger;
+import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.product.common.ProductErrorCode;
 import subscribenlike.mogupick.product.common.ProductException;
 import subscribenlike.mogupick.product.domain.Product;
@@ -14,6 +16,9 @@ import subscribenlike.mogupick.product.model.FetchProductDailyViewStatsResponse;
 import subscribenlike.mogupick.product.model.FetchProductMostDailyViewStatChangeResponse;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.product.repository.ProductViewCountRepository;
+import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
+import subscribenlike.mogupick.product.domain.MemberProductViewCount;
+import subscribenlike.mogupick.member.repository.MemberRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,6 +33,8 @@ import java.util.stream.IntStream;
 public class ProductViewCountService {
     private final ProductViewCountRepository productViewCountRepository;
     private final ProductRepository productRepository;
+    private final MemberProductViewCountRepository memberProductViewCountRepository;
+    private final MemberRepository memberRepository;
     private final RedisTemplate<String, Long> redisTemplate;
 
     private List<FetchProductMostDailyViewStatChangeResponse> currentViewStatChanges;
@@ -108,6 +115,29 @@ public class ProductViewCountService {
     public void incrementProductViewCount(Long productId) {
         incrementViewCount(productId);
         incrementDailyCount(productId);
+    }
+
+    @Transactional
+    public void incrementProductViewCount(Long productId, Long memberId) {
+        incrementViewCount(productId);
+        incrementDailyCount(productId);
+        incrementMemberProductViewCount(productId, memberId);
+    }
+
+    private void incrementMemberProductViewCount(Long productId, Long memberId) {
+        Member member = memberRepository.findOrThrow(memberId);
+        Product product = productRepository.getById(productId);
+
+        MemberProductViewCount memberProductViewCount = memberProductViewCountRepository
+                .findByMemberIdAndProductId(memberId, productId)
+                .orElseGet(() -> createMemberProductViewCount(product, member));
+
+        memberProductViewCount.increase();
+        memberProductViewCountRepository.save(memberProductViewCount);
+    }
+
+    private MemberProductViewCount createMemberProductViewCount(Product product, Member member) {
+        return memberProductViewCountRepository.save(MemberProductViewCount.of(product, member));
     }
 
     public Long getViewCount(Long productId) {
