@@ -18,12 +18,10 @@ public class TossPaymentsClient {
 
     private final WebClient webClient;
 
-    // BillingConfig 에서 만든 tossWebClient 를 주입(@Value 패턴 C)
     public TossPaymentsClient(WebClient tossWebClient) {
         this.webClient = tossWebClient;
     }
 
-    /** 결제창(authKey) -> 빌링키 발급 */
     public Map<String, Object> issueBillingKeyByAuthKey(String authKey, String customerKey) {
         log.info("toss.issueBillingKey start customerKey={}", mask(customerKey));
         try {
@@ -46,7 +44,6 @@ public class TossPaymentsClient {
         }
     }
 
-    /** 빌링키로 결제 승인 */
     public Map<String, Object> approveBilling(String billingKey, int amount, String customerKey, String orderId, String orderName) {
         log.info("toss.approve start orderId={} amount={} customerKey={}", orderId, amount, mask(customerKey));
         try {
@@ -74,28 +71,6 @@ public class TossPaymentsClient {
         }
     }
 
-    /** 주문ID로 결제 단건 조회(선택) */
-    public Map<String, Object> getPaymentByOrderId(String orderId) {
-        log.info("toss.getPaymentByOrderId start orderId={}", orderId);
-        try {
-            Map<String, Object> res = webClient.post()
-                    .uri("/v1/payments/{orderId}", orderId)
-                    .retrieve()
-                    .onStatus(s -> s.isError(),
-                            r -> r.bodyToMono(String.class)
-                                    .flatMap(b -> Mono.error(new IllegalStateException("Toss get payment failed: " + b))))
-                    .bodyToMono(MAP_TYPE)
-                    .block();
-
-            log.info("toss.getPaymentByOrderId ok orderId={}", orderId);
-            return res;
-        } catch (RuntimeException e) {
-            log.error("toss.getPaymentByOrderId error orderId={} msg={}", orderId, e.getMessage());
-            throw e;
-        }
-    }
-
-    // -------- helpers --------
     private String mask(String str) {
         if (str == null || str.length() < 4) return "***";
         return str.substring(0, 2) + "***";
