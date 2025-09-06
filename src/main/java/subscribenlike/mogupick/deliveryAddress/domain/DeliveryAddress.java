@@ -29,4 +29,17 @@ public class DeliveryAddress extends BaseEntity {
 
     @ManyToOne
     private Member member;
+
+    public DeliveryAddress(Member member, String baseAddress, String detailAddress, String receiver, String contact) {
+        this.member = member;
+        this.baseAddress = baseAddress;
+        this.detailAddress = detailAddress;
+        this.receiver = receiver;
+        this.contact = contact;
+    }
+
+    public static DeliveryAddress of(Member member, String  baseAddress, String detailAddress,
+                                     String receiver, String contact) {
+        return new DeliveryAddress(member, baseAddress, detailAddress, receiver, contact);
+    }
 }
