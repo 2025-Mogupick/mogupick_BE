@@ -9,6 +9,7 @@ public record FetchProductDetailResponse(
         Long productId,
         String productName,
         List<String> productImageUrls,
+        List<String> productDescriptionImageUrls,
         Integer price,
         Long brandId,
         String brandName,
