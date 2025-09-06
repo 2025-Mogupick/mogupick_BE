@@ -42,4 +42,11 @@ public class DeliveryAddress extends BaseEntity {
                                      String receiver, String contact) {
         return new DeliveryAddress(member, baseAddress, detailAddress, receiver, contact);
     }
+
+    public void update(String baseAddress, String detailAddress, String receiver, String contact) {
+        this.baseAddress = baseAddress;
+        this.detailAddress = detailAddress;
+        this.receiver = receiver;
+        this.contact = contact;
+    }
 }
