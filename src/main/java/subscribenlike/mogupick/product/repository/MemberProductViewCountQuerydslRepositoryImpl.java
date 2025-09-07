@@ -4,8 +4,6 @@ package subscribenlike.mogupick.product.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import subscribenlike.mogupick.brand.domain.QBrand;
@@ -17,7 +15,6 @@ import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResu
 import subscribenlike.mogupick.review.domain.QReview;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,15 +22,15 @@ public class MemberProductViewCountQuerydslRepositoryImpl implements MemberProdu
 
     private final JPAQueryFactory query;
 
-    public Page<RecentlyViewProductsQueryResult> findRecentlyViewedProductsByMemberId(Pageable pageable, Long memberId) {
-        List<RecentlyViewProductsQueryResult> content = query
-                .select(Projections.constructor(RecentlyViewProductsQueryResult.class,
+    public List<RecentlyViewProductsQueryResult> findRecentlyViewedProductsByMemberId(Pageable pageable, Long memberId) {
+        return query.select(Projections.constructor(RecentlyViewProductsQueryResult.class,
                         QProduct.product.id,
                         QProductMedia.productMedia.imageUrl,
                         QProduct.product.name,
                         QProduct.product.price,
                         QProduct.product.brand.id,
                         QProduct.product.brand.name,
+                        QProduct.product.createdAt,
                         QReview.review.score.avg().coalesce(0.0),
                         QReview.review.count().coalesce(0L),
                         QMemberProductViewCount.memberProductViewCount.viewCount,
@@ -59,29 +56,6 @@ public class MemberProductViewCountQuerydslRepositoryImpl implements MemberProdu
                 .orderBy(QMemberProductViewCount.memberProductViewCount.lastViewedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch()
-                .stream()
-                .map(result -> new RecentlyViewProductsQueryResult(
-                        result.getProductId(),
-                        null, // TODO: 다중 이미지 지원 시 구현
-                        result.getProductName(),
-                        result.getProductPrice(),
-                        result.getBrandId(),
-                        result.getBrandName(),
-                        result.getRating(),
-                        result.getReviewCount(),
-                        result.getViewCount(),
-                        result.getLastViewedAt()
-                ))
-                .collect(Collectors.toList());
-
-        Long total = query
-                .select(QMemberProductViewCount.memberProductViewCount.count())
-                .from(QMemberProductViewCount.memberProductViewCount)
-                .join(QMemberProductViewCount.memberProductViewCount.member, QMember.member)
-                .where(QMember.member.id.eq(memberId))
-                .fetchOne();
-
-        return new PageImpl<>(content, pageable, total != null ? total : 0);
+                .fetch();
     }
 }
