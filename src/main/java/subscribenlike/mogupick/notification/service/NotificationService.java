@@ -49,4 +49,15 @@ public class NotificationService {
 
         notification.read();
     }
+
+    public void deleteNotification(Long notificationId, Long memberId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotificationException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+
+        if (!notification.getMember().getId().equals(memberId)) {
+            throw new NotificationException(NotificationErrorCode.FORBIDDEN_READ_NOTIFICATION); // 권한 없음 예외 재사용
+        }
+
+        notificationRepository.delete(notification);
+    }
 }
