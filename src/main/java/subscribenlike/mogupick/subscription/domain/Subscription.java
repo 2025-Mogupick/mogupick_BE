@@ -5,7 +5,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
+import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.product.domain.Product;
+
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -17,4 +20,10 @@ public class Subscription extends BaseEntity {
 
     @ManyToOne
     private Product product;
+
+    @ManyToOne
+    private Member member;
+
+    private LocalDate nextPaymentDate;
+
 }
