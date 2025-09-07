@@ -66,7 +66,7 @@ public class ReviewService {
         List<ReviewMedia> reviewMedia = images.stream()
                 .filter(image -> !image.isEmpty())
                 .map(image -> ReviewMedia.builder()
-                        .imageUrl(s3Service.uploadFile(image))
+                        .imageUrl(s3Service.upload(image))
                         .review(review)
                         .build())
                 .toList();

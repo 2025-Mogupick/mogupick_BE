@@ -18,4 +18,16 @@ public class SubscriptionOption extends BaseEntity {
     private SubscriptionPeriodUnit unit;
 
     private int period;
+
+    private String displayText;
+
+    public SubscriptionOption(SubscriptionPeriodUnit unit, int period, String displayText) {
+        this.unit = unit;
+        this.period = period;
+        this.displayText = displayText;
+    }
+
+    public static SubscriptionOption of(SubscriptionPeriodUnit unit, int period, String displayText) {
+        return new SubscriptionOption(unit, period, displayText);
+    }
 }
