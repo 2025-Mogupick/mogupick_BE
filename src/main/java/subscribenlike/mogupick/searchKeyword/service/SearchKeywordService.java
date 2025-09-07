@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.domain.ProductMedia;
+import subscribenlike.mogupick.product.repository.ProductMediaRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.recentSearchKeyword.domain.RecentSearchKeyword;
 import subscribenlike.mogupick.recentSearchKeyword.repository.RecentSearchKeywordRepository;
@@ -39,6 +41,7 @@ public class SearchKeywordService {
     private final SearchKeywordRepository searchKeywordRepository;
     private final RecentSearchKeywordRepository recentSearchKeywordRepository;
     private final ProductRepository productRepository;
+    private final ProductMediaRepository productMediaRepository;
     private final ReviewRepository reviewRepository;
     private final StringRedisTemplate redis;
     private final MemberRepository memberRepository;
@@ -65,9 +68,14 @@ public class SearchKeywordService {
         return productList.stream()
                 .map(product -> {
                     List<Review> reviews = findReviewByProductId(product.getId());
-                    return SearchProductResponse.of(product, calculateRate(reviews), reviews.size());
+                    return SearchProductResponse.of(product, findThumbnailByProductId(product.getId()),
+                            calculateRate(reviews), reviews.size());
                 })
                 .toList();
+    }
+
+    private ProductMedia findThumbnailByProductId(Long productId) {
+        return productMediaRepository.findByProductId(productId).get(0);
     }
 
     private List<Review> findReviewByProductId(Long productId) {
