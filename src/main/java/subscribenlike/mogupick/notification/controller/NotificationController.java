@@ -47,4 +47,17 @@ public class NotificationController {
         notificationService.readNotification(notificationId, userDetails.getMemberId());
         return GlobalResponse.from(NotificationSuccessCode.READ_NOTIFICATION_SUCCESS);
     }
+
+    @Operation(summary = "알림 삭제", description = "특정 알림을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "알림 삭제 성공")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @DeleteMapping("/{notificationId}")
+    public GlobalResponse<Void> deleteNotification(
+            @PathVariable Long notificationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        notificationService.deleteNotification(notificationId, userDetails.getMemberId());
+        return GlobalResponse.from(NotificationSuccessCode.DELETE_NOTIFICATION_SUCCESS);
+    }
 }
