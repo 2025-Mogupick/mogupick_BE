@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import subscribenlike.mogupick.common.domain.BaseEntity;
+import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.product.domain.Product;
 
 @Entity
@@ -17,4 +18,7 @@ public class Subscription extends BaseEntity {
 
     @ManyToOne
     private Product product;
+
+    @ManyToOne
+    private Member member;
 }
