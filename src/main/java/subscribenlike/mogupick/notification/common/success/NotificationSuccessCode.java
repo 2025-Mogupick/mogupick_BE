@@ -13,6 +13,7 @@ public enum NotificationSuccessCode implements SuccessCode {
     // 200 OK
     GET_NOTIFICATIONS_SUCCESS(HttpStatus.OK, "알림 목록 조회에 성공했습니다."),
     READ_NOTIFICATION_SUCCESS(HttpStatus.OK, "알림 읽음 처리에 성공했습니다."),
+    DELETE_NOTIFICATION_SUCCESS(HttpStatus.OK, "알림 삭제에 성공했습니다."),
 
     ;
 
