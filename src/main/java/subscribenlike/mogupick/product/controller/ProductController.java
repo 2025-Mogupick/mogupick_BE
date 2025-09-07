@@ -18,7 +18,8 @@ import subscribenlike.mogupick.common.success.SuccessResponse;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.product.common.ProductSuccessCode;
 import subscribenlike.mogupick.product.model.*;
-import subscribenlike.mogupick.product.service.ProductConsistentlyGetAttentionReadService;
+import subscribenlike.mogupick.product.service.ConstantlyPopularProductFetchService;
+import subscribenlike.mogupick.product.service.SimilarProductFetchService;
 import subscribenlike.mogupick.product.service.ProductService;
 
 import java.io.IOException;
@@ -31,7 +32,8 @@ import java.time.ZoneId;
 public class ProductController {
 
     private final ProductService productService;
-    private final ProductConsistentlyGetAttentionReadService productConsistentlyGetAttentionReadService;
+    private final SimilarProductFetchService similarProductFetchService;
+    private final ConstantlyPopularProductFetchService constantlyPopularProductFetchService;
 
     @Operation(summary = "이번 달 새로나온 상품 조회", description = "이번 달 새로나온 상품을 조회합니다.")
     @ApiResponses(value = {
@@ -171,11 +173,31 @@ public class ProductController {
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FetchSimilarProductResponse> response =
-                productConsistentlyGetAttentionReadService.fetchSimilarProduct(userDetails.getMemberId(), pageable);
+                similarProductFetchService.fetchSimilarProduct(userDetails.getMemberId(), pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.SIMILAR_PRODUCTS_FETCHED.getStatus())
                 .body(SuccessResponse.from(ProductSuccessCode.SIMILAR_PRODUCTS_FETCHED, PaginatedResponse.from(response)));
+    }
+
+    @Operation(summary = "꾸준히 사랑받는 상품 목록 조회", description = "꾸준히 사랑받는 상품 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "꾸준히 사랑받는 상품 목록 조회 성공"
+            )
+    })
+    @GetMapping("/constantly-popular")
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchConstantlyPopularProductResponse>>> getConstantlyPopularProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FetchConstantlyPopularProductResponse> response =
+                constantlyPopularProductFetchService.fetchConstantlyPopularProducts(pageable);
+
+        return ResponseEntity
+                .status(ProductSuccessCode.CONSTANTLY_POPULAR_PRODUCTS_FETCHED.getStatus())
+                .body(SuccessResponse.from(ProductSuccessCode.CONSTANTLY_POPULAR_PRODUCTS_FETCHED, PaginatedResponse.from(response)));
     }
 
 }
