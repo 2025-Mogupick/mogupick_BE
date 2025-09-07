@@ -122,13 +122,13 @@ public class ProductController {
             )
     })
     @GetMapping("/recently-viewed")
-    public ResponseEntity<SuccessResponse<Page<RecentlyViewProductsQueryResult>>> getRecentlyViewedProducts(
+    public ResponseEntity<SuccessResponse<Page<FetchRecentlyViewProductResponse>>> getRecentlyViewedProducts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<RecentlyViewProductsQueryResult> response =
+        Page<FetchRecentlyViewProductResponse> response =
                 productService.fetchRecentlyViewedProducts(userDetails.getMemberId(), pageable);
 
         return ResponseEntity
