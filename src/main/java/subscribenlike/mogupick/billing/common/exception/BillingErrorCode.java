@@ -14,6 +14,7 @@ public enum BillingErrorCode implements ErrorCode {
     PAYMENT_APPROVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "결제 승인에 실패했습니다."),  // 승인 실패
     BILLING_KEY_ISSUE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "빌링키 발급에 실패했습니다."), // 빌링키 발급 실패
     PAYMENT_STATE_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 상태를 찾을 수 없습니다."),
+    PAYMENT_NOT_APPROVED(HttpStatus.BAD_REQUEST, "결제가 승인되지 않았습니다."),
     ;
 
     public static final String PREFIX = "[BILLING ERROR] ";
