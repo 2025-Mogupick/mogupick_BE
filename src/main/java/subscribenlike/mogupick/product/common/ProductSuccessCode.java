@@ -15,6 +15,7 @@ public enum ProductSuccessCode implements SuccessCode {
     PRODUCT_CREATED(HttpStatus.CREATED, "상품이 성공적으로 등록되었습니다."),
     RECENTLY_VIEWED_PRODUCTS_FETCHED(HttpStatus.OK, "멤버의 최근 본 상품 목록을 조회하였습니다."),
     PRODUCT_DETAIL_FETCHED(HttpStatus.OK, "상품의 상세 정보를 조회하였습니다."),
+    SIMILAR_PRODUCTS_FETCHED(HttpStatus.OK, "유사한 상품 목록을 조회하였습니다."),
 
     ;
 
