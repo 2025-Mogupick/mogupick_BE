@@ -24,4 +24,13 @@ public class LikeController {
         likeService.updateProductLike(productId, user.getMemberId());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/brand/{brandId}")
+    public ResponseEntity<Void> updateBrandLike(
+            @PathVariable("brandId") Long brandId,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        likeService.updateBrandLike(brandId, user.getMemberId());
+        return ResponseEntity.ok().build();
+    }
 }
