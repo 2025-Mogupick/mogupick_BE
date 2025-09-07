@@ -4,17 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
 public class RecentlyViewProductsQueryResult {
     private Long productId;
-    private List<String> productImageUrls;
+    private String productImageUrl;
     private String productName;
     private Integer productPrice;
     private Long brandId;
     private String brandName;
+    private LocalDateTime createdAt;
     private Double rating;
     private Long reviewCount;
     private Long viewCount;
