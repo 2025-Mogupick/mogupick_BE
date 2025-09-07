@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class S3Service {
     private final AmazonS3 amazonS3;
 
-    @Value("${cloud.aws.s3.bucketName}")
+    @Value("${spring.cloud.aws.s3.bucket}")
     private String bucketName;
 
     public String upload(MultipartFile image) {
