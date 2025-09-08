@@ -9,6 +9,8 @@ import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionOption;
 import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionPeriodUnit;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,31 +25,29 @@ public class CartItem extends BaseEntity {
     @ManyToOne
     private Product product;
 
-    @Enumerated(EnumType.STRING)
-     private SubscriptionPeriodUnit unit;
+    @ManyToOne
+    private SubscriptionOption option; // 주기옵션
 
-    private int period;
+    private LocalDate firstDeliveryDate; // 첫 배송 희망일
 
-    private CartItem(Product product, SubscriptionPeriodUnit unit, int period) {
+    public CartItem(Product product, SubscriptionOption option, LocalDate firstDeliveryDate) {
         this.product = product;
-        this.unit = unit;
-        this.period = period;
+        this.option = option;
+        this.firstDeliveryDate = firstDeliveryDate;
     }
 
-    public static CartItem create(Product product, SubscriptionPeriodUnit unit, int period) {
-        return new CartItem(product, unit, period);
+    public static CartItem create(Product product, SubscriptionOption option, LocalDate firstDeliveryDate) {
+        return new CartItem(product, option, firstDeliveryDate);
     }
 
     public void assignCart(Cart cart) {
         this.cart = cart;
     }
-
     public void removeCart() {
         this.cart = null;
     }
-
-    public void updateOption(SubscriptionPeriodUnit unit, int period) {
-        this.unit = unit;
-        this.period = period;
+    public void updateOption(SubscriptionOption option, LocalDate firstDeliveryDate) {
+        this.option = option;
+        this.firstDeliveryDate = firstDeliveryDate;
     }
 }

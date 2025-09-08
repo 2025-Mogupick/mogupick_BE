@@ -13,6 +13,9 @@ public enum CartErrorCode implements ErrorCode {
     PERIOD_INVALID(HttpStatus.BAD_REQUEST, "구독 주기는 1 이상이어야 합니다."),
     UNIT_INVALID(HttpStatus.BAD_REQUEST, "단위를 선택해야합니다."),
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 상품이 없습니다."),
+    SUBSCRIPTION_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "구독 옵션을 찾을 수 없습니다."),
+    FIRST_DELIVERY_DATE_REQUIRED(HttpStatus.BAD_REQUEST, "첫 배송 희망일을 선택해야 합니다."),
+    CART_EMPTY(HttpStatus.BAD_REQUEST, "장바구니가 비어 있습니다."),
 
     ;
 

@@ -1,32 +1,27 @@
 package subscribenlike.mogupick.cart.dto;
 
 import subscribenlike.mogupick.cart.domain.CartItem;
-import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionPeriodUnit;
+import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionOption;
+
+import java.time.LocalDate;
 
 public record CartItemResponse(
         Long cartItemId,
         Long productId,
         String productName,
-        SubscriptionPeriodUnit unit,
-        int period,
-        String displayText
+        Long subscriptionOptionId,
+        String displayText,
+        LocalDate firstDeliveryDate
 ) {
     public static CartItemResponse from(CartItem item) {
+        SubscriptionOption option = item.getOption();
         return new CartItemResponse(
                 item.getId(),
                 item.getProduct().getId(),
                 item.getProduct().getName(),
-                item.getUnit(),
-                item.getPeriod(),
-                format(item.getUnit(), item.getPeriod())
+                option.getId(),
+                option.getDisplayText(),
+                item.getFirstDeliveryDate()
         );
-    }
-
-    private static String format(SubscriptionPeriodUnit unit, int period) {
-        return switch (unit) {
-            case DAY -> "매 " + period + "일";
-            case WEEK -> "매 " + period + "주";
-            case MONTH -> "매 " + period + "개월";
-        };
     }
 }

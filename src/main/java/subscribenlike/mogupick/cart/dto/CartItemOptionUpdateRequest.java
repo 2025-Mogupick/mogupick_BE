@@ -2,12 +2,14 @@ package subscribenlike.mogupick.cart.dto;
 
 import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionPeriodUnit;
 
+import java.time.LocalDate;
+
 public record CartItemOptionUpdateRequest(
         Long memberId,
-        SubscriptionPeriodUnit unit,
-        int period
+        Long subscriptionOptionId,
+        LocalDate firstDeliveryDate
 ) {
-    public static CartItemOptionUpdateRequest of(Long memberId, SubscriptionPeriodUnit unit, int period) {
-        return new CartItemOptionUpdateRequest(memberId, unit, period);
+    public static CartItemOptionUpdateRequest of(Long memberId, Long subscriptionOptionId, LocalDate firstDeliveryDate) {
+        return new CartItemOptionUpdateRequest(memberId, subscriptionOptionId, firstDeliveryDate);
     }
 }
