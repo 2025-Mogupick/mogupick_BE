@@ -21,7 +21,7 @@ public class CreateProductRequest {
     private SubCategory subCategory;
     private Long brandId;
     private String name;
-    private int price;
+    private Integer price;
     private Map<String, String> options;
     private List<MultipartFile> productImages;
     private List<MultipartFile> productDescriptionImages;
