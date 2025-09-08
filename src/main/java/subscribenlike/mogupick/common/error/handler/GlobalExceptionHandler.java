@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.common.error.handler;
 
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import subscribenlike.mogupick.common.error.core.BaseException;
 import subscribenlike.mogupick.common.error.core.ErrorCode;
 import subscribenlike.mogupick.common.error.core.ErrorResponse;
@@ -10,6 +11,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
+        return getErrorResponse(e,GlobalErrorCode.RESOURCE_NOT_FOUND);
+    }
+
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
         return getErrorResponse(e,e.getErrorCode());
