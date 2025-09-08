@@ -25,4 +25,14 @@ public class ProductLike extends BaseEntity {
 
     @ManyToOne
     private Member member;
+
+    public ProductLike(Long id, Product product, Member member) {
+        this.id = id;
+        this.product = product;
+        this.member = member;
+    }
+
+    public ProductLike(Product product, Member member) {
+        this(null, product, member);
+    }
 }

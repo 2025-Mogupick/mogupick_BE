@@ -8,6 +8,8 @@ import subscribenlike.mogupick.common.domain.BaseEntity;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.product.domain.Product;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,4 +23,7 @@ public class Subscription extends BaseEntity {
 
     @ManyToOne
     private Member member;
+
+    private LocalDate nextPaymentDate;
+
 }
