@@ -30,4 +30,19 @@ public class DeliveryService {
                 "/alert"
         );
     }
+
+    public void completeDelivery(Long deliveryId) {
+        Delivery delivery = deliveryRepository.getById(deliveryId);
+
+        delivery.complete();
+
+        String content = NotificationType.DELIVERY_COMPLETED.createContent(delivery.getProduct().getName());
+
+        notificationService.createNotification(
+                delivery.getMember(),
+                NotificationType.DELIVERY_COMPLETED,
+                content,
+                "/alert"
+        );
+    }
 }
