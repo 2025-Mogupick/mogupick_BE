@@ -3,6 +3,7 @@ name: CI/CD - Build & Deploy to EC2 via Docker Hub
 on:
   push:
     branches: [ "develop" ]
+  workflow_dispatch:
 
 jobs:
   build-push-deploy:
