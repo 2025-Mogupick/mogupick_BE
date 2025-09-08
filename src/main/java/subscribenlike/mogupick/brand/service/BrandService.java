@@ -8,6 +8,8 @@ import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.dto.BrandCreateRequest;
 import subscribenlike.mogupick.brand.dto.BrandResponse;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
+import subscribenlike.mogupick.member.common.exception.MemberErrorCode;
+import subscribenlike.mogupick.member.common.exception.MemberException;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 
@@ -28,7 +30,7 @@ public class BrandService {
 
     private void validateRole(Member member) {
         if (member.isMember()) {
-            throw new IllegalArgumentException("Member is not seller");
+            throw new MemberException(MemberErrorCode.INVALID_SELLER_ROLE);
         }
     }
 
@@ -41,7 +43,7 @@ public class BrandService {
 
     private void validateIsOwner(Brand brand, Member member) {
         if (!Objects.equals(brand.getMember(), member)) {
-            throw new IllegalArgumentException("Member is not own");
+            throw new MemberException(MemberErrorCode.INVALID_OWNER_ERROR);
         }
     }
 }

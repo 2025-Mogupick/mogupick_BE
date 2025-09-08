@@ -12,6 +12,8 @@ public enum MemberErrorCode implements ErrorCode {
 
     // 404 Not Found
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    INVALID_OWNER_ERROR(HttpStatus.BAD_REQUEST, "브랜드의 주인이 아닙니다"),
+    INVALID_SELLER_ROLE(HttpStatus.BAD_REQUEST, "판매자 권한이 아닙니다"),
 
     ;
 
