@@ -52,8 +52,7 @@ public class AuthService {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        Member member = memberRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND_FOR_TOKEN));
+        Member member = memberRepository.findByRefreshTokenOrThrow(refreshToken);
 
         GrantedAuthority authority = new SimpleGrantedAuthority(member.getRole().name());
         Authentication authentication = new UsernamePasswordAuthenticationToken(member.getEmail(), null, Collections.singleton(authority));
@@ -72,9 +71,7 @@ public class AuthService {
         }
 
         Map<String, Object> userAttributes = client.getOAuthUserAttributes(request.getAccessToken());
-
         OAuthAttributes attributes = OAuthAttributes.of(request.getProvider(), userAttributes);
-
         Member member = memberRepository.findByEmail(attributes.getEmail())
                 .orElseGet(() -> memberRepository.save(attributes.toEntity()));
 
