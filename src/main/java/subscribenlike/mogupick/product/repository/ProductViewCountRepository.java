@@ -8,6 +8,8 @@ import subscribenlike.mogupick.product.domain.ProductViewCount;
 
 public interface ProductViewCountRepository extends JpaRepository<ProductViewCount, Long> {
 
+
+
     Optional<ProductViewCount> findByProductId(Long productId);
 
     boolean existsByProductId(Long productId);

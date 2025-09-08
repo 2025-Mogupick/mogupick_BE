@@ -6,11 +6,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
 import subscribenlike.mogupick.category.CategoryService;
 import subscribenlike.mogupick.category.domain.RootCategory;
-import org.springframework.web.multipart.MultipartFile;
 import subscribenlike.mogupick.common.utils.S3Service;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
@@ -154,8 +154,19 @@ public class ProductService {
     }
 
 
-    public Page<RecentlyViewProductsQueryResult> fetchRecentlyViewedProducts(Long memberId, Pageable pageable) {
-        return memberProductViewCountRepository.findRecentlyViewedProductsByMemberId(pageable, memberId);
+    public Page<FetchRecentlyViewProductResponse> fetchRecentlyViewedProducts(Long memberId, Pageable pageable) {
+        List<FetchRecentlyViewProductResponse> content =
+                memberProductViewCountRepository.findRecentlyViewedProductsByMemberId(pageable, memberId)
+                        .stream()
+                        .map(this::createFetchRecentlyViewProductResponse)
+                        .toList();
+
+        // 현재는 전체 데이터를 가져와서 페이지네이션 적용 (추후 쿼리 레벨에서 최적화 가능)
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), content.size());
+        List<FetchRecentlyViewProductResponse> pageContent = content.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, content.size());
     }
 
     private static ProductWithOptionResponse createProductWithOptionResponse(Map<Long, Product> products, ProductOption option) {
@@ -166,9 +177,9 @@ public class ProductService {
         List<ProductMedia> productMedias = images.stream()
                 .filter(image -> !image.isEmpty())
                 .map(image -> ProductMedia.builder()
-                            .imageUrl(s3Service.upload(image))
-                            .product(product)
-                            .build())
+                        .imageUrl(s3Service.upload(image))
+                        .product(product)
+                        .build())
                 .toList();
 
         if (!productMedias.isEmpty()) {
@@ -196,6 +207,36 @@ public class ProductService {
 
     private ProductOption createProductOption(CreateProductRequest request, Product product) {
         return productOptionRepository.save(request.toProductOption(product));
+    }
+
+
+    private FetchRecentlyViewProductResponse createFetchRecentlyViewProductResponse(RecentlyViewProductsQueryResult product) {
+        // 상품 대표 이미지 URL 조회 (쿼리에서 가져온 값이 있으면 사용, 없으면 별도 조회)
+        String productImageUrl = product.getProductImageUrl();
+
+        if (productImageUrl == null) {
+            productImageUrl = productMediaRepository.findFirstImageUrlByProductId(product.getProductId());
+        }
+
+        return FetchRecentlyViewProductResponse.of(
+                FetchProductResponse.of(
+                        product.getProductId(),
+                        productImageUrl,
+                        product.getProductName(),
+                        product.getProductPrice(),
+                        product.getCreatedAt()
+                ),
+                FetchBrandResponse.of(
+                        product.getBrandId(),
+                        product.getBrandName()
+                ),
+                FetchReviewResponse.of(
+                        product.getRating(),
+                        product.getReviewCount()
+                )
+                ,product.getViewCount(),
+                product.getLastViewedAt()
+        );
     }
 
     private FetchNewProductsInMonthResponse createFetchNewProductsInMonthResponse(ProductsInMonthQueryResult product) {

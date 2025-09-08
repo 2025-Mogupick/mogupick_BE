@@ -18,7 +18,9 @@ import subscribenlike.mogupick.common.success.SuccessResponse;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.product.common.ProductSuccessCode;
 import subscribenlike.mogupick.product.model.*;
-import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
+import subscribenlike.mogupick.product.service.BeginnerFriendlyProductFetchService;
+import subscribenlike.mogupick.product.service.ConstantlyPopularProductFetchService;
+import subscribenlike.mogupick.product.service.SimilarProductFetchService;
 import subscribenlike.mogupick.product.service.ProductService;
 
 import java.io.IOException;
@@ -31,6 +33,9 @@ import java.time.ZoneId;
 public class ProductController {
 
     private final ProductService productService;
+    private final SimilarProductFetchService similarProductFetchService;
+    private final ConstantlyPopularProductFetchService constantlyPopularProductFetchService;
+    private final BeginnerFriendlyProductFetchService beginnerFriendlyProductFetchService;
 
     @Operation(summary = "이번 달 새로나온 상품 조회", description = "이번 달 새로나온 상품을 조회합니다.")
     @ApiResponses(value = {
@@ -122,13 +127,13 @@ public class ProductController {
             )
     })
     @GetMapping("/recently-viewed")
-    public ResponseEntity<SuccessResponse<Page<RecentlyViewProductsQueryResult>>> getRecentlyViewedProducts(
+    public ResponseEntity<SuccessResponse<Page<FetchRecentlyViewProductResponse>>> getRecentlyViewedProducts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<RecentlyViewProductsQueryResult> response =
+        Page<FetchRecentlyViewProductResponse> response =
                 productService.fetchRecentlyViewedProducts(userDetails.getMemberId(), pageable);
 
         return ResponseEntity
@@ -154,6 +159,67 @@ public class ProductController {
         return ResponseEntity
                 .status(ProductSuccessCode.PRODUCT_DETAIL_FETCHED.getStatus())
                 .body(SuccessResponse.from(ProductSuccessCode.PRODUCT_DETAIL_FETCHED, response));
+    }
+
+    @Operation(summary = "유사 상품 목록 조회", description = "회원의 구매 및 조회 패턴을 기반으로 유사한 상품 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "유사 상품 목록 조회 성공"
+            )
+    })
+    @GetMapping("/similar")
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchSimilarProductResponse>>> getSimilarProducts(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FetchSimilarProductResponse> response =
+                similarProductFetchService.fetchSimilarProduct(userDetails.getMemberId(), pageable);
+
+        return ResponseEntity
+                .status(ProductSuccessCode.SIMILAR_PRODUCTS_FETCHED.getStatus())
+                .body(SuccessResponse.from(ProductSuccessCode.SIMILAR_PRODUCTS_FETCHED, PaginatedResponse.from(response)));
+    }
+
+    @Operation(summary = "꾸준히 사랑받는 상품 목록 조회", description = "꾸준히 사랑받는 상품 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "꾸준히 사랑받는 상품 목록 조회 성공"
+            )
+    })
+    @GetMapping("/constantly-popular")
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchConstantlyPopularProductResponse>>> getConstantlyPopularProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FetchConstantlyPopularProductResponse> response =
+                constantlyPopularProductFetchService.fetchConstantlyPopularProducts(pageable);
+
+        return ResponseEntity
+                .status(ProductSuccessCode.CONSTANTLY_POPULAR_PRODUCTS_FETCHED.getStatus())
+                .body(SuccessResponse.from(ProductSuccessCode.CONSTANTLY_POPULAR_PRODUCTS_FETCHED, PaginatedResponse.from(response)));
+    }
+
+    @Operation(summary = "입문용 상품 목록 조회", description = "처음 시작하기 좋은 입문용 상품 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "입문용 상품 목록 조회 성공"
+            )
+    })
+    @GetMapping("/beginner-friendly")
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchBeginnerFriendlyProductResponse>>> getBeginnerFriendlyProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FetchBeginnerFriendlyProductResponse> response =
+                beginnerFriendlyProductFetchService.fetchBeginnerFriendlyProducts(pageable);
+
+        return ResponseEntity
+                .status(ProductSuccessCode.BEGINNER_FRIENDLY_PRODUCTS_FETCHED.getStatus())
+                .body(SuccessResponse.from(ProductSuccessCode.BEGINNER_FRIENDLY_PRODUCTS_FETCHED, PaginatedResponse.from(response)));
     }
 
 }
