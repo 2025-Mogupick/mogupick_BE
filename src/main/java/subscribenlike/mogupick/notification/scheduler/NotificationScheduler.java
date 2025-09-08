@@ -25,14 +25,11 @@ public class NotificationScheduler {
         log.info("결제 3일 전 알림 스케줄러를 시작합니다.");
 
         LocalDate targetDate = LocalDate.now().plusDays(3);
-
         List<Subscription> subscriptions = subscriptionRepository.findByNextPaymentDate(targetDate);
 
         for (Subscription subscription : subscriptions) {
-            String content = String.format(
-                    "'%s' 상품의 결제 예정일이 3일 남았습니다.",
-                    subscription.getProduct().getName()
-            );
+            String productName = subscription.getProduct().getName();
+            String content = NotificationType.PAYMENT_REMINDER.createContent(productName);
 
             notificationService.createNotification(
                     subscription.getMember(),
