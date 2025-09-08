@@ -20,7 +20,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
 
-    default Member getById(Long id) {
+    default Member findOrThrow(Long id) {
         return findById(id)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
