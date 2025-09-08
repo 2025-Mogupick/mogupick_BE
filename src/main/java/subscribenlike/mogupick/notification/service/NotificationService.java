@@ -40,24 +40,20 @@ public class NotificationService {
     }
 
     public void readNotification(Long notificationId, Long memberId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+        Notification notification = notificationRepository.getById(notificationId);
 
         if (!notification.getMember().getId().equals(memberId)) {
             throw new NotificationException(NotificationErrorCode.FORBIDDEN_READ_NOTIFICATION);
         }
-
         notification.read();
     }
 
     public void deleteNotification(Long notificationId, Long memberId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+        Notification notification = notificationRepository.getById(notificationId);
 
         if (!notification.getMember().getId().equals(memberId)) {
-            throw new NotificationException(NotificationErrorCode.FORBIDDEN_READ_NOTIFICATION); // 권한 없음 예외 재사용
+            throw new NotificationException(NotificationErrorCode.FORBIDDEN_READ_NOTIFICATION);
         }
-
         notificationRepository.delete(notification);
     }
 }
