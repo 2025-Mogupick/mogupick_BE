@@ -1,75 +1,58 @@
 package subscribenlike.mogupick.billing.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subscribenlike.mogupick.billing.dto.ChargeRequest;
-import subscribenlike.mogupick.billing.dto.FirstChargeRequest;
-import subscribenlike.mogupick.billing.dto.PaymentStateResponse;
-import subscribenlike.mogupick.billing.repository.PaymentStateRepository;
-import subscribenlike.mogupick.billing.service.FirstChargeOrchestrator;
-import subscribenlike.mogupick.billing.service.RecurringChargeService;
-import subscribenlike.mogupick.billing.common.success.BillingSuccessCode;
-import subscribenlike.mogupick.common.success.SuccessResponse;
+import subscribenlike.mogupick.billing.dto.*;
+import subscribenlike.mogupick.billing.service.BillingKeyService;
+import subscribenlike.mogupick.billing.service.PaymentService;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/billing")
 public class BillingController {
+    private final BillingKeyService billingKeyService;
+    private final PaymentService paymentService;
 
-    private final FirstChargeOrchestrator firstChargeOrchestrator;
-    private final RecurringChargeService recurringChargeService;
-    private final PaymentStateRepository stateRepo;
-
-    @Operation(summary = "최초 결제", description = "authKey 기반 빌링키 발급 및 결제 승인 처리(멱등)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "최초 결제 성공"),
-    })
-    @PostMapping("/first-charge")
-    public ResponseEntity<?> firstCharge(@Valid @RequestBody FirstChargeRequest req) {
-        log.info("api.firstCharge orderId={} amount={} customerKey={}",
-                req.orderId(), req.amount(), mask(req.customerKey()));
-        PaymentStateResponse response = firstChargeOrchestrator.firstCharge(
-                req.orderId(), req.authKey(), req.customerKey(), req.orderName(), req.amount()
-        );
-        return ResponseEntity
-                .status(BillingSuccessCode.FIRST_CHARGE_SUCCESS.getStatus())
-                .body(SuccessResponse.from(BillingSuccessCode.FIRST_CHARGE_SUCCESS, response));
+    // 결제수단 등록 API
+    @PostMapping("/payment-methods")
+    public ResponseEntity<Void> registerPaymentMethod(@RequestBody RegisterPaymentMethodRequest req) {
+        log.info("api.registerPaymentMethod customerKey={}", mask(req.customerKey()));
+        billingKeyService.registerPaymentMethod(req.authKey(), req.customerKey());
+        return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "재결제", description = "저장된 빌링키로 재결제 승인 처리(멱등)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "재결제 성공"),
-    })
+    // 결제수단 변경 API
+    @PutMapping("/payment-methods")
+    public ResponseEntity<Void> updatePaymentMethod(@RequestBody UpdatePaymentMethodRequest req) {
+        log.info("api.updatePaymentMethod customerKey={}", mask(req.customerKey()));
+        billingKeyService.updatePaymentMethod(req.authKey(), req.customerKey());
+        return ResponseEntity.ok().build();
+    }
+
+    // 결제수단 삭제 API
+    @DeleteMapping("/payment-methods/{customerKey}")
+    public ResponseEntity<Void> deletePaymentMethod(@PathVariable String customerKey) {
+        log.info("api.deletePaymentMethod customerKey={}", mask(customerKey));
+        billingKeyService.deletePaymentMethod(customerKey);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 결제 API (최초 결제 및 재결제 통합)
     @PostMapping("/charge")
-    public ResponseEntity<?> charge(@Valid @RequestBody ChargeRequest req) {
-        log.info("api.charge orderId={} amount={} customerKey={}",
-                req.orderId(), req.amount(), mask(req.customerKey()));
-        PaymentStateResponse response = recurringChargeService.charge(
-                req.orderId(), req.customerKey(), req.orderName(), req.amount()
-        );
-        return ResponseEntity
-                .status(BillingSuccessCode.RECURRING_CHARGE_SUCCESS.getStatus())
-                .body(SuccessResponse.from(BillingSuccessCode.RECURRING_CHARGE_SUCCESS, response));
+    public ResponseEntity<PaymentStateResponse> charge(@RequestBody ChargeRequest req) {
+        log.info("api.charge orderId={} amount={} customerKey={}", req.orderId(), req.amount(), mask(req.customerKey()));
+        return ResponseEntity.ok(paymentService.charge(req.orderId(), req.customerKey(), req.orderName(), req.amount()));
     }
 
-    @Operation(summary = "결제 상태 조회", description = "orderId에 해당하는 결제 상태 최신 스냅샷 조회")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "결제 상태 조회 성공"),
-    })
+    // 결제 상태 조회 API
     @GetMapping("/orders/{orderId}")
-    public ResponseEntity<?> getState(@PathVariable String orderId) {
-        return stateRepo.findByOrderId(orderId)
-                .map(state -> ResponseEntity
-                        .status(BillingSuccessCode.PAYMENT_STATUS_FETCHED.getStatus())
-                        .body(SuccessResponse.from(BillingSuccessCode.PAYMENT_STATUS_FETCHED, PaymentStateResponse.from(state))))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<PaymentStateResponse> getState(@PathVariable String orderId) {
+        return ResponseEntity.of(
+                paymentService.findPaymentStateByOrderId(orderId).map(PaymentStateResponse::from)
+        );
     }
 
     private String mask(String v) {

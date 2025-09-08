@@ -13,3 +13,4 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     Optional<Subscription> findByPaymentKey(String paymentKey);
     boolean existsByPaymentKey(String paymentKey);
 }
+
