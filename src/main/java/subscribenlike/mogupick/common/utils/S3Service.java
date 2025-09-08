@@ -79,8 +79,7 @@ public class S3Service {
 
         try {
             PutObjectRequest putObjectRequest =
-                    new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata)
-                            .withCannedAcl(CannedAccessControlList.PublicRead);
+                    new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata);
             amazonS3.putObject(putObjectRequest); // put image to S3
         } catch (Exception e) {
             log.error("S3 이미지 업로드 실패: filename={}, error={}", originalFilename, e.getMessage(), e);
