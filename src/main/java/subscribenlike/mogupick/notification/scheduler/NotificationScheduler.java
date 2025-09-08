@@ -25,7 +25,7 @@ public class NotificationScheduler {
         log.info("결제 3일 전 알림 스케줄러를 시작합니다.");
 
         LocalDate targetDate = LocalDate.now().plusDays(3);
-        List<Subscription> subscriptions = subscriptionRepository.findByNextPaymentDate(targetDate);
+        List<Subscription> subscriptions = subscriptionRepository.findByNextBillingDate(targetDate);
 
         for (Subscription subscription : subscriptions) {
             String productName = subscription.getProduct().getName();

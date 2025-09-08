@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 public record SubscriptionResponse(
         Long subscriptionId,
         String productName,
-        String productDescription,
-        String origin,
         int price,
         String brandName,
         String deliveryCycle,
@@ -26,8 +24,6 @@ public record SubscriptionResponse(
         return new SubscriptionResponse(
                 sub.getId(),
                 product.getName(),
-                product.getDescription(),
-                product.getOrigin(),
                 product.getPrice(),
                 product.getBrandName(),
                 option.getDisplayText(),
