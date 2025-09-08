@@ -23,6 +23,8 @@ import subscribenlike.mogupick.recentSearchKeyword.domain.RecentSearchKeyword;
 import subscribenlike.mogupick.recentSearchKeyword.repository.RecentSearchKeywordRepository;
 import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
+import subscribenlike.mogupick.searchKeyword.common.SearchKeywordErrorCode;
+import subscribenlike.mogupick.searchKeyword.common.SearchKeywordException;
 import subscribenlike.mogupick.searchKeyword.domain.SearchKeyword;
 import subscribenlike.mogupick.searchKeyword.dto.RecentKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordRequest;
@@ -118,7 +120,7 @@ public class SearchKeywordService {
         String normalized = SearchKeyword.normalize(keyword);
 
         return searchKeywordRepository
-                .findTop5ByNormalizedContentContainingIgnoreCaseOrderBySearchedCountDesc(normalized)
+                .findTop6ByNormalizedContentContainingIgnoreCaseOrderBySearchedCountDesc(normalized)
                 .stream()
                 .map(SearchKeywordResponse::from)
                 .toList();
@@ -220,7 +222,7 @@ public class SearchKeywordService {
 
     private static void validateOwner(RecentSearchKeyword recentSearchKeyword, Member member) {
         if (!Objects.equals(recentSearchKeyword.getMember().getId(), member.getId())) {
-            throw new IllegalArgumentException("검색어의 주인이 아닙니다");
+            throw new SearchKeywordException(SearchKeywordErrorCode.SEARCH_KEYWORD_OWNER_ERROR);
         }
     }
 }
