@@ -166,7 +166,7 @@ public class ProductService {
         List<ProductMedia> productMedias = images.stream()
                 .filter(image -> !image.isEmpty())
                 .map(image -> ProductMedia.builder()
-                            .imageUrl(s3Service.uploadFile(image))
+                            .imageUrl(s3Service.upload(image))
                             .product(product)
                             .build())
                 .toList();

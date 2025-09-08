@@ -15,8 +15,11 @@ import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.repository.ProductRepository;
+import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionOption;
 import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionPeriodUnit;
+import subscribenlike.mogupick.subscriptionOption.repository.SubscriptionOptionRepository;
 
+import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -26,6 +29,7 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final SubscriptionOptionRepository subscriptionOptionRepository;
 
     @Transactional(readOnly = true)
     public CartResponse get(Long memberId) {
@@ -38,19 +42,15 @@ public class CartService {
     public CartResponse add(CartAddRequest request) {
         Member member = memberRepository.findOrThrow(request.memberId());
         Product product = productRepository.getById(request.productId());
+        SubscriptionOption option = subscriptionOptionRepository.findById(request.subscriptionOptionId())
+                .orElseThrow(() -> new CartException(CartErrorCode.SUBSCRIPTION_OPTION_NOT_FOUND));
 
-        if (request.period() <= 0) {
-            throw new CartException(CartErrorCode.PERIOD_INVALID);
-        }
-
-        SubscriptionPeriodUnit unit = request.unit();
-        if (unit == null) {
-            throw new CartException(CartErrorCode.UNIT_INVALID);
+        if (request.firstDeliveryDate() == null) {
+            throw new CartException(CartErrorCode.FIRST_DELIVERY_DATE_REQUIRED); // 필요시 신규 에러코드 추가
         }
 
         Cart cart = cartRepository.findOrCreate(member);
-        cart.addItem(CartItem.create(product, unit, request.period()));
-
+        cart.addItem(CartItem.create(product, option, request.firstDeliveryDate()));
         return CartResponse.from(cart);
     }
 
@@ -77,25 +77,26 @@ public class CartService {
 
     @Transactional
     public CartResponse updateItemOption(Long memberId, Long cartItemId, CartItemOptionUpdateRequest req) {
-        if (req.period() <= 0) {
-            throw new CartException(CartErrorCode.PERIOD_INVALID);
-        }
-        if (req.unit() == null) {
-            throw new CartException(CartErrorCode.UNIT_INVALID);
-        }
-
         Member member = memberRepository.findOrThrow(memberId);
         Cart cart = cartRepository.findOrThrow(member);
-
         CartItem target = cart.getItems().stream()
                 .filter(i -> Objects.equals(i.getId(), cartItemId))
                 .findFirst()
                 .orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
 
+        SubscriptionOption option = subscriptionOptionRepository.findById(req.subscriptionOptionId())
+                .orElseThrow(() -> new CartException(CartErrorCode.SUBSCRIPTION_OPTION_NOT_FOUND));
+
+        LocalDate firstDeliveryDate = req.firstDeliveryDate();
+        if (firstDeliveryDate == null) {
+            throw new CartException(CartErrorCode.FIRST_DELIVERY_DATE_REQUIRED);
+        }
+
         CartItem duplicate = cart.getItems().stream()
                 .filter(i -> !Objects.equals(i.getId(), cartItemId))
                 .filter(i -> Objects.equals(i.getProduct().getId(), target.getProduct().getId()))
-                .filter(i -> i.getUnit() == req.unit() && i.getPeriod() == req.period())
+                .filter(i -> i.getOption().getId().equals(option.getId()))
+                .filter(i -> i.getFirstDeliveryDate().equals(firstDeliveryDate))
                 .findFirst()
                 .orElse(null);
 
@@ -105,12 +106,12 @@ public class CartService {
             return CartResponse.from(cart);
         }
 
-        setOption(target, req.unit(), req.period());
+        target.updateOption(option, firstDeliveryDate);
 
         return CartResponse.from(cart);
     }
 
-    private void setOption(CartItem item, SubscriptionPeriodUnit unit, int period) {
-        item.updateOption(unit, period);
+    private void setOption(CartItem item, SubscriptionOption option, LocalDate firstDeliveryDate) {
+        item.updateOption(option, firstDeliveryDate);
     }
 }
