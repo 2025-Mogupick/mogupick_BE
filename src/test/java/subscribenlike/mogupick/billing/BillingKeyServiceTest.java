@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.billing;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,13 +36,13 @@ class BillingKeyServiceTest {
     @InjectMocks
     private BillingKeyService billingKeyService;
 
-    public BillingKeyServiceTest() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void issueAndStore_빌링키_정상발급_저장() {
-        String orderId = "order1";
+    void registerPaymentMethod_빌링키_정상발급_저장() {
         String authKey = "authKey";
         String customerKey = "customer1";
         String billingKey = "billingKey";
@@ -53,7 +54,7 @@ class BillingKeyServiceTest {
         when(billingKeyCredentialRepository.findByCustomerKey(customerKey)).thenReturn(Optional.empty());
         when(billingKeyCredentialRepository.save(any(BillingKeyCredential.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        billingKeyService.issueAndStore(orderId, authKey, customerKey);
+        billingKeyService.registerPaymentMethod(authKey, customerKey);
 
         verify(tossPaymentsClient).issueBillingKeyByAuthKey(authKey, customerKey);
         verify(billingKeyCredentialRepository).save(any(BillingKeyCredential.class));
