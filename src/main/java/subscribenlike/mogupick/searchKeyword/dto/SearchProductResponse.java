@@ -1,6 +1,7 @@
 package subscribenlike.mogupick.searchKeyword.dto;
 
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.domain.ProductMedia;
 
 public record SearchProductResponse(
         Long id,

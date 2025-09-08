@@ -25,4 +25,15 @@ public class BrandLike extends BaseEntity {
 
     @ManyToOne
     private Member member;
+
+    public BrandLike(Long id, Brand brand, Member member) {
+        this.id = id;
+        this.brand = brand;
+        this.member = member;
+    }
+
+    public BrandLike(Brand brand, Member member) {
+        this.brand = brand;
+        this.member = member;
+    }
 }

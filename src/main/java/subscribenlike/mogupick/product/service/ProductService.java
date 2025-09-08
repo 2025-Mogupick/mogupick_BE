@@ -15,6 +15,7 @@ import subscribenlike.mogupick.common.utils.S3Service;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.domain.ProductDescriptionMedia;
 import subscribenlike.mogupick.product.domain.ProductMedia;
 import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.model.*;
@@ -34,6 +35,7 @@ import java.util.Map;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMediaRepository productMediaRepository;
+    private final ProductDescriptionMediaRepository productDescriptionMediaRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ProductViewCountRepository productViewCountRepository;
     private final MemberProductViewCountRepository memberProductViewCountRepository;
@@ -51,6 +53,7 @@ public class ProductService {
 
         // 상품 이미지 URL 리스트 조회
         List<String> productImageUrls = productMediaRepository.findImageUrlsByProductId(productId);
+        List<String> productDescriptionImageUrls = productDescriptionMediaRepository.findImageUrlsByProductId(productId);
 
         // 리뷰 평균 평점과 리뷰 수 조회
         Double averageRating = reviewRepository.findByProductId(productId).stream()
@@ -64,6 +67,7 @@ public class ProductService {
                 .productId(product.getId())
                 .productName(product.getName())
                 .productImageUrls(productImageUrls)
+                .productDescriptionImageUrls(productDescriptionImageUrls)
                 .price(product.getPrice())
                 .brandId(product.getBrand().getId())
                 .brandName(product.getBrandName())
@@ -116,7 +120,8 @@ public class ProductService {
         Product product = createProduct(request, brand);
 
         // 다중 이미지 업로드 및 ProductMedia 생성
-        uploadAndSaveProductImages(request.getImage(), product);
+        uploadAndSaveProductImages(request.getProductImages(), product);
+        uploadAndSaveProductDescriptionImages(request.getProductDescriptionImages(), product);
 
         createProductOption(request, product);
     }
@@ -171,12 +176,25 @@ public class ProductService {
         }
     }
 
+    private void uploadAndSaveProductDescriptionImages(List<MultipartFile> images, Product product) throws IOException {
+        List<ProductDescriptionMedia> productMedias = images.stream()
+                .filter(image -> !image.isEmpty())
+                .map(image -> ProductDescriptionMedia.builder()
+                        .imageUrl(s3Service.uploadFile(image))
+                        .product(product)
+                        .build())
+                .toList();
+
+        if (!productMedias.isEmpty()) {
+            productDescriptionMediaRepository.saveAll(productMedias);
+        }
+    }
+
     private Product createProduct(CreateProductRequest request, Brand brand) {
         return productRepository.save(request.toProduct(brand));
     }
 
     private ProductOption createProductOption(CreateProductRequest request, Product product) {
-        categoryService.validateCategoryOptionFromMap(request.getRootCategory(), request.getOptions());
         return productOptionRepository.save(request.toProductOption(product));
     }
 
