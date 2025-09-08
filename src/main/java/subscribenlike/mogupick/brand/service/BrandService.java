@@ -23,7 +23,7 @@ public class BrandService {
     @Transactional
     public BrandResponse save(Long memberId, BrandCreateRequest brandCreateRequest) {
         Member member = memberRepository.findOrThrow(memberId);
-        validateRole(member);
+//        validateRole(member);
         Brand brand = brandCreateRequest.toEntity(member);
         return BrandResponse.from(brandRepository.save(brand));
     }
@@ -34,6 +34,7 @@ public class BrandService {
         }
     }
 
+    @Transactional
     public void delete(Long memberId, Long brandId) {
         Brand brand = brandRepository.findOrThrow(brandId);
         Member member = memberRepository.findOrThrow(memberId);
