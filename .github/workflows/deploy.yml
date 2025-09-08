@@ -69,7 +69,7 @@ jobs:
             echo "[2/3] Update compose"
             cd "$APP_DIR"
             if [ -f docker-compose.yml ]; then
-              sed -i "s|image: .*|image: ${{ steps.meta.outputs.IMAGE }}:latest|g" docker-compose.yml
+              sed -i '/app:/,/container_name:/ s|image: .*|image: '"${{ steps.meta.outputs.IMAGE }}:latest"'|' docker-compose.yml
             fi
             docker compose up -d
 
