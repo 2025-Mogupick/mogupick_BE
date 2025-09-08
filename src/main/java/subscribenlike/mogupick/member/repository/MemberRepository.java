@@ -1,6 +1,10 @@
 package subscribenlike.mogupick.member.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import subscribenlike.mogupick.auth.common.exception.AuthErrorCode;
+import subscribenlike.mogupick.auth.common.exception.AuthException;
+import subscribenlike.mogupick.member.common.exception.MemberErrorCode;
+import subscribenlike.mogupick.member.common.exception.MemberException;
 import subscribenlike.mogupick.member.domain.Member;
 
 import java.util.Optional;
@@ -13,11 +17,16 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     default Member findByEmailOrThrow(String email) {
         return findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
 
-    default Member findOrThrow(Long id) {
+    default Member getById(Long id) {
         return findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("not found"));
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    default Member findByRefreshTokenOrThrow(String refreshToken) {
+        return findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND_FOR_TOKEN));
     }
 }
