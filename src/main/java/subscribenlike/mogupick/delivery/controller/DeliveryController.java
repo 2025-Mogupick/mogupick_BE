@@ -22,4 +22,11 @@ public class DeliveryController {
         deliveryService.startDelivery(deliveryId);
         return SuccessResponse.from(DeliverySuccessCode.DELIVERY_STARTED_SUCCESS);
     }
+
+    @Operation(summary = "배송 완료 처리", description = "특정 배송 건의 상태를 '배송 완료'로 변경하고 알림을 보냅니다.")
+    @PostMapping("/{deliveryId}/complete")
+    public SuccessResponse<Void> completeDelivery(@PathVariable Long deliveryId) {
+        deliveryService.completeDelivery(deliveryId);
+        return SuccessResponse.from(DeliverySuccessCode.DELIVERY_COMPLETED_SUCCESS);
+    }
 }
