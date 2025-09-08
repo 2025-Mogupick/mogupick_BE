@@ -23,7 +23,7 @@ import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 import subscribenlike.mogupick.subscription.domain.Subscription;
-import subscribenlike.mogupick.subscription.domain.SubscriptionRepository;
+import subscribenlike.mogupick.subscription.repository.SubscriptionRepository;
 
 import java.time.LocalDate;
 import java.util.*;

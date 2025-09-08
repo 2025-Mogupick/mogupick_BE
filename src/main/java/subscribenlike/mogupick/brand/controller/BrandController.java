@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import subscribenlike.mogupick.brand.dto.BrandCreateRequest;
 import subscribenlike.mogupick.brand.dto.BrandResponse;
 import subscribenlike.mogupick.brand.service.BrandService;
+import subscribenlike.mogupick.global.security.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/v1/brand")
@@ -29,8 +30,8 @@ public class BrandController {
             )
     })
     @PostMapping
-    public ResponseEntity<BrandResponse> create(Long memberId, @RequestBody BrandCreateRequest brandCreateRequest) {
-        return ResponseEntity.ok(brandService.save(memberId, brandCreateRequest));
+    public ResponseEntity<BrandResponse> create(CustomUserDetails userDetails, @RequestBody BrandCreateRequest brandCreateRequest) {
+        return ResponseEntity.ok(brandService.save(userDetails.getMemberId(), brandCreateRequest));
     }
 
     @Operation(summary = "브랜드 삭제", description = "브랜드를 삭제합니다.")
@@ -41,8 +42,8 @@ public class BrandController {
             )
     })
     @DeleteMapping("{brandId}")
-    public ResponseEntity<Void> delete(Long memberId, @PathVariable Long brandId) {
-        brandService.delete(memberId,brandId);
+    public ResponseEntity<Void> delete(CustomUserDetails userDetails, @PathVariable Long brandId) {
+        brandService.delete(userDetails.getMemberId(),brandId);
         return ResponseEntity.ok().build();
     }
 }
