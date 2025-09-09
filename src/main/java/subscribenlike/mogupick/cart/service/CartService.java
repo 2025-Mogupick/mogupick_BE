@@ -39,8 +39,8 @@ public class CartService {
     }
 
     @Transactional
-    public CartResponse add(CartAddRequest request) {
-        Member member = memberRepository.findOrThrow(request.memberId());
+    public CartResponse add(Long memberId, CartAddRequest request) {
+        Member member = memberRepository.findOrThrow(memberId);
         Product product = productRepository.getById(request.productId());
         SubscriptionOption option = subscriptionOptionRepository.findById(request.subscriptionOptionId())
                 .orElseThrow(() -> new CartException(CartErrorCode.SUBSCRIPTION_OPTION_NOT_FOUND));
