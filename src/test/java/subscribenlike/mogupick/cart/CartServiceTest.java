@@ -74,9 +74,9 @@ class CartServiceTest {
     void 장바구니에_상품_하나_담기_및_배송일_포함() {
         LocalDate firstDeliveryDate = LocalDate.now().plusDays(7);
         CartAddRequest request = new CartAddRequest(
-                member.getId(), product.getId(), option1.getId(), firstDeliveryDate);
+                 product.getId(), option1.getId(), firstDeliveryDate);
 
-        CartResponse response = cartService.add(request);
+        CartResponse response = cartService.add(member.getId(), request);
 
         assertThat(response.items()).hasSize(1);
         assertThat(response.items().get(0).subscriptionOptionId()).isEqualTo(option1.getId());
@@ -94,7 +94,7 @@ class CartServiceTest {
         Long targetId = cart.getItems().get(0).getId();
 
         CartItemOptionUpdateRequest request =
-                new CartItemOptionUpdateRequest(member.getId(), option2.getId(), date2);
+                new CartItemOptionUpdateRequest(option2.getId(), date2);
 
         CartResponse updated = cartService.updateItemOption(member.getId(), targetId, request);
 
@@ -109,7 +109,7 @@ class CartServiceTest {
         cartRepository.save(cart);
         Long cartItemId = cart.getItems().get(0).getId();
 
-        CartItemOptionUpdateRequest nullDateReq = new CartItemOptionUpdateRequest(member.getId(), option1.getId(), null);
+        CartItemOptionUpdateRequest nullDateReq = new CartItemOptionUpdateRequest(option1.getId(), null);
 
         assertThatThrownBy(() -> cartService.updateItemOption(cart.getMember().getId(), cartItemId, nullDateReq))
                 .isInstanceOf(CartException.class)
