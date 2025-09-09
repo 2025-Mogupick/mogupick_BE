@@ -11,9 +11,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.searchKeyword.dto.RecentKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordRequest;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordResponse;
@@ -34,8 +36,12 @@ public class SearchKeywordController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<SearchProductResponse>> searchProducts(@AuthenticationPrincipal UserDetails userDetails,
-                                                                      @RequestParam SearchKeywordRequest searchKeywordRequest) {
+    public ResponseEntity<List<SearchProductResponse>> searchProducts(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody SearchKeywordRequest searchKeywordRequest) {
+        if (userDetails == null) {
+            return ResponseEntity.ok(searchKeywordService.findByKeyword(null, searchKeywordRequest));
+        }
         return ResponseEntity.ok(searchKeywordService.findByKeyword(userDetails.getUsername(), searchKeywordRequest));
     }
 
@@ -48,7 +54,7 @@ public class SearchKeywordController {
     })
     @GetMapping("/related")
     public ResponseEntity<List<SearchKeywordResponse>> findRelatedKeyword(
-            @RequestParam SearchKeywordRequest searchKeywordRequest) {
+            @RequestBody SearchKeywordRequest searchKeywordRequest) {
         return ResponseEntity.ok(searchKeywordService.findRelatedKeyword(searchKeywordRequest.content()));
     }
 
@@ -85,7 +91,8 @@ public class SearchKeywordController {
             )
     })
     @DeleteMapping("/recent/{keywordId}")
-    public ResponseEntity<?> deleteRecentKeywords(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long keywordId) {
+    public ResponseEntity<?> deleteRecentKeywords(@AuthenticationPrincipal UserDetails userDetails,
+                                                  @PathVariable Long keywordId) {
         searchKeywordService.deleteRecentKeyword(userDetails.getUsername(), keywordId);
         return ResponseEntity.noContent()
                 .build();
