@@ -8,6 +8,8 @@ import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.brand.dto.BrandCreateRequest;
 import subscribenlike.mogupick.brand.dto.BrandResponse;
 import subscribenlike.mogupick.brand.repository.BrandRepository;
+import subscribenlike.mogupick.member.common.exception.MemberErrorCode;
+import subscribenlike.mogupick.member.common.exception.MemberException;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 
@@ -21,17 +23,18 @@ public class BrandService {
     @Transactional
     public BrandResponse save(Long memberId, BrandCreateRequest brandCreateRequest) {
         Member member = memberRepository.findOrThrow(memberId);
-        validateRole(member);
+//        validateRole(member);
         Brand brand = brandCreateRequest.toEntity(member);
         return BrandResponse.from(brandRepository.save(brand));
     }
 
     private void validateRole(Member member) {
         if (member.isMember()) {
-            throw new IllegalArgumentException("Member is not seller");
+            throw new MemberException(MemberErrorCode.INVALID_SELLER_ROLE);
         }
     }
 
+    @Transactional
     public void delete(Long memberId, Long brandId) {
         Brand brand = brandRepository.findOrThrow(brandId);
         Member member = memberRepository.findOrThrow(memberId);
@@ -41,7 +44,7 @@ public class BrandService {
 
     private void validateIsOwner(Brand brand, Member member) {
         if (!Objects.equals(brand.getMember(), member)) {
-            throw new IllegalArgumentException("Member is not own");
+            throw new MemberException(MemberErrorCode.INVALID_OWNER_ERROR);
         }
     }
 }
