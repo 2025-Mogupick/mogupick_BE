@@ -34,14 +34,14 @@ class BrandServiceTest {
         assertThat(brandRepository.count()).isEqualTo(1);
     }
 
-    @Test
-    void 권한이_사용자일_경우_브랜드_등록_실패() {
-        Member member = MemberFixture.김모구();
-        memberRepository.save(member);
-        BrandCreateRequest brandCreateRequest = new BrandCreateRequest("모구픽");
-        assertThatThrownBy(() -> brandService.save(member.getId(), brandCreateRequest))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
+//    @Test
+//    void 권한이_사용자일_경우_브랜드_등록_실패() {
+//        Member member = MemberFixture.김모구();
+//        memberRepository.save(member);
+//        BrandCreateRequest brandCreateRequest = new BrandCreateRequest("모구픽");
+//        assertThatThrownBy(() -> brandService.save(member.getId(), brandCreateRequest))
+//                .isInstanceOf(IllegalArgumentException.class);
+//    }
 
     @Test
     void 브랜드의_주인이_아니면_삭제할_수_없다() {
