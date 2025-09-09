@@ -1,5 +1,8 @@
 package subscribenlike.mogupick.billing.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +19,10 @@ public class BillingController {
     private final BillingKeyService billingKeyService;
     private final PaymentService paymentService;
 
-    // 결제수단 등록 API
+    @Operation(summary = "결제수단 등록", description = "고객의 결제수단을 등록합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "결제수단 등록 성공")
+    })
     @PostMapping("/payment-methods")
     public ResponseEntity<Void> registerPaymentMethod(@RequestBody RegisterPaymentMethodRequest req) {
         log.info("api.registerPaymentMethod customerKey={}", mask(req.customerKey()));
@@ -24,7 +30,10 @@ public class BillingController {
         return ResponseEntity.ok().build();
     }
 
-    // 결제수단 변경 API
+    @Operation(summary = "결제수단 변경", description = "고객의 결제수단을 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "결제수단 변경 성공")
+    })
     @PutMapping("/payment-methods")
     public ResponseEntity<Void> updatePaymentMethod(@RequestBody UpdatePaymentMethodRequest req) {
         log.info("api.updatePaymentMethod customerKey={}", mask(req.customerKey()));
@@ -32,7 +41,10 @@ public class BillingController {
         return ResponseEntity.ok().build();
     }
 
-    // 결제수단 삭제 API
+    @Operation(summary = "결제수단 삭제", description = "고객의 결제수단을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "결제수단 삭제 성공")
+    })
     @DeleteMapping("/payment-methods/{customerKey}")
     public ResponseEntity<Void> deletePaymentMethod(@PathVariable String customerKey) {
         log.info("api.deletePaymentMethod customerKey={}", mask(customerKey));
@@ -40,14 +52,21 @@ public class BillingController {
         return ResponseEntity.noContent().build();
     }
 
-    // 결제 API (최초 결제 및 재결제 통합)
+    @Operation(summary = "결제 요청", description = "주문에 대해 결제를 요청합니다. 최초 결제 및 재결제를 통합 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "결제 요청 성공")
+    })
     @PostMapping("/charge")
     public ResponseEntity<PaymentStateResponse> charge(@RequestBody ChargeRequest req) {
         log.info("api.charge orderId={} amount={} customerKey={}", req.orderId(), req.amount(), mask(req.customerKey()));
         return ResponseEntity.ok(paymentService.charge(req.orderId(), req.customerKey(), req.orderName(), req.amount()));
     }
 
-    // 결제 상태 조회 API
+    @Operation(summary = "결제 상태 조회", description = "주문 ID로 결제 상태를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "결제 상태 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 주문 ID를 찾을 수 없음")
+    })
     @GetMapping("/orders/{orderId}")
     public ResponseEntity<PaymentStateResponse> getState(@PathVariable String orderId) {
         return ResponseEntity.of(
