@@ -32,6 +32,7 @@ import subscribenlike.mogupick.review.repository.ReviewRepository;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -159,6 +160,57 @@ public class ProductService {
         List<ProductWithOptionResponse> pageContent = content.subList(start, end);
 
         return new PageImpl<>(pageContent, pageable, content.size());
+    }
+
+    public Page<FetchProductWithOptionResponse> findProductWithOptionByRootCategoryAsFetchResponse(RootCategory rootCategory, Pageable pageable) {
+        Page<ProductWithOptionResponse> productWithOptionPage = findProductWithOptionByRootCategory(rootCategory, pageable);
+
+        List<FetchProductWithOptionResponse> content = productWithOptionPage.getContent().stream()
+                .map(this::convertToFetchProductWithOptionResponse)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(content, pageable, productWithOptionPage.getTotalElements());
+    }
+
+    private FetchProductWithOptionResponse convertToFetchProductWithOptionResponse(ProductWithOptionResponse productWithOption) {
+        Product product = productWithOption.getProduct();
+        ProductOption option = productWithOption.getOption();
+
+        // 상품 대표 이미지 URL 조회
+        String productImageUrl = productMediaRepository.findFirstImageUrlByProductId(product.getId());
+
+        // 리뷰 정보 조회
+        Double averageRating = reviewRepository.findByProductId(product.getId()).stream()
+                .mapToDouble(review -> review.getScore())
+                .average()
+                .orElse(0.0);
+        Long reviewCount = reviewRepository.countByProductId(product.getId());
+
+        // 각 컴포넌트 생성
+        FetchProductResponse fetchProductResponse = FetchProductResponse.of(
+                product.getId(),
+                productImageUrl,
+                product.getName(),
+                product.getPrice(),
+                product.getCreatedAt()
+        );
+
+        FetchBrandResponse fetchBrandResponse = FetchBrandResponse.of(
+                product.getBrand().getId(),
+                product.getBrand().getName()
+        );
+
+        FetchReviewResponse fetchReviewResponse = FetchReviewResponse.of(
+                averageRating,
+                reviewCount
+        );
+
+        return FetchProductWithOptionResponse.of(
+                fetchProductResponse,
+                fetchBrandResponse,
+                fetchReviewResponse,
+                option
+        );
     }
 
 

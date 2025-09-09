@@ -87,13 +87,13 @@ public class ProductController {
             )
     })
     @GetMapping("/category")
-    public ResponseEntity<SuccessResponse<PaginatedResponse<ProductWithOptionResponse>>> createProduct(
+    public ResponseEntity<SuccessResponse<PaginatedResponse<FetchProductWithOptionResponse>>> getProductsByCategory(
             @RequestParam RootCategory rootCategory,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductWithOptionResponse> response =
-                productService.findProductWithOptionByRootCategory(rootCategory, pageable);
+        Page<FetchProductWithOptionResponse> response =
+                productService.findProductWithOptionByRootCategoryAsFetchResponse(rootCategory, pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.PRODUCT_GROUP_BY_ROOT_CATEGORY_FETCHED.getStatus())
