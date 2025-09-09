@@ -3,6 +3,8 @@ package subscribenlike.mogupick.recentSearchKeyword.repository;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.recentSearchKeyword.common.RecentSearchKeywordErrorCode;
+import subscribenlike.mogupick.recentSearchKeyword.common.RecentSearchKeywordException;
 import subscribenlike.mogupick.recentSearchKeyword.domain.RecentSearchKeyword;
 
 public interface RecentSearchKeywordRepository extends JpaRepository<RecentSearchKeyword, Long> {
@@ -11,6 +13,7 @@ public interface RecentSearchKeywordRepository extends JpaRepository<RecentSearc
     List<RecentSearchKeyword> findTop5ByMemberOrderByCreatedAtDesc(Member member);
 
     default RecentSearchKeyword findOrThrow(Long id) {
-        return findById(id).orElseThrow(() -> new IllegalArgumentException("not found"));
+        return findById(id)
+                .orElseThrow(() -> new RecentSearchKeywordException(RecentSearchKeywordErrorCode.KEYWORD_NOT_FOUND));
     }
 }

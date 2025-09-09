@@ -1,4 +1,4 @@
-package subscribenlike.mogupick.member.common.exception;
+package subscribenlike.mogupick.delivery.common.exception;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -8,16 +8,11 @@ import subscribenlike.mogupick.common.error.core.ErrorCode;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum MemberErrorCode implements ErrorCode {
+public enum DeliveryErrorCode implements ErrorCode {
 
-    // 404 Not Found
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
-    INVALID_OWNER_ERROR(HttpStatus.BAD_REQUEST, "브랜드의 주인이 아닙니다"),
-    INVALID_SELLER_ROLE(HttpStatus.BAD_REQUEST, "판매자 권한이 아닙니다"),
+    DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 배송 정보를 찾을 수 없습니다.");
 
-    ;
-
-    public static final String PREFIX = "[MEMBER ERROR] ";
+    public static final String PREFIX = "[DELIVERY ERROR] ";
 
     private final HttpStatus status;
     private final String rawMessage;

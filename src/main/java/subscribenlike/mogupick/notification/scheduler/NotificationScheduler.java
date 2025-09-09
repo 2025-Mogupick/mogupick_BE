@@ -35,7 +35,7 @@ public class NotificationScheduler {
                     subscription.getMember(),
                     NotificationType.PAYMENT_REMINDER,
                     content,
-                    "/my-page/subscriptions"
+                    "/alert"
             );
         }
         log.info("총 {}개의 결제 3일 전 알림 생성을 완료했습니다.", subscriptions.size());

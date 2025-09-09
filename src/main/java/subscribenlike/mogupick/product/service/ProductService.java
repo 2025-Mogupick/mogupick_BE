@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.product.service;
 
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,6 +13,8 @@ import subscribenlike.mogupick.brand.repository.BrandRepository;
 import subscribenlike.mogupick.category.CategoryService;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.common.utils.S3Service;
+import subscribenlike.mogupick.like.domain.ProductLike;
+import subscribenlike.mogupick.like.repository.ProductLikeRepository;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
@@ -23,6 +26,7 @@ import subscribenlike.mogupick.product.model.query.FetchPeerBestReviewsQueryResu
 import subscribenlike.mogupick.product.model.query.ProductsInMonthQueryResult;
 import subscribenlike.mogupick.product.model.query.RecentlyViewProductsQueryResult;
 import subscribenlike.mogupick.product.repository.*;
+import subscribenlike.mogupick.review.domain.Review;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 
 import java.io.IOException;
@@ -43,9 +47,11 @@ public class ProductService {
     private final BrandRepository brandRepository;
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
+    private final ProductLikeRepository productLikeRepository;
 
     private final CategoryService categoryService;
 
+    public static final double DEFAULT_SCORE_VALUE = 0.0;
     private final static int PEER_STANDARD_AGE = 5;
 
     public FetchProductDetailResponse findProductDetailById(Long productId) {
@@ -53,7 +59,8 @@ public class ProductService {
 
         // 상품 이미지 URL 리스트 조회
         List<String> productImageUrls = productMediaRepository.findImageUrlsByProductId(productId);
-        List<String> productDescriptionImageUrls = productDescriptionMediaRepository.findImageUrlsByProductId(productId);
+        List<String> productDescriptionImageUrls = productDescriptionMediaRepository.findImageUrlsByProductId(
+                productId);
 
         // 리뷰 평균 평점과 리뷰 수 조회
         Double averageRating = reviewRepository.findByProductId(productId).stream()
@@ -133,7 +140,8 @@ public class ProductService {
         return ProductWithOptionResponse.of(product, productOption);
     }
 
-    public Page<ProductWithOptionResponse> findProductWithOptionByRootCategory(RootCategory rootCategory, Pageable pageable) {
+    public Page<ProductWithOptionResponse> findProductWithOptionByRootCategory(RootCategory rootCategory,
+                                                                               Pageable pageable) {
         List<ProductOption> productOptions = productOptionRepository.findAllByRootCategory(rootCategory);
         List<Long> productIds = productOptions.stream()
                 .map(ProductOption::getProductId)
@@ -169,7 +177,8 @@ public class ProductService {
         return new PageImpl<>(pageContent, pageable, content.size());
     }
 
-    private static ProductWithOptionResponse createProductWithOptionResponse(Map<Long, Product> products, ProductOption option) {
+    private static ProductWithOptionResponse createProductWithOptionResponse(Map<Long, Product> products,
+                                                                             ProductOption option) {
         return ProductWithOptionResponse.of(products.get(option.getProductId()), option);
     }
 
@@ -210,7 +219,8 @@ public class ProductService {
     }
 
 
-    private FetchRecentlyViewProductResponse createFetchRecentlyViewProductResponse(RecentlyViewProductsQueryResult product) {
+    private FetchRecentlyViewProductResponse createFetchRecentlyViewProductResponse(
+            RecentlyViewProductsQueryResult product) {
         // 상품 대표 이미지 URL 조회 (쿼리에서 가져온 값이 있으면 사용, 없으면 별도 조회)
         String productImageUrl = product.getProductImageUrl();
 
@@ -234,7 +244,7 @@ public class ProductService {
                         product.getRating(),
                         product.getReviewCount()
                 )
-                ,product.getViewCount(),
+                , product.getViewCount(),
                 product.getLastViewedAt()
         );
     }
@@ -263,5 +273,35 @@ public class ProductService {
                         product.getReviewCount()
                 )
         );
+    }
+
+    public List<LikedProductResponse> getMyLikedProducts(Long memberId) {
+        List<ProductLike> likes = productLikeRepository.findAllByMemberId(memberId);
+
+        return likes.stream()
+                .map(ProductLike::getProduct)
+                .map(this::toLikedProductResponse)
+                .toList();
+    }
+
+    private LikedProductResponse toLikedProductResponse(Product product) {
+        List<Double> scores = reviewRepository.findByProductId(product.getId())
+                .stream()
+                .map(Review::getScore)
+                .toList();
+        double averageScore = getAverageScore(scores);
+
+        return LikedProductResponse.of(product, productMediaRepository.findFirstImageUrlByProductId(product.getId()),
+                averageScore, scores.size());
+    }
+
+    private static double getAverageScore(List<Double> scores) {
+        if (scores.isEmpty()) {
+            return DEFAULT_SCORE_VALUE;
+        }
+        return scores.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(DEFAULT_SCORE_VALUE);
     }
 }

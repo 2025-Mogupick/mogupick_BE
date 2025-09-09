@@ -43,3 +43,4 @@ src/main/resources/application-local.yml
 
 .DS_Store
 test_prompt.txt
+.data/

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,7 @@ public class BrandController {
             )
     })
     @PostMapping
-    public ResponseEntity<BrandResponse> create(CustomUserDetails userDetails, @RequestBody BrandCreateRequest brandCreateRequest) {
+    public ResponseEntity<BrandResponse> create(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody BrandCreateRequest brandCreateRequest) {
         return ResponseEntity.ok(brandService.save(userDetails.getMemberId(), brandCreateRequest));
     }
 
@@ -42,7 +43,7 @@ public class BrandController {
             )
     })
     @DeleteMapping("{brandId}")
-    public ResponseEntity<Void> delete(CustomUserDetails userDetails, @PathVariable Long brandId) {
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long brandId) {
         brandService.delete(userDetails.getMemberId(),brandId);
         return ResponseEntity.ok().build();
     }
