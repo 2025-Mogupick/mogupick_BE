@@ -1,6 +1,7 @@
 package subscribenlike.mogupick.global.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,14 +14,31 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource;
 import subscribenlike.mogupick.global.jwt.JwtAuthenticationFilter;
 import subscribenlike.mogupick.global.jwt.JwtProvider;
+import subscribenlike.mogupick.global.oauth.CustomOAuth2UserService;
+import subscribenlike.mogupick.global.oauth.OAuth2LoginFailureHandler;
+import subscribenlike.mogupick.global.oauth.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CorsConfigurationSource corsConfigurationSource;
     private final JwtProvider jwtProvider;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+
+    public SecurityConfig(@Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource,
+                          JwtProvider jwtProvider,
+                          CustomOAuth2UserService customOAuth2UserService,
+                          OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
+                          OAuth2LoginFailureHandler oAuth2LoginFailureHandler) {
+        this.corsConfigurationSource = corsConfigurationSource;
+        this.jwtProvider = jwtProvider;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+        this.oAuth2LoginFailureHandler = oAuth2LoginFailureHandler;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -35,27 +53,16 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                                // swagger, 소셜 로그인/재발급 API 등은 인증 없이 누구나 접근 가능
-                                .requestMatchers(
-                                        "/swagger-ui/**",
-                                        "/v3/api-docs/**",
-                                        "/api/v1/auth/social-login",
-                                        "/api/v1/auth/reissue"
-                                ).permitAll()
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()) // 개발 편의상 일단 모두 허용
 
-                                // '/members/me', '/notifications/**' 등은 인증된 사용자만 접근 가능
-                                .requestMatchers(
-                                        "/api/v1/members/me",
-                                        "/api/v1/notifications/**"
-                                ).authenticated()
-
-                                // 로그아웃도 인증된 사용자만 가능
-                                .requestMatchers("/api/v1/auth/logout").authenticated()
-
-                                // 위 경로 외 나머지 모든 요청은 허용
-                                .anyRequest().permitAll()
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService) // 사용자 정보 처리
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 JWT 발급
+                        .failureHandler(oAuth2LoginFailureHandler) // 로그인 실패 시 처리
                 )
+
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
