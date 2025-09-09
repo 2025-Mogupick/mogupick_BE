@@ -11,6 +11,10 @@ import subscribenlike.mogupick.billing.domain.PaymentState;
 import subscribenlike.mogupick.billing.dto.PaymentStateResponse;
 import subscribenlike.mogupick.billing.repository.PaymentStateRepository;
 import subscribenlike.mogupick.billing.service.client.TossPaymentsClient;
+import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.member.repository.MemberRepository;
+import subscribenlike.mogupick.notification.domain.NotificationType;
+import subscribenlike.mogupick.notification.service.NotificationService;
 
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +26,8 @@ public class PaymentService {
     private final TossPaymentsClient toss;
     private final BillingKeyService billingKeyService;
     private final PaymentStateRepository paymentStateRepository;
+    private final NotificationService notificationService;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public PaymentStateResponse charge(String orderId, String customerKey, String orderName, int amount) {
@@ -48,6 +54,16 @@ public class PaymentService {
             }
             st.markApproved(paymentKey.toString());
             log.info("charge.approved orderId={} paymentKey={}", orderId, paymentKey);
+
+            Member member = memberRepository.findByEmailOrThrow(customerKey);
+            String content = NotificationType.PAYMENT_COMPLETED.createContent(orderName);
+            notificationService.createNotification(
+                    member,
+                    NotificationType.PAYMENT_COMPLETED,
+                    content,
+                    "/alert"
+            );
+
             return PaymentStateResponse.from(st);
         } catch (BillingException e) {
             st.markFailed(e.getMessage());
