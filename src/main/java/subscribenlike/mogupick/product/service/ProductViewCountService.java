@@ -97,7 +97,8 @@ public class ProductViewCountService {
                 product.getBrand().getName()
         );
 
-        return FetchProductMostDailyViewStatChangeResponse.of(mostGradientChange, productResponse, brandResponse, option, lastCountOfTime);
+        FetchProductOptionResponse optionResponse = FetchProductOptionResponse.from(option);
+        return FetchProductMostDailyViewStatChangeResponse.of(mostGradientChange, productResponse, brandResponse, optionResponse, lastCountOfTime);
     }
 
     public List<FetchProductDailyViewStatChangeResponse> getDailyViewStatChange(Long productId, long hourRange) {

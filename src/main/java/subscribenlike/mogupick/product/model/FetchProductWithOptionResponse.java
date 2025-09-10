@@ -6,13 +6,13 @@ public record FetchProductWithOptionResponse(
         FetchProductResponse product,
         FetchBrandResponse brand,
         FetchReviewResponse review,
-        ProductOption option
+        FetchProductOptionResponse option
 ) {
 
     public static FetchProductWithOptionResponse of(FetchProductResponse product,
                                                    FetchBrandResponse brand,
                                                    FetchReviewResponse review,
-                                                   ProductOption option) {
+                                                    FetchProductOptionResponse option) {
         return new FetchProductWithOptionResponse(product, brand, review, option);
     }
 }

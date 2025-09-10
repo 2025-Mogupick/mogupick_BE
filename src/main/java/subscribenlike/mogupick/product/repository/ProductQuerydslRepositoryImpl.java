@@ -45,6 +45,7 @@ public class ProductQuerydslRepositoryImpl implements ProductQuerydslRepository 
                         QProduct.product.brand.id,
                         QProduct.product.brand.name
                 )
+                .orderBy(QProduct.product.createdAt.desc())
                 .fetch();
     }
 }

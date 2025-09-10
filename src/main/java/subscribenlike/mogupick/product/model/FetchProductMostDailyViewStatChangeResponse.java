@@ -12,14 +12,14 @@ public class FetchProductMostDailyViewStatChangeResponse {
     FetchProductDailyViewStatChangeResponse change;
     FetchProductResponse product;
     FetchBrandResponse brand;
-    ProductOption option;
+    FetchProductOptionResponse option;
     Long lastCountOfTime;
 
     public static FetchProductMostDailyViewStatChangeResponse of(
             FetchProductDailyViewStatChangeResponse change,
             FetchProductResponse product,
             FetchBrandResponse brand,
-            ProductOption option,
+            FetchProductOptionResponse option,
             Long lastCountOfTime
     ) {
         return new FetchProductMostDailyViewStatChangeResponse(change, product, brand, option, lastCountOfTime);

@@ -12,10 +12,7 @@ import subscribenlike.mogupick.product.common.ProductException;
 import subscribenlike.mogupick.product.domain.MemberProductViewCount;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.domain.ProductOption;
-import subscribenlike.mogupick.product.model.FetchBrandResponse;
-import subscribenlike.mogupick.product.model.FetchProductResponse;
-import subscribenlike.mogupick.product.model.FetchReviewResponse;
-import subscribenlike.mogupick.product.model.FetchSimilarProductResponse;
+import subscribenlike.mogupick.product.model.*;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
 import subscribenlike.mogupick.product.repository.ProductMediaRepository;
@@ -81,8 +78,9 @@ public class SimilarProductFetchService {
         FetchReviewResponse reviewResponse = FetchReviewResponse.of(averageRating, reviewCount);
 
         ProductOption option = productOptionRepository.getByProductId(product.getId());
+        FetchProductOptionResponse optionResponse = FetchProductOptionResponse.from(option);
 
-        return FetchSimilarProductResponse.of(productResponse, brandResponse, reviewResponse, option);
+        return FetchSimilarProductResponse.of(productResponse, brandResponse, reviewResponse, optionResponse);
     }
 
     private String getProductImageUrl(Product product) {

@@ -21,8 +21,8 @@ public enum SubCategory {
     DAIRY_PRODUCTS("유제품", RootCategory.DAIRY_BEVERAGE),
     BEVERAGE("음료", RootCategory.DAIRY_BEVERAGE),
 
-    FROZEN("냉동식품", RootCategory.CONVENIENCE_FOOD),
-    MEAL_KIT("밀키트", RootCategory.CONVENIENCE_FOOD),
+    FROZEN("냉동식", RootCategory.CONVENIENCE_FOOD),
+    MEAL_KIT("밀키트-반찬", RootCategory.CONVENIENCE_FOOD),
     LUNCH_SALAD("도시락-샐러드", RootCategory.CONVENIENCE_FOOD),
 
     SNACKS("과자-스낵", RootCategory.SNACK),

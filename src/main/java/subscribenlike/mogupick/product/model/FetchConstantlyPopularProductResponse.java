@@ -6,11 +6,11 @@ public record FetchConstantlyPopularProductResponse(
         FetchProductResponse product,
         FetchBrandResponse brand,
         FetchReviewResponse review,
-        ProductOption option
+        FetchProductOptionResponse option
 
 ) {
 
-    public static FetchConstantlyPopularProductResponse of(FetchProductResponse product, FetchBrandResponse brand, FetchReviewResponse review, ProductOption option) {
+    public static FetchConstantlyPopularProductResponse of(FetchProductResponse product, FetchBrandResponse brand, FetchReviewResponse review, FetchProductOptionResponse option) {
         return new FetchConstantlyPopularProductResponse(product, brand, review, option);
     }
 }
