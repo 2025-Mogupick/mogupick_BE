@@ -38,7 +38,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         Member member = memberRepository.findByEmailOrThrow(email);
         member.updateRefreshToken(tokenInfo.getRefreshToken());
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth-redirect")
+        String targetUrl = UriComponentsBuilder.fromUriString("https://mogupick-prototype.vercel.app/oauth-redirect")
                 .queryParam("accessToken", tokenInfo.getAccessToken())
                 .queryParam("refreshToken", tokenInfo.getRefreshToken())
                 .build().toUriString();
