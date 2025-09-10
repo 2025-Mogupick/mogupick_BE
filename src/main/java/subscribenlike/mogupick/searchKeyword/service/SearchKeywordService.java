@@ -77,8 +77,13 @@ public class SearchKeywordService {
     }
 
     private ProductMedia findThumbnailByProductId(Long productId) {
-        return productMediaRepository.findByProductId(productId).get(0);
+        List<ProductMedia> mediaList = productMediaRepository.findByProductId(productId);
+        if (mediaList.isEmpty()) {
+            return new ProductMedia("default-image-url", null);
+        }
+        return mediaList.get(0);
     }
+
 
     private List<Review> findReviewByProductId(Long productId) {
         return reviewRepository.findByProductId(productId);
