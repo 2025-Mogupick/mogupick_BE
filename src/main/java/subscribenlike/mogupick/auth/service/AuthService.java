@@ -1,5 +1,6 @@
 package subscribenlike.mogupick.auth.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 public class AuthService {
 
@@ -65,6 +67,7 @@ public class AuthService {
 
     @Transactional
     public TokenInfo socialLogin(SocialLoginRequest request) {
+        log.info("서비스 레이어 접근");
         OAuthClient client = clients.get(request.getProvider());
         if (client == null) {
             throw new AuthException(AuthErrorCode.UNSUPPORTED_SOCIAL_LOGIN);
