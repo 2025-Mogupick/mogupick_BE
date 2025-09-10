@@ -176,7 +176,8 @@ public class SearchKeywordService {
     private List<SearchKeyword> getSearchKeywords(List<String> orderedNorms) {
         List<SearchKeyword> keywords = new ArrayList<>();
         for (String keyword : orderedNorms) {
-            keywords.add(searchKeywordRepository.findByNormalizedContentOrThrow(keyword));
+            searchKeywordRepository.findByNormalizedContent(keyword).ifPresent(keywords::add);
+
         }
         return keywords;
     }
