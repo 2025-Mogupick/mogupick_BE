@@ -9,10 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.product.domain.Product;
 import subscribenlike.mogupick.product.domain.ProductOption;
-import subscribenlike.mogupick.product.model.FetchBrandResponse;
-import subscribenlike.mogupick.product.model.FetchConstantlyPopularProductResponse;
-import subscribenlike.mogupick.product.model.FetchProductResponse;
-import subscribenlike.mogupick.product.model.FetchReviewResponse;
+import subscribenlike.mogupick.product.model.*;
 import subscribenlike.mogupick.product.repository.ProductMediaRepository;
 import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
@@ -69,8 +66,10 @@ public class ConstantlyPopularProductFetchService {
         FetchReviewResponse reviewResponse = FetchReviewResponse.of(averageRating, reviewCount);
 
         ProductOption option = productOptionRepository.getByProductId(product.getId());
-
-        return FetchConstantlyPopularProductResponse.of(productResponse, brandResponse, reviewResponse, option);
+        FetchProductOptionResponse optionResponse = FetchProductOptionResponse.from(
+                option
+        );
+        return FetchConstantlyPopularProductResponse.of(productResponse, brandResponse, reviewResponse, optionResponse);
     }
 
     private String getProductImageUrl(Product product) {
