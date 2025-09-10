@@ -7,16 +7,31 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import subscribenlike.mogupick.common.utils.GlobalLogger;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private static final PathPatternRequestMatcher.Builder prefix =
+            PathPatternRequestMatcher.withDefaults().basePath("/api/v1");
+
+    private final List<RequestMatcher> excluded = List.of(
+            prefix.matcher("/auth/social-login"),
+            prefix.matcher("/auth/login/OAuth2")
+    );
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return excluded.stream().anyMatch(m -> m.matches(request));
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
