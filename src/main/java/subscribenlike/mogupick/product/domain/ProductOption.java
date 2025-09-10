@@ -2,6 +2,7 @@ package subscribenlike.mogupick.product.domain;
 
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,6 +14,7 @@ import java.util.Map;
 @Getter
 @Document(collection = "productOptions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor  // 추가
 public class ProductOption {
     @Id
     private String id;
