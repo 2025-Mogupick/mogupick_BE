@@ -6,10 +6,10 @@ public record FetchBeginnerFriendlyProductResponse(
         FetchProductResponse product,
         FetchBrandResponse brand,
         FetchReviewResponse review,
-        ProductOption option
+        FetchProductOptionResponse option
 ) {
 
-    public static FetchBeginnerFriendlyProductResponse of(FetchProductResponse product, FetchBrandResponse brand, FetchReviewResponse review, ProductOption option) {
+    public static FetchBeginnerFriendlyProductResponse of(FetchProductResponse product, FetchBrandResponse brand, FetchReviewResponse review, FetchProductOptionResponse option) {
         return new FetchBeginnerFriendlyProductResponse(product, brand, review, option);
     }
 }

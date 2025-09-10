@@ -6,10 +6,10 @@ public record FetchSimilarProductResponse(
         FetchProductResponse product,
         FetchBrandResponse brand,
         FetchReviewResponse review,
-        ProductOption option
+        FetchProductOptionResponse option
 ) {
 
-    public static FetchSimilarProductResponse of(FetchProductResponse product, FetchBrandResponse brand, FetchReviewResponse review, ProductOption option) {
+    public static FetchSimilarProductResponse of(FetchProductResponse product, FetchBrandResponse brand, FetchReviewResponse review, FetchProductOptionResponse option) {
         return new FetchSimilarProductResponse(product, brand, review, option);
     }
 }
