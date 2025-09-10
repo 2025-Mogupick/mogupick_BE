@@ -51,7 +51,11 @@ public class JwtProvider {
             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
             OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2User.getAttributes());
             email = attributes.getEmail();
-        } else {
+        }
+        else if (authentication.getPrincipal() instanceof UsernamePasswordAuthenticationToken) {
+            email = (String) authentication.getPrincipal();
+        }
+        else {
             email = authentication.getName();
         }
 
