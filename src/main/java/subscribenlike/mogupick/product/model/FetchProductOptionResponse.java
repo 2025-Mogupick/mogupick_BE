@@ -28,7 +28,7 @@ public class FetchProductOptionResponse {
                 productOption.getProductId(),
                 productOption.getRootCategory(),
                 productOption.getSubCategory(),
-                productOption.getOptions().keySet().stream().toList(),
+                productOption.getOptions() == null ? null : productOption.getOptions().keySet().stream().toList(),
                 productOption.getOptions()
         );
     }
