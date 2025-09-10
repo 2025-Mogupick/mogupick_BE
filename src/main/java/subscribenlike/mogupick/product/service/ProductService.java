@@ -204,12 +204,13 @@ public class ProductService {
                 averageRating,
                 reviewCount
         );
+        FetchProductOptionResponse fetchProductOptionResponse = FetchProductOptionResponse.from(option);
 
         return FetchProductWithOptionResponse.of(
                 fetchProductResponse,
                 fetchBrandResponse,
                 fetchReviewResponse,
-                option
+                fetchProductOptionResponse
         );
     }
 
@@ -298,7 +299,7 @@ public class ProductService {
                         product.getRating(),
                         product.getReviewCount()
                 ),
-                option
+                FetchProductOptionResponse.from(option)
                 , product.getViewCount(),
                 product.getLastViewedAt()
         );
@@ -329,7 +330,8 @@ public class ProductService {
                         product.getRating(),
                         product.getReviewCount()
                 ),
-                option
+                FetchProductOptionResponse.from(option)
+
         );
     }
 
