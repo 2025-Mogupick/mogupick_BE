@@ -10,13 +10,10 @@ import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.product.common.ProductErrorCode;
 import subscribenlike.mogupick.product.common.ProductException;
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.domain.ProductViewCount;
-import subscribenlike.mogupick.product.model.FetchProductDailyViewStatChangeResponse;
-import subscribenlike.mogupick.product.model.FetchProductDailyViewStatsResponse;
-import subscribenlike.mogupick.product.model.FetchProductMostDailyViewStatChangeResponse;
-import subscribenlike.mogupick.product.repository.ProductRepository;
-import subscribenlike.mogupick.product.repository.ProductViewCountRepository;
-import subscribenlike.mogupick.product.repository.MemberProductViewCountRepository;
+import subscribenlike.mogupick.product.model.*;
+import subscribenlike.mogupick.product.repository.*;
 import subscribenlike.mogupick.product.domain.MemberProductViewCount;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 
@@ -27,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +34,8 @@ import org.springframework.data.domain.Pageable;
 public class ProductViewCountService {
     private final ProductViewCountRepository productViewCountRepository;
     private final ProductRepository productRepository;
+    private final ProductOptionRepository productOptionRepository;
+    private final ProductMediaRepository productMediaRepository;
     private final MemberProductViewCountRepository memberProductViewCountRepository;
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, Long> redisTemplate;
@@ -53,7 +53,7 @@ public class ProductViewCountService {
         // TODO : 변화량 구하기 메서드를 비동기적으로 수행?
         currentViewStatChanges =
                 products.stream()
-                        .map(product -> getMostDailyViewStatChange(product.getId(), HOUR_RANGE))
+                        .map(product -> getMostDailyViewStatChange(product, HOUR_RANGE))
                         .sorted((p1, p2) -> Double.compare(p2.getChange().getGradient(), p1.getChange().getGradient()))
                         .toList();
     }
@@ -70,9 +70,9 @@ public class ProductViewCountService {
         return new PageImpl<>(pageContent, pageable, currentViewStatChanges.size());
     }
 
-    public FetchProductMostDailyViewStatChangeResponse getMostDailyViewStatChange(Long productId, long hourRange) {
+    public FetchProductMostDailyViewStatChangeResponse getMostDailyViewStatChange(Product product, long hourRange) {
         // 해당 상품의 시간대 별 변화량 중, 가장 큰 변화량 구하기
-        List<FetchProductDailyViewStatChangeResponse> changes = getDailyViewStatChange(productId, hourRange);
+        List<FetchProductDailyViewStatChangeResponse> changes = getDailyViewStatChange(product.getId(), hourRange);
 
         FetchProductDailyViewStatChangeResponse mostGradientChange =
                 changes.stream()
@@ -80,8 +80,24 @@ public class ProductViewCountService {
                         .orElseThrow(() -> new ProductException(ProductErrorCode.VIEW_COUNT_STATS_NOT_FOUND));
 
         Long lastCountOfTime = changes.get(changes.size() - 1).getEndViewCount();
+        ProductOption option = productOptionRepository.getByProductId(product.getId());
 
-        return FetchProductMostDailyViewStatChangeResponse.of(mostGradientChange, lastCountOfTime);
+        String imageUrl = productMediaRepository.findFirstImageUrlByProductId(product.getId());
+
+        FetchProductResponse productResponse = FetchProductResponse.of(
+                product.getId(),
+                imageUrl,
+                product.getName(),
+                product.getPrice(),
+                product.getCreatedAt()
+        );
+
+        FetchBrandResponse brandResponse = FetchBrandResponse.of(
+                product.getBrand().getId(),
+                product.getBrand().getName()
+        );
+
+        return FetchProductMostDailyViewStatChangeResponse.of(mostGradientChange, productResponse, brandResponse, option, lastCountOfTime);
     }
 
     public List<FetchProductDailyViewStatChangeResponse> getDailyViewStatChange(Long productId, long hourRange) {

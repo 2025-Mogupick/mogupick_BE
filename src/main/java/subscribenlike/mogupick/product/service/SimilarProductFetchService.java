@@ -80,7 +80,9 @@ public class SimilarProductFetchService {
         Long reviewCount = reviewRepository.countByProductId(product.getId());
         FetchReviewResponse reviewResponse = FetchReviewResponse.of(averageRating, reviewCount);
 
-        return FetchSimilarProductResponse.of(productResponse, brandResponse, reviewResponse);
+        ProductOption option = productOptionRepository.getByProductId(product.getId());
+
+        return FetchSimilarProductResponse.of(productResponse, brandResponse, reviewResponse, option);
     }
 
     private String getProductImageUrl(Product product) {
