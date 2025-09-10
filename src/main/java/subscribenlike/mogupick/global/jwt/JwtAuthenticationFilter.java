@@ -42,7 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String fullPath = queryString != null ? requestURI + "?" + queryString : requestURI;
 
         GlobalLogger.info("요청:",method, fullPath, "IP: ", request.getRemoteAddr());
-
         String token = resolveToken(request);
 
         if (token != null && jwtProvider.validateToken(token)) {
@@ -55,6 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            GlobalLogger.info("요청 인증 헤더:", request.getHeader("Authorization"));
             return bearerToken.substring(7);
         }
         return null;

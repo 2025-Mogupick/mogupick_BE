@@ -11,6 +11,7 @@ import subscribenlike.mogupick.auth.common.exception.AuthErrorCode;
 import subscribenlike.mogupick.auth.common.exception.AuthException;
 import subscribenlike.mogupick.auth.dto.SocialLoginRequest;
 import subscribenlike.mogupick.auth.dto.TokenReissueDto;
+import subscribenlike.mogupick.common.utils.GlobalLogger;
 import subscribenlike.mogupick.global.jwt.JwtProvider;
 import subscribenlike.mogupick.global.jwt.TokenInfo;
 import subscribenlike.mogupick.global.oauth.OAuthAttributes;
@@ -67,7 +68,7 @@ public class AuthService {
 
     @Transactional
     public TokenInfo socialLogin(SocialLoginRequest request) {
-        log.info("서비스 레이어 접근");
+        GlobalLogger.info(request.getProvider(),"AccessToken(Oauth): ",request.getAccessToken());
         OAuthClient client = clients.get(request.getProvider());
         if (client == null) {
             throw new AuthException(AuthErrorCode.UNSUPPORTED_SOCIAL_LOGIN);
