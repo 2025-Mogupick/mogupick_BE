@@ -23,6 +23,10 @@ public class FetchProductOptionResponse {
 
 
     public static FetchProductOptionResponse from(ProductOption productOption) {
+        if(productOption == null) {
+            return null;
+        }
+
         return new FetchProductOptionResponse(
                 productOption.getId(),
                 productOption.getProductId(),
