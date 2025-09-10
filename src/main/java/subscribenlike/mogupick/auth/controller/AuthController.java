@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import subscribenlike.mogupick.global.jwt.TokenInfo;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
 
 @Tag(name = "Auth", description = "인증/인가 관련 API")
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class AuthController {
     })
     @PostMapping("/social-login")
     public GlobalResponse<TokenInfo> socialLogin(@RequestBody SocialLoginRequest request) {
+        log.info("컨트롤러 접근 확인");
         TokenInfo tokenInfo = authService.socialLogin(request);
         return GlobalResponse.from(AuthSuccessCode.LOGIN_SUCCESS, tokenInfo);
     }
