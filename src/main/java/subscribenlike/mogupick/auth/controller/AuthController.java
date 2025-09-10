@@ -39,6 +39,13 @@ public class AuthController {
         return GlobalResponse.from(AuthSuccessCode.LOGIN_SUCCESS, tokenInfo);
     }
 
+    @PostMapping("/login/OAuth2")
+    public GlobalResponse<TokenInfo> OAuth2Login(@RequestBody SocialLoginRequest request) {
+        log.info("컨트롤러 접근 확인");
+        TokenInfo tokenInfo = authService.oAuthLogin(request);
+        return GlobalResponse.from(AuthSuccessCode.LOGIN_SUCCESS, tokenInfo);
+    }
+
     @Operation(summary = "로그아웃", description = "사용자의 Access Token을 만료 처리하고 Refresh Token을 삭제하여 로그아웃합니다.")
     @ApiResponses(value = {
             @ApiResponse(

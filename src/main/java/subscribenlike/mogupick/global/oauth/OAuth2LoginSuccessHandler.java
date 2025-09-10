@@ -24,6 +24,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Override
     @Transactional
@@ -42,6 +43,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .queryParam("accessToken", tokenInfo.getAccessToken())
                 .queryParam("refreshToken", tokenInfo.getRefreshToken())
                 .build().toUriString();
+
+        //로그인 완료 후 쿠키 삭제
+        httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
 
         response.sendRedirect(targetUrl);
     }

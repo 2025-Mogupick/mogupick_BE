@@ -86,4 +86,26 @@ public class AuthService {
 
         return tokenInfo;
     }
+
+    @Transactional
+    public TokenInfo oAuthLogin(SocialLoginRequest request) {
+        log.info("서비스 레이어 접근");
+        OAuthClient client = clients.get(request.getProvider());
+        if (client == null) {
+            throw new AuthException(AuthErrorCode.UNSUPPORTED_SOCIAL_LOGIN);
+        }
+
+        Map<String, Object> userAttributes = client.getOAuthUserAttributes(request.getAccessToken());
+        OAuthAttributes attributes = OAuthAttributes.of(request.getProvider(), userAttributes);
+        Member member = memberRepository.findByEmail(attributes.getEmail())
+                .orElseGet(() -> memberRepository.save(attributes.toEntity()));
+
+        GrantedAuthority authority = new SimpleGrantedAuthority(member.getRole().name());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(member.getEmail(), null, Collections.singleton(authority));
+        TokenInfo tokenInfo = jwtProvider.generateToken(authentication);
+
+        member.updateRefreshToken(tokenInfo.getRefreshToken());
+
+        return tokenInfo;
+    }
 }
