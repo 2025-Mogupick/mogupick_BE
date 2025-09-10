@@ -280,6 +280,8 @@ public class ProductService {
             productImageUrl = productMediaRepository.findFirstImageUrlByProductId(product.getProductId());
         }
 
+        ProductOption option = productOptionRepository.getByProductId(product.getProductId());
+
         return FetchRecentlyViewProductResponse.of(
                 FetchProductResponse.of(
                         product.getProductId(),
@@ -295,7 +297,8 @@ public class ProductService {
                 FetchReviewResponse.of(
                         product.getRating(),
                         product.getReviewCount()
-                )
+                ),
+                option
                 , product.getViewCount(),
                 product.getLastViewedAt()
         );
@@ -307,6 +310,8 @@ public class ProductService {
         if (productImageUrl == null) {
             productImageUrl = productMediaRepository.findFirstImageUrlByProductId(product.getProductId());
         }
+
+        ProductOption option = productOptionRepository.getByProductId(product.getProductId());
 
         return FetchNewProductsInMonthResponse.of(
                 FetchProductResponse.of(
@@ -323,7 +328,8 @@ public class ProductService {
                 FetchReviewResponse.of(
                         product.getRating(),
                         product.getReviewCount()
-                )
+                ),
+                option
         );
     }
 

@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subscribenlike.mogupick.brand.domain.Brand;
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.domain.ProductOption;
 import subscribenlike.mogupick.product.model.FetchBeginnerFriendlyProductResponse;
 import subscribenlike.mogupick.product.model.FetchBrandResponse;
 import subscribenlike.mogupick.product.model.FetchProductResponse;
 import subscribenlike.mogupick.product.model.FetchReviewResponse;
 import subscribenlike.mogupick.product.repository.ProductMediaRepository;
+import subscribenlike.mogupick.product.repository.ProductOptionRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.review.repository.ReviewRepository;
 
@@ -25,6 +27,7 @@ public class BeginnerFriendlyProductFetchService {
 
     private final ProductRepository productRepository;
     private final ProductMediaRepository productMediaRepository;
+    private final ProductOptionRepository productOptionRepository;
     private final ReviewRepository reviewRepository;
 
     public Page<FetchBeginnerFriendlyProductResponse> fetchBeginnerFriendlyProducts(Pageable pageable) {
@@ -65,7 +68,8 @@ public class BeginnerFriendlyProductFetchService {
         Long reviewCount = reviewRepository.countByProductId(product.getId());
         FetchReviewResponse reviewResponse = FetchReviewResponse.of(averageRating, reviewCount);
 
-        return FetchBeginnerFriendlyProductResponse.of(productResponse, brandResponse, reviewResponse);
+        ProductOption option = productOptionRepository.getByProductId(product.getId());
+        return FetchBeginnerFriendlyProductResponse.of(productResponse, brandResponse, reviewResponse, option);
     }
 
     private String getProductImageUrl(Product product) {
