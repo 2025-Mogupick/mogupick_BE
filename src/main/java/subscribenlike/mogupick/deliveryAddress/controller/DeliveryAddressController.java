@@ -1,5 +1,8 @@
 package subscribenlike.mogupick.deliveryAddress.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +24,10 @@ public class DeliveryAddressController {
 
     private final DeliveryAddressService deliveryAddressService;
 
+    @Operation(summary = "배송지 등록", description = "회원의 새로운 배송지를 등록합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "배송지 등록 성공")
+    })
     @PostMapping
     public ResponseEntity<?> register(@AuthenticationPrincipal CustomUserDetails userDetails,
                                       @RequestBody DeliveryAddressRequest request) {
@@ -31,6 +38,10 @@ public class DeliveryAddressController {
                 .body(SuccessResponse.from(DeliveryAddressSuccessCode.ADDRESS_REGISTERED, res));
     }
 
+    @Operation(summary = "배송지 목록 조회", description = "회원의 모든 배송지 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "배송지 목록 조회 성공")
+    })
     @GetMapping
     public ResponseEntity<?> getAll(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long memberId = userDetails.getMemberId();
@@ -40,6 +51,10 @@ public class DeliveryAddressController {
                 .body(SuccessResponse.from(DeliveryAddressSuccessCode.ADDRESS_LIST_FETCHED, res));
     }
 
+    @Operation(summary = "배송지 수정", description = "특정 배송지를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "배송지 수정 성공"),
+    })
     @PutMapping("/{addressId}")
     public ResponseEntity<?> update(@AuthenticationPrincipal CustomUserDetails userDetails,
                                     @PathVariable Long addressId,
@@ -51,6 +66,10 @@ public class DeliveryAddressController {
                 .body(SuccessResponse.from(DeliveryAddressSuccessCode.ADDRESS_UPDATED, res));
     }
 
+    @Operation(summary = "배송지 삭제", description = "특정 배송지를 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "배송지 삭제 성공"),
+    })
     @DeleteMapping("/{addressId}")
     public ResponseEntity<?> delete(@AuthenticationPrincipal CustomUserDetails userDetails,
                                     @PathVariable Long addressId) {
