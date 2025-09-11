@@ -10,15 +10,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.common.success.SuccessResponse;
-import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.review.common.ReviewSuccessCode;
 import subscribenlike.mogupick.review.model.CreateReviewRequest;
 import subscribenlike.mogupick.review.model.FetchProductReviewsResponse;
 import subscribenlike.mogupick.review.service.ReviewService;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,8 +42,10 @@ public class ReviewController {
             )
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<SuccessResponse<Void>> createReview(@ModelAttribute CreateReviewRequest request) throws IOException {
-        reviewService.createReview(request);
+    public ResponseEntity<SuccessResponse<Void>> createReview(
+        @AuthenticationPrincipal PrincipalDetails userDetails,
+        @ModelAttribute CreateReviewRequest request) {
+        reviewService.createReview(request,userDetails.getId());
 
         return ResponseEntity
                 .status(ReviewSuccessCode.REVIEW_CREATED.getStatus())

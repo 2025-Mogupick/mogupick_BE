@@ -42,8 +42,8 @@ public class ReviewService {
     private final S3Service s3Service;
 
     @Transactional
-    public void createReview(CreateReviewRequest request) {
-        Member member = memberRepository.findOrThrow(request.getMemberId());
+    public void createReview(CreateReviewRequest request, Long memberId) {
+        Member member = memberRepository.findOrThrow(memberId);
         Product product = productRepository.getById(request.getProductId());
 
         Review review = createReview(request, member, product);

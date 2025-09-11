@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class CreateReviewRequest {
-    private Long memberId;
     private Long productId;
     private String content;
     private double score;
