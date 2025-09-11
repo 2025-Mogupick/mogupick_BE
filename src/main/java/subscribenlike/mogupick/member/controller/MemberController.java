@@ -5,8 +5,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails; // ✅ PrincipalDetails를 import
 import subscribenlike.mogupick.global.dto.GlobalResponse;
-import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.member.common.success.MemberSuccessCode;
 import subscribenlike.mogupick.member.dto.MemberResponse;
 import subscribenlike.mogupick.member.dto.MemberUpdateRequest;
@@ -21,17 +21,20 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/me")
-    public GlobalResponse<MemberResponse> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        String email = userDetails.getUsername();
+    public GlobalResponse<MemberResponse> getMyInfo(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        String email = principalDetails.getUsername();
         MemberResponse memberInfo = memberService.getMemberInfo(email);
         return GlobalResponse.from(MemberSuccessCode.GET_MY_INFO_SUCCESS, memberInfo);
     }
 
     @PatchMapping("/me")
     public GlobalResponse<Void> updateMyNickname(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @Valid @RequestBody MemberUpdateRequest request) {
-        String email = userDetails.getUsername();
+
+        String email = principalDetails.getUsername();
         memberService.updateNickname(email, request);
         return GlobalResponse.from(MemberSuccessCode.UPDATE_NICKNAME_SUCCESS);
     }
