@@ -15,6 +15,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByRefreshToken(String refreshToken);
 
+    Optional<Member> findByCustomerKey(String customerKey);
+
+    default Member findByCustomerKeyOrThrow(String key) {
+        return findByCustomerKey(key)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
     default Member findByEmailOrThrow(String email) {
         return findByEmail(email)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));

@@ -15,5 +15,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     boolean existsByPaymentKey(String paymentKey);
 
     List<Subscription> findByNextBillingDate(LocalDate nextBillingDate);
+
+    List<Subscription> findByStatusAndNextBillingDate(SubscriptionStatus status, LocalDate nextBillingDate);
 }
 

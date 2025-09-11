@@ -51,7 +51,7 @@ public class Subscription extends BaseEntity {
         s.product = product;
         s.option = option;
         s.firstDeliveryDate = firstDeliveryDate;
-        s.nextBillingDate = s.calculateNextBillingDate(firstDeliveryDate, option);
+        s.nextBillingDate = firstDeliveryDate.minusDays(3);
         s.progressRound = 1;
         s.status = SubscriptionStatus.ONGOING;
         s.paymentKey = paymentKey;
@@ -64,24 +64,29 @@ public class Subscription extends BaseEntity {
         return create(member, product, option, firstDeliveryDate, null);
     }
 
-    public LocalDate calculateNextBillingDate(LocalDate baseDate, SubscriptionOption option) {
-        switch (option.getUnit()) {
-            case DAY -> { return baseDate.plusDays(option.getPeriod()); }
-            case WEEK -> { return baseDate.plusWeeks(option.getPeriod()); }
-            case MONTH -> { return baseDate.plusMonths(option.getPeriod()); }
-            default -> throw new IllegalArgumentException("Unknown unit");
-        }
+    public LocalDate calculateNextDeliveryDate(LocalDate baseDate, SubscriptionOption option) {
+        return switch (option.getUnit()) {
+            case DAY -> baseDate.plusDays(option.getPeriod());
+            case WEEK -> baseDate.plusWeeks(option.getPeriod());
+            case MONTH -> baseDate.plusMonths(option.getPeriod());
+        };
     }
 
     public void changeOption(SubscriptionOption newOption, LocalDate newFirstDeliveryDate) {
         this.option = newOption;
         this.firstDeliveryDate = newFirstDeliveryDate;
-        this.nextBillingDate = calculateNextBillingDate(newFirstDeliveryDate, newOption);
+        this.nextBillingDate = calculateNextDeliveryDate(newFirstDeliveryDate, newOption);
+    }
+
+    private LocalDate getCurrentDeliveryDate() {
+        return this.nextBillingDate.plusDays(3);
     }
 
     public void proceedNextRound() {
         this.progressRound += 1;
-        this.nextBillingDate = calculateNextBillingDate(this.nextBillingDate, this.option);
+        // 다음 배송일 = (직전 배송일) + 주기
+        LocalDate nextDelivery = calculateNextDeliveryDate(getCurrentDeliveryDate(), this.option);
+        this.nextBillingDate = nextDelivery.minusDays(3);
     }
 
     public void cancel() {
