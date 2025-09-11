@@ -22,7 +22,7 @@ public class RecentSearchKeyword extends BaseEntity {
 
     private String content;
 
-    @Column(name = "normalized_content", nullable = false, length = 200, unique = true)
+    @Column(name = "normalized_content", nullable = false, length = 200)
     private String normalizedContent;
 
     @ManyToOne

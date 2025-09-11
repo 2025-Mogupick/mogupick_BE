@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.like.service.LikeService;
 import subscribenlike.mogupick.product.model.LikedProductResponse;
@@ -35,9 +36,9 @@ public class LikeController {
     @PostMapping("/product/{productId}")
     public ResponseEntity<Void> updateProductLike(
             @PathVariable("productId") Long productId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal PrincipalDetails user
     ) {
-        likeService.updateProductLike(productId, user.getMemberId());
+        likeService.updateProductLike(productId, user.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -51,9 +52,9 @@ public class LikeController {
     @PostMapping("/brand/{brandId}")
     public ResponseEntity<Void> updateBrandLike(
             @PathVariable("brandId") Long brandId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal PrincipalDetails user
     ) {
-        likeService.updateBrandLike(brandId, user.getMemberId());
+        likeService.updateBrandLike(brandId, user.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -65,7 +66,7 @@ public class LikeController {
             )
     })
     @GetMapping("/my/products")
-    public ResponseEntity<List<LikedProductResponse>> getMyProducts(@AuthenticationPrincipal CustomUserDetails user) {
-        return ResponseEntity.ok(productService.getMyLikedProducts(user.getMemberId()));
+    public ResponseEntity<List<LikedProductResponse>> getMyProducts(@AuthenticationPrincipal PrincipalDetails user) {
+        return ResponseEntity.ok(productService.getMyLikedProducts(user.getId()));
     }
 }
