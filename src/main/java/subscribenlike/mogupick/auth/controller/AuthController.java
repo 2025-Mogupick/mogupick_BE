@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import subscribenlike.mogupick.auth.common.success.AuthSuccessCode;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.auth.dto.SelfLoginRequest;
 import subscribenlike.mogupick.auth.dto.SocialLoginRequest;
 import subscribenlike.mogupick.auth.dto.TokenReissueDto;
 import subscribenlike.mogupick.auth.service.AuthService;
 import subscribenlike.mogupick.global.dto.GlobalResponse;
 import subscribenlike.mogupick.global.jwt.TokenInfo;
-import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.member.dto.MemberLoginResponse;
 import subscribenlike.mogupick.member.dto.SignUpRequest;
 import subscribenlike.mogupick.member.dto.SignUpResponse;
@@ -59,8 +59,8 @@ public class AuthController {
             )
     })
     @PostMapping("/logout")
-    public GlobalResponse<Void> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        String email = userDetails.getUsername();
+    public GlobalResponse<Void> logout(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        String email = principalDetails.getUsername();
         authService.logout(email);
         return GlobalResponse.from(AuthSuccessCode.LOGOUT_SUCCESS);
     }
