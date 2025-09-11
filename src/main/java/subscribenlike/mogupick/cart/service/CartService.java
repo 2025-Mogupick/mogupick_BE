@@ -49,8 +49,10 @@ public class CartService {
             throw new CartException(CartErrorCode.FIRST_DELIVERY_DATE_REQUIRED); // 필요시 신규 에러코드 추가
         }
 
+        int price = product.getPrice();
+
         Cart cart = cartRepository.findOrCreate(member);
-        cart.addItem(CartItem.create(product, option, request.firstDeliveryDate()));
+        cart.addItem(CartItem.create(product, option, request.firstDeliveryDate(), price));
         return CartResponse.from(cart);
     }
 
@@ -106,12 +108,9 @@ public class CartService {
             return CartResponse.from(cart);
         }
 
-        target.updateOption(option, firstDeliveryDate);
+        int price = target.getProduct().getPrice();
+        target.updateOption(option, firstDeliveryDate, price);
 
         return CartResponse.from(cart);
-    }
-
-    private void setOption(CartItem item, SubscriptionOption option, LocalDate firstDeliveryDate) {
-        item.updateOption(option, firstDeliveryDate);
     }
 }

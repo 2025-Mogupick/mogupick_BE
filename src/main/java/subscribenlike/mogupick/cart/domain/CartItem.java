@@ -30,14 +30,18 @@ public class CartItem extends BaseEntity {
 
     private LocalDate firstDeliveryDate; // 첫 배송 희망일
 
-    public CartItem(Product product, SubscriptionOption option, LocalDate firstDeliveryDate) {
+    @Column(nullable = false)
+    private int priceSnapshot;
+
+    private CartItem(Product product, SubscriptionOption option, LocalDate firstDeliveryDate, int priceSnapshot) {
         this.product = product;
         this.option = option;
         this.firstDeliveryDate = firstDeliveryDate;
+        this.priceSnapshot = priceSnapshot;
     }
 
-    public static CartItem create(Product product, SubscriptionOption option, LocalDate firstDeliveryDate) {
-        return new CartItem(product, option, firstDeliveryDate);
+    public static CartItem create(Product product, SubscriptionOption option, LocalDate firstDeliveryDate, int priceSnapshot) {
+        return new CartItem(product, option, firstDeliveryDate, priceSnapshot);
     }
 
     public void assignCart(Cart cart) {
@@ -46,8 +50,9 @@ public class CartItem extends BaseEntity {
     public void removeCart() {
         this.cart = null;
     }
-    public void updateOption(SubscriptionOption option, LocalDate firstDeliveryDate) {
+    public void updateOption(SubscriptionOption option, LocalDate firstDeliveryDate, int priceSnapshot) {
         this.option = option;
         this.firstDeliveryDate = firstDeliveryDate;
+        this.priceSnapshot = priceSnapshot;
     }
 }
