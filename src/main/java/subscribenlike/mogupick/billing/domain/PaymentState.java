@@ -16,7 +16,7 @@ public class PaymentState extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, unique = true)
     private String orderId; // 멱등 키
 
     @Column(nullable = false)
