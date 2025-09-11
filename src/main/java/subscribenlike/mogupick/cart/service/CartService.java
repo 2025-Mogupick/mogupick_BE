@@ -31,7 +31,7 @@ public class CartService {
     private final MemberRepository memberRepository;
     private final SubscriptionOptionRepository subscriptionOptionRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CartResponse get(Long memberId) {
         Member member = memberRepository.findOrThrow(memberId);
         Cart cart = cartRepository.findOrCreate(member);
