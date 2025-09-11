@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.searchKeyword.dto.RecentKeywordResponse;
 import subscribenlike.mogupick.searchKeyword.dto.SearchKeywordRequest;
@@ -38,7 +39,7 @@ public class SearchKeywordController {
     })
     @PostMapping
     public ResponseEntity<List<SearchProductResponse>> searchProducts(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestBody SearchKeywordRequest searchKeywordRequest) {
         if (userDetails == null) {
             return ResponseEntity.ok(searchKeywordService.findByKeyword(null, searchKeywordRequest));

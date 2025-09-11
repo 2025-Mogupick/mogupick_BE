@@ -29,4 +29,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         return findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND_FOR_TOKEN));
     }
+
+    boolean existsByEmail(String email);
 }

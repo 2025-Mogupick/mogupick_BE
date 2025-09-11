@@ -41,20 +41,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String queryString = request.getQueryString();
         String fullPath = queryString != null ? requestURI + "?" + queryString : requestURI;
 
-        GlobalLogger.info("요청:",method, fullPath, "IP: ", request.getRemoteAddr());
+        GlobalLogger.info("요청:", method, fullPath, "IP: ", request.getRemoteAddr());
+
+        // 토큰 추출
         String token = resolveToken(request);
 
+        // 토큰이 존재하고, 유효성 검사 후
         if (token != null && jwtProvider.validateToken(token)) {
+            // 인증 정보 얻기
             Authentication authentication = jwtProvider.getAuthentication(token);
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
+        // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
 
+
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-            GlobalLogger.info("요청 인증 헤더:", request.getHeader("Authorization"));
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         return null;
