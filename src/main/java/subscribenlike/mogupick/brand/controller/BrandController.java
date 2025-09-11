@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.brand.dto.BrandCreateRequest;
 import subscribenlike.mogupick.brand.dto.BrandResponse;
 import subscribenlike.mogupick.brand.service.BrandService;
@@ -31,8 +32,8 @@ public class BrandController {
             )
     })
     @PostMapping
-    public ResponseEntity<BrandResponse> create(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody BrandCreateRequest brandCreateRequest) {
-        return ResponseEntity.ok(brandService.save(userDetails.getMemberId(), brandCreateRequest));
+    public ResponseEntity<BrandResponse> create(@AuthenticationPrincipal PrincipalDetails userDetails, @RequestBody BrandCreateRequest brandCreateRequest) {
+        return ResponseEntity.ok(brandService.save(userDetails.getId(), brandCreateRequest));
     }
 
     @Operation(summary = "브랜드 삭제", description = "브랜드를 삭제합니다.")
@@ -43,8 +44,8 @@ public class BrandController {
             )
     })
     @DeleteMapping("{brandId}")
-    public ResponseEntity<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long brandId) {
-        brandService.delete(userDetails.getMemberId(),brandId);
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal PrincipalDetails userDetails, @PathVariable Long brandId) {
+        brandService.delete(userDetails.getId(),brandId);
         return ResponseEntity.ok().build();
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.category.domain.RootCategory;
 import subscribenlike.mogupick.common.model.PaginatedResponse;
 import subscribenlike.mogupick.common.success.SuccessResponse;
@@ -67,12 +68,12 @@ public class ProductController {
     })
     @GetMapping("/peer-best-reviews")
     public ResponseEntity<SuccessResponse<PaginatedResponse<FetchPeerBestReviewsResponse>>> fetchPeerBestReviews(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FetchPeerBestReviewsResponse> response =
-                productService.fetchPeerBestReview(userDetails.getMemberId(), pageable);
+                productService.fetchPeerBestReview(userDetails.getId(), pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.PEER_BEST_REVIEW_FETCHED.getStatus())
@@ -128,13 +129,13 @@ public class ProductController {
     })
     @GetMapping("/recently-viewed")
     public ResponseEntity<SuccessResponse<Page<FetchRecentlyViewProductResponse>>> getRecentlyViewedProducts(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<FetchRecentlyViewProductResponse> response =
-                productService.fetchRecentlyViewedProducts(userDetails.getMemberId(), pageable);
+                productService.fetchRecentlyViewedProducts(userDetails.getId(), pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.RECENTLY_VIEWED_PRODUCTS_FETCHED.getStatus())
@@ -170,12 +171,12 @@ public class ProductController {
     })
     @GetMapping("/similar")
     public ResponseEntity<SuccessResponse<PaginatedResponse<FetchSimilarProductResponse>>> getSimilarProducts(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FetchSimilarProductResponse> response =
-                similarProductFetchService.fetchSimilarProduct(userDetails.getMemberId(), pageable);
+                similarProductFetchService.fetchSimilarProduct(userDetails.getId(), pageable);
 
         return ResponseEntity
                 .status(ProductSuccessCode.SIMILAR_PRODUCTS_FETCHED.getStatus())

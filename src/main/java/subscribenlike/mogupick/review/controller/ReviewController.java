@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.common.success.SuccessResponse;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.review.common.ReviewSuccessCode;
@@ -64,12 +65,12 @@ public class ReviewController {
     @GetMapping("/products/{productId}")
     public ResponseEntity<SuccessResponse<FetchProductReviewsResponse>> getProductReviews(
             @PathVariable Long productId,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        FetchProductReviewsResponse response = reviewService.getProductReviewsWithStats(productId, userDetails.getMemberId(), pageable);
+        FetchProductReviewsResponse response = reviewService.getProductReviewsWithStats(productId, userDetails.getId(), pageable);
 
         return ResponseEntity
                 .status(200)
@@ -94,9 +95,9 @@ public class ReviewController {
     @PostMapping("/{reviewId}/likes")
     public ResponseEntity<SuccessResponse<Void>> addLikeToReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal PrincipalDetails userDetails) {
 
-        reviewService.addLikeToReview(reviewId, userDetails.getMemberId());
+        reviewService.addLikeToReview(reviewId, userDetails.getId());
 
         return ResponseEntity
                 .status(ReviewSuccessCode.REVIEW_LIKE_ADDED.getStatus())
@@ -117,9 +118,9 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}/likes")
     public ResponseEntity<SuccessResponse<Void>> removeLikeFromReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal PrincipalDetails userDetails) {
 
-        reviewService.removeLikeFromReview(reviewId, userDetails.getMemberId());
+        reviewService.removeLikeFromReview(reviewId, userDetails.getId());
 
         return ResponseEntity
                 .status(ReviewSuccessCode.REVIEW_LIKE_REMOVED.getStatus())
