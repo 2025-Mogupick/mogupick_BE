@@ -12,6 +12,7 @@ public enum AuthErrorCode implements ErrorCode {
 
     // 401 Unauthorized
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh Token 입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Token 입니다."),
     USER_NOT_FOUND_FOR_TOKEN(HttpStatus.UNAUTHORIZED, "해당 Refresh Token을 가진 사용자를 찾을 수 없습니다."),
 
     // 400 Bad Request

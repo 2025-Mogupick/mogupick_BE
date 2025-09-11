@@ -12,6 +12,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
+        if(e.toString().contains("\"userDetails\" is null")) {
+            return getErrorResponse(e, GlobalErrorCode.UNAUTHORIZED);
+        }
+
+        return getErrorResponse(e, GlobalErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
         return getErrorResponse(e,GlobalErrorCode.RESOURCE_NOT_FOUND);

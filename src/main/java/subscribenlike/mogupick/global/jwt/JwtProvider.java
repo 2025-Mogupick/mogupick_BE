@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
+import subscribenlike.mogupick.auth.common.exception.AuthErrorCode;
+import subscribenlike.mogupick.auth.common.exception.AuthException;
 import subscribenlike.mogupick.auth.service.PrincipalDetailService;
 import subscribenlike.mogupick.global.oauth.OAuthAttributes;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
@@ -171,7 +173,7 @@ public class JwtProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
         }
     }
 
