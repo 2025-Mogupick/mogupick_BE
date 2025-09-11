@@ -11,7 +11,8 @@ public record CartItemResponse(
         String productName,
         Long subscriptionOptionId,
         String displayText,
-        LocalDate firstDeliveryDate
+        LocalDate firstDeliveryDate,
+        int price
 ) {
     public static CartItemResponse from(CartItem item) {
         SubscriptionOption option = item.getOption();
@@ -21,7 +22,8 @@ public record CartItemResponse(
                 item.getProduct().getName(),
                 option.getId(),
                 option.getDisplayText(),
-                item.getFirstDeliveryDate()
+                item.getFirstDeliveryDate(),
+                item.getPriceSnapshot()
         );
     }
 }
