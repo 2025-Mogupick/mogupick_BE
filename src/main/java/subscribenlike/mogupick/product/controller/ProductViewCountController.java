@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.common.model.PaginatedResponse;
 import subscribenlike.mogupick.common.success.SuccessResponse;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
@@ -35,9 +36,9 @@ public class ProductViewCountController {
     })
     @PutMapping("/{productId}/increment")
     public ResponseEntity<SuccessResponse<Void>> updateProductViewCount(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @PathVariable Long productId) {
-        productViewCountService.incrementProductViewCount(productId, userDetails.getMemberId());
+        productViewCountService.incrementProductViewCount(productId, userDetails.getId());
         return ResponseEntity
                 .status(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED.getStatus())
                 .body(SuccessResponse.from(ProductViewCountSuccessCode.PRODUCT_VIEW_COUNT_INCREMENTED));
