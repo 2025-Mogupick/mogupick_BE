@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.billing.dto.*;
 import subscribenlike.mogupick.billing.service.BillingKeyService;
 import subscribenlike.mogupick.billing.service.PaymentService;
@@ -29,10 +30,10 @@ public class BillingController {
     })
     @PostMapping("/payment-methods")
     public ResponseEntity<Void> registerPaymentMethod(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestBody RegisterPaymentMethodRequest req
     ) {
-        String customerKey = memberRepository.findOrThrow(userDetails.getMemberId()).getCustomerKey();
+        String customerKey = memberRepository.findOrThrow(userDetails.getId()).getCustomerKey();
         log.info("api.registerPaymentMethod customerKey={}", mask(customerKey));
         billingKeyService.registerPaymentMethod(req.authKey(), customerKey);
         return ResponseEntity.ok().build();
@@ -44,10 +45,10 @@ public class BillingController {
     })
     @PutMapping("/payment-methods")
     public ResponseEntity<Void> updatePaymentMethod(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestBody UpdatePaymentMethodRequest req
     ) {
-        String customerKey = memberRepository.findOrThrow(userDetails.getMemberId()).getCustomerKey();
+        String customerKey = memberRepository.findOrThrow(userDetails.getId()).getCustomerKey();
         log.info("api.updatePaymentMethod customerKey={}", mask(customerKey));
         billingKeyService.updatePaymentMethod(req.authKey(), customerKey);
         return ResponseEntity.ok().build();
@@ -58,8 +59,8 @@ public class BillingController {
             @ApiResponse(responseCode = "204", description = "결제수단 삭제 성공")
     })
     @DeleteMapping("/payment-methods/{customerKey}")
-    public ResponseEntity<Void> deletePaymentMethod(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        String customerKey = memberRepository.findOrThrow(userDetails.getMemberId()).getCustomerKey();
+    public ResponseEntity<Void> deletePaymentMethod(@AuthenticationPrincipal PrincipalDetails userDetails) {
+        String customerKey = memberRepository.findOrThrow(userDetails.getId()).getCustomerKey();
         log.info("api.deletePaymentMethod customerKey={}", mask(customerKey));
         billingKeyService.deletePaymentMethod(customerKey);
         return ResponseEntity.noContent().build();

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.cart.common.success.CartSuccessCode;
 import subscribenlike.mogupick.cart.dto.CartAddRequest;
 import subscribenlike.mogupick.cart.dto.CartItemOptionUpdateRequest;
@@ -27,8 +28,8 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "장바구니 조회 성공")
     })
     @GetMapping
-    public ResponseEntity<?> getCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long memberId = userDetails.getMemberId();
+    public ResponseEntity<?> getCart(@AuthenticationPrincipal PrincipalDetails userDetails) {
+        Long memberId = userDetails.getId();
         CartResponse response = cartService.get(memberId);
         return ResponseEntity
                 .status(CartSuccessCode.CART_FETCHED.getStatus())
@@ -40,9 +41,9 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "장바구니 담기 성공")
     })
     @PostMapping
-    public ResponseEntity<?> add(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> add(@AuthenticationPrincipal PrincipalDetails userDetails,
                                 @RequestBody CartAddRequest request) {
-        Long memberId = userDetails.getMemberId();
+        Long memberId = userDetails.getId();
         CartResponse response = cartService.add(memberId, request);
         return ResponseEntity
                 .status(CartSuccessCode.CART_ITEM_ADDED.getStatus())
@@ -54,10 +55,10 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "옵션 변경 성공")
     })
     @PatchMapping("/items/{cartItemId}/option")
-    public ResponseEntity<?> updateItemOption(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> updateItemOption(@AuthenticationPrincipal PrincipalDetails userDetails,
                                               @PathVariable Long cartItemId,
                                               @RequestBody CartItemOptionUpdateRequest request) {
-        Long memberId = userDetails.getMemberId();
+        Long memberId = userDetails.getId();
         CartResponse response = cartService.updateItemOption(memberId, cartItemId, request);
         return ResponseEntity
                 .status(CartSuccessCode.CART_ITEM_OPTION_UPDATED.getStatus())
@@ -69,9 +70,9 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "아이템 삭제 성공")
     })
     @DeleteMapping("/items/{cartItemId}")
-    public ResponseEntity<?> removeItem(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> removeItem(@AuthenticationPrincipal PrincipalDetails userDetails,
                                         @PathVariable Long cartItemId) {
-        Long memberId = userDetails.getMemberId();
+        Long memberId = userDetails.getId();
         CartResponse response = cartService.removeItem(memberId, cartItemId);
         return ResponseEntity
                 .status(CartSuccessCode.CART_ITEM_REMOVED.getStatus())

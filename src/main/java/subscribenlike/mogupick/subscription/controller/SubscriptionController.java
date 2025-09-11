@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import subscribenlike.mogupick.auth.domain.PrincipalDetails;
 import subscribenlike.mogupick.common.success.SuccessResponse;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
 import subscribenlike.mogupick.subscription.common.success.SubscriptionSuccessCode;
@@ -26,10 +27,10 @@ public class SubscriptionController {
     @ApiResponse(responseCode = "200", description = "구독 리스트 조회 성공")
     @GetMapping
     public ResponseEntity<?> getList(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal PrincipalDetails userDetails,
             @RequestParam(required = false) SubscriptionStatus status
     ) {
-        Long memberId = userDetails.getMemberId();
+        Long memberId = userDetails.getId();
         List<SubscriptionResponse> response = subscriptionService.getList(memberId, status);
         return ResponseEntity
                 .status(SubscriptionSuccessCode.SUBSCRIPTION_LIST_FETCHED.getStatus())
@@ -50,10 +51,10 @@ public class SubscriptionController {
     @ApiResponse(responseCode = "200", description = "구독 캘린더 조회 성공")
     @GetMapping("/calendar")
     public ResponseEntity<?> getCalendar(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam String yearMonth // "2025-08"
+            @AuthenticationPrincipal PrincipalDetails userDetails,
+            @RequestParam String yearMonth
     ) {
-        Long memberId = userDetails.getMemberId();
+        Long memberId = userDetails.getId();
         SubscriptionCalendarResponse response = subscriptionService.getCalendar(
                 memberId, YearMonth.parse(yearMonth)
         );
