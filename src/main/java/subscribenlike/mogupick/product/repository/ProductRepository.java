@@ -81,18 +81,16 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
             AND rm.created_at = first_review_images.min_created_at
         ) AS ri ON r.id = ri.review_id
         WHERE YEAR(m.birth_date) BETWEEN :fromYear AND :toYear
-        GROUP BY(
+        GROUP BY
             p.id, b.name, p.name, p.price, m.birth_date,
             m.profile_image, m.name, r.created_at,
-            rl.review_like, rc.review_count, pi.image_url, ri.image_url)
+            rl.review_like, rc.review_count, pi.image_url, ri.image_url
         ORDER BY likeCount DESC
-        LIMIT :limit
     """,
             nativeQuery = true
     )
     List<FetchPeerBestReviewsQueryResult> fetchPeerBestReviewNative(
             @Param("fromYear") int fromYear,
-            @Param("toYear") int toYear,
-            @Param("limit") int limit
+            @Param("toYear") int toYear
     );
 }

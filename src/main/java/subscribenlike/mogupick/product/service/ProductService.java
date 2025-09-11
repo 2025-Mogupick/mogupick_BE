@@ -106,7 +106,7 @@ public class ProductService {
         int toYear = myBirthDateYear + PEER_STANDARD_AGE;
 
         List<FetchPeerBestReviewsQueryResult> allResults =
-                productRepository.fetchPeerBestReviewNative(fromYear, toYear, Integer.MAX_VALUE);
+                productRepository.fetchPeerBestReviewNative(fromYear, toYear);
 
         List<FetchPeerBestReviewsResponse> content = allResults.stream()
                 .map(FetchPeerBestReviewsResponse::from)
