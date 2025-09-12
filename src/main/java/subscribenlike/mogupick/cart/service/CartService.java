@@ -9,11 +9,13 @@ import subscribenlike.mogupick.cart.domain.Cart;
 import subscribenlike.mogupick.cart.domain.CartItem;
 import subscribenlike.mogupick.cart.dto.CartAddRequest;
 import subscribenlike.mogupick.cart.dto.CartItemOptionUpdateRequest;
+import subscribenlike.mogupick.cart.dto.CartItemResponse;
 import subscribenlike.mogupick.cart.dto.CartResponse;
 import subscribenlike.mogupick.cart.repository.CartRepository;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.repository.ProductMediaRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionOption;
 import subscribenlike.mogupick.subscriptionOption.domain.SubscriptionPeriodUnit;
@@ -21,7 +23,10 @@ import subscribenlike.mogupick.subscriptionOption.repository.SubscriptionOptionR
 
 import java.time.LocalDate;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +35,33 @@ public class CartService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final SubscriptionOptionRepository subscriptionOptionRepository;
+    private final ProductMediaRepository productMediaRepository;
 
     @Transactional
     public CartResponse get(Long memberId) {
         Member member = memberRepository.findOrThrow(memberId);
         Cart cart = cartRepository.findOrCreate(member);
+
+        List<Long> productIds = cart.getItems().stream()
+                .map(i -> i.getProduct().getId())
+                .distinct()
+                .toList();
+
+        List<Object[]> rows = productMediaRepository.findFirstImageUrlsByProductIds(productIds);
+
+        Map<Long, String> imageMap = rows.stream()
+                .collect(Collectors.toMap(
+                        r -> ((Number) r[0]).longValue(),
+                        r -> (String) r[1]
+                ));
+        List<CartItemResponse> items = cart.getItems().stream()
+                .map(i -> {
+                    Long pid = i.getProduct().getId();
+                    String url = imageMap.getOrDefault(pid, "");
+                    return CartItemResponse.from(i, url);
+                })
+                .toList();
+
         return CartResponse.from(cart);
     }
 

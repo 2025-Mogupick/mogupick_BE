@@ -12,9 +12,10 @@ public record CartItemResponse(
         Long subscriptionOptionId,
         String displayText,
         LocalDate firstDeliveryDate,
-        int price
+        int price,
+        String imageUrl
 ) {
-    public static CartItemResponse from(CartItem item) {
+    public static CartItemResponse from(CartItem item, String imageUrl) {
         SubscriptionOption option = item.getOption();
         return new CartItemResponse(
                 item.getId(),
@@ -23,7 +24,8 @@ public record CartItemResponse(
                 option.getId(),
                 option.getDisplayText(),
                 item.getFirstDeliveryDate(),
-                item.getPriceSnapshot()
+                item.getPriceSnapshot(),
+                imageUrl
         );
     }
 }
