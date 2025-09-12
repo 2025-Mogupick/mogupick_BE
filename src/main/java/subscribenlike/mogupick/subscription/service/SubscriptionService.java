@@ -8,13 +8,14 @@ import subscribenlike.mogupick.billing.common.exception.BillingException;
 import subscribenlike.mogupick.billing.domain.PaymentState;
 import subscribenlike.mogupick.billing.domain.PaymentStatus;
 import subscribenlike.mogupick.billing.repository.PaymentStateRepository;
-import subscribenlike.mogupick.cart.common.exception.CartErrorCode;
-import subscribenlike.mogupick.cart.common.exception.CartException;
-import subscribenlike.mogupick.cart.domain.Cart;
-import subscribenlike.mogupick.cart.domain.CartItem;
-import subscribenlike.mogupick.cart.repository.CartRepository;
 import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
+import subscribenlike.mogupick.order.domain.Order;
+import subscribenlike.mogupick.order.domain.OrderItem;
+import subscribenlike.mogupick.order.repository.OrderRepository;
+import subscribenlike.mogupick.order.service.OrderService;
+import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.subscription.common.exception.SubscriptionErrorCode;
 import subscribenlike.mogupick.subscription.common.exception.SubscriptionException;
 import subscribenlike.mogupick.subscription.domain.Subscription;
@@ -34,8 +35,10 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionOptionRepository subscriptionOptionRepository;
     private final MemberRepository memberRepository;
-    private final CartRepository cartRepository;
     private final PaymentStateRepository paymentStateRepository;
+    private final OrderService orderService;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
     public List<SubscriptionResponse> getList(Long memberId, SubscriptionStatus status) {
@@ -97,22 +100,24 @@ public class SubscriptionService {
         }
         Member member = memberRepository.findOrThrow(memberId);
 
-        Cart cart = cartRepository.findOrThrow(member);
-
-        if (cart.getItems().isEmpty()) {
-            throw new CartException(CartErrorCode.CART_EMPTY);
+        Order order = orderRepository.findByOrderIdOrThrow(orderId);
+        if (!order.getMember().getId().equals(member.getId())) {
+            throw new SubscriptionException(SubscriptionErrorCode.MEMBER_NOT_FOUND);
         }
 
-        for (CartItem item : cart.getItems()) {
+        for (OrderItem item : order.getItems()) {
+            Product product = productRepository.findById(item.getProductId())
+                            .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.PRODUCT_NOT_FOUND));
+
+            SubscriptionOption option = item.getOption();
+            LocalDate firstDeliveryDate = item.getFirstDeliveryDate();
+
             Subscription subscription = Subscription.create(
-                    member,
-                    item.getProduct(),
-                    item.getOption(),
-                    item.getFirstDeliveryDate(),
-                    paymentKey
+                    member, product, option, firstDeliveryDate, paymentKey
             );
             subscriptionRepository.save(subscription);
         }
+        orderService.markPaid(orderId);
     }
 
     @Transactional

@@ -13,7 +13,10 @@ import subscribenlike.mogupick.billing.dto.*;
 import subscribenlike.mogupick.billing.service.BillingKeyService;
 import subscribenlike.mogupick.billing.service.PaymentService;
 import subscribenlike.mogupick.global.security.CustomUserDetails;
+import subscribenlike.mogupick.member.domain.Member;
 import subscribenlike.mogupick.member.repository.MemberRepository;
+import subscribenlike.mogupick.order.domain.Order;
+import subscribenlike.mogupick.order.service.OrderService;
 
 @Slf4j
 @RestController
@@ -23,6 +26,7 @@ public class BillingController {
     private final BillingKeyService billingKeyService;
     private final PaymentService paymentService;
     private final MemberRepository memberRepository;
+    private final OrderService orderService;
 
     @Operation(summary = "결제수단 등록", description = "고객의 결제수단을 등록합니다.")
     @ApiResponses(value = {
@@ -71,9 +75,17 @@ public class BillingController {
             @ApiResponse(responseCode = "200", description = "결제 요청 성공")
     })
     @PostMapping("/charge")
-    public ResponseEntity<PaymentStateResponse> charge(@RequestBody ChargeRequest req) {
-        log.info("api.charge orderId={} amount={} customerKey={}", req.orderId(), req.amount(), mask(req.customerKey()));
-        return ResponseEntity.ok(paymentService.charge(req.orderId(), req.customerKey(), req.orderName(), req.amount()));
+    public ResponseEntity<PaymentStateResponse> charge(
+            @AuthenticationPrincipal PrincipalDetails userDetails,
+            @RequestBody ChargeRequest req) {
+        Member member = memberRepository.findOrThrow(userDetails.getId());
+        Order order = orderService.getEntityByOrderId(req.orderId());
+        String customerKey = member.getCustomerKey();
+        int amount = order.getPayableAmount();
+        String orderName = order.getOrderName();
+
+        log.info("api.charge orderId={} amount={} customerKey={}", req.orderId(), amount, mask(customerKey));
+        return ResponseEntity.ok(paymentService.charge(req.orderId(), customerKey, orderName, amount));
     }
 
     @Operation(summary = "결제 상태 조회", description = "주문 ID로 결제 상태를 조회합니다.")
