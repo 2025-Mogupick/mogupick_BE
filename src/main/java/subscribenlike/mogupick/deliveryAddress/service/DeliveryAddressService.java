@@ -29,13 +29,13 @@ public class DeliveryAddressService {
 
         DeliveryAddress address = DeliveryAddress.of(
                 member,
+                req.addressName(),
                 req.baseAddress(),
                 req.detailAddress(),
                 req.receiver(),
                 req.contact()
         );
 
-        // JPA에선 dirty checking으로도 가능하지만, 테스트 목과의 호환을 위해 save 호출 유지
         addressRepository.save(address);
         return DeliveryAddressResponse.from(address);
     }
@@ -52,13 +52,12 @@ public class DeliveryAddressService {
         DeliveryAddress address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new DeliveryAddressException(DeliveryAddressErrorCode.ADDRESS_NOT_FOUND));
 
-        // ✅ 권한 체크 최우선 + null-safe
         if (!Objects.equals(ownerIdOf(address), memberId)) {
             throw new DeliveryAddressException(DeliveryAddressErrorCode.ADDRESS_UNAUTHORIZED);
         }
 
-        // ✅ 기존 엔티티를 수정하여 id 보존
         address.update(
+                req.addressName(),
                 req.baseAddress(),
                 req.detailAddress(),
                 req.receiver(),
