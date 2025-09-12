@@ -35,7 +35,7 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> items = new LinkedHashSet<>();
 
     private Order(String orderId, Member member, AddressSnapshot addr, int amount, String orderName) {
