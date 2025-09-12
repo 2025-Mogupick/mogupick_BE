@@ -19,6 +19,8 @@ public class DeliveryAddress extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String addressName;
+
     private String baseAddress;
 
     private String detailAddress;
@@ -30,20 +32,23 @@ public class DeliveryAddress extends BaseEntity {
     @ManyToOne
     private Member member;
 
-    public DeliveryAddress(Member member, String baseAddress, String detailAddress, String receiver, String contact) {
+    public DeliveryAddress(Member member, String addressName, String baseAddress, String detailAddress, String receiver, String contact) {
         this.member = member;
+        this.addressName = addressName;
         this.baseAddress = baseAddress;
         this.detailAddress = detailAddress;
         this.receiver = receiver;
         this.contact = contact;
     }
 
-    public static DeliveryAddress of(Member member, String  baseAddress, String detailAddress,
+    public static DeliveryAddress of(Member member, String addressName, String  baseAddress, String detailAddress,
                                      String receiver, String contact) {
-        return new DeliveryAddress(member, baseAddress, detailAddress, receiver, contact);
+        return new DeliveryAddress(member, addressName, baseAddress, detailAddress, receiver, contact);
     }
 
-    public void update(String baseAddress, String detailAddress, String receiver, String contact) {
+    public void update(String addressName, String baseAddress, String detailAddress,
+                       String receiver, String contact) {
+        this.addressName = addressName;
         this.baseAddress = baseAddress;
         this.detailAddress = detailAddress;
         this.receiver = receiver;
