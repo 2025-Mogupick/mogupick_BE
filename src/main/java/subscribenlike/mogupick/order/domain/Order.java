@@ -12,6 +12,7 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Table(name = "orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
     @Id
