@@ -6,6 +6,5 @@ import java.util.Map;
 
 public record CreateOrderRequest(
         List<Long> cartItemIds,
-        Long addressId,
-        Map<Long, LocalDate> firstDeliveryDates // cartItemId -> date (선택)
+        Long addressId
 ) {}

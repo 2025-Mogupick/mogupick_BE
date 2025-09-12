@@ -16,6 +16,7 @@ import subscribenlike.mogupick.order.repository.OrderRepository;
 import subscribenlike.mogupick.product.domain.Product;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -52,7 +53,7 @@ public class OrderService {
 
         for (CartItem ci : items) {
             Product p = ci.getProduct();
-            var firstDelivery = req.firstDeliveryDates() != null ? req.firstDeliveryDates().get(ci.getId()) : null;
+            LocalDate firstDelivery = ci.getFirstDeliveryDate();
             OrderItem oi = OrderItem.from(p, ci.getOption(), firstDelivery);
             order.addItem(oi);
         }
