@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subscribenlike.mogupick.member.domain.Member;
+import subscribenlike.mogupick.member.dto.CustomerKeyResponse;
 import subscribenlike.mogupick.member.dto.MemberResponse;
 import subscribenlike.mogupick.member.dto.MemberUpdateRequest;
 import subscribenlike.mogupick.member.repository.MemberRepository;
@@ -24,5 +25,12 @@ public class MemberService {
     public void updateNickname(String email, MemberUpdateRequest request) {
         Member member = memberRepository.findByEmailOrThrow(email);
         member.updateNickname(request.getNickname());
+    }
+
+    @Transactional
+    public CustomerKeyResponse getOrCreateCustomerKey(String email) {
+        Member member = memberRepository.findByEmailOrThrow(email);
+        member.ensureCustomerKey();
+        return new CustomerKeyResponse(member.getCustomerKey());
     }
 }

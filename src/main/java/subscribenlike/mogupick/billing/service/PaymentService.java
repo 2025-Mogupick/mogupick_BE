@@ -55,7 +55,7 @@ public class PaymentService {
             st.markApproved(paymentKey.toString());
             log.info("charge.approved orderId={} paymentKey={}", orderId, paymentKey);
 
-            Member member = memberRepository.findByEmailOrThrow(customerKey);
+            Member member = memberRepository.findByCustomerKeyOrThrow(customerKey);
             String content = NotificationType.PAYMENT_COMPLETED.createContent(orderName);
             notificationService.createNotification(
                     member,

@@ -47,6 +47,11 @@ public class Member extends BaseEntity {
     @Column(unique = true)
     private String customerKey;
 
+    @PrePersist
+    private void prePersist() {
+        ensureCustomerKey(); // 신규 생성 시 자동 발급
+    }
+
     @Builder
     public Member(Long id, String name, String email, String password, String phoneNumber, LocalDate birthDate,
                   boolean isAccepted, MemberRole role, String provider, String nickname, String profileImage) {

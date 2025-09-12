@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import subscribenlike.mogupick.auth.domain.PrincipalDetails; // ✅ PrincipalDetails를 import
 import subscribenlike.mogupick.global.dto.GlobalResponse;
 import subscribenlike.mogupick.member.common.success.MemberSuccessCode;
+import subscribenlike.mogupick.member.dto.CustomerKeyResponse;
 import subscribenlike.mogupick.member.dto.MemberResponse;
 import subscribenlike.mogupick.member.dto.MemberUpdateRequest;
 import subscribenlike.mogupick.member.service.MemberService;
@@ -37,5 +38,14 @@ public class MemberController {
         String email = principalDetails.getUsername();
         memberService.updateNickname(email, request);
         return GlobalResponse.from(MemberSuccessCode.UPDATE_NICKNAME_SUCCESS);
+    }
+
+    @GetMapping("/me/billing")
+    public GlobalResponse<CustomerKeyResponse> getMyCustomerKey(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        String email = principalDetails.getUsername();
+        CustomerKeyResponse res = memberService.getOrCreateCustomerKey(email);
+        return GlobalResponse.from(MemberSuccessCode.GET_CUSTOMER_KEY_SUCCESS, res);
     }
 }
