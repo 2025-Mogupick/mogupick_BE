@@ -62,7 +62,7 @@ public class CartService {
                 })
                 .toList();
 
-        return CartResponse.from(cart);
+        return CartResponse.from(cart, items);
     }
 
     @Transactional

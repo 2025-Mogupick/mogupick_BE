@@ -8,6 +8,8 @@ public record CartResponse(
         Long cartId,
         List<CartItemResponse> items
 ) {
+    public static CartResponse from(Cart cart, List<CartItemResponse> items) { return new CartResponse(cart.getId(), items); }
+
     public static CartResponse from(Cart cart) {
         List<CartItemResponse> items = cart.getItems().stream().map(CartItemResponse::from).toList();
         return new CartResponse(cart.getId(), items);

@@ -28,4 +28,18 @@ public record CartItemResponse(
                 imageUrl
         );
     }
+
+    public static CartItemResponse from(CartItem item) {
+        SubscriptionOption opt = item.getOption();
+        return new CartItemResponse(
+                item.getId(),
+                item.getProduct().getId(),
+                item.getProduct().getName(),
+                opt.getId(),
+                opt.getDisplayText(),
+                item.getFirstDeliveryDate(),
+                item.getPriceSnapshot(),
+                ""
+                );
+    }
 }
