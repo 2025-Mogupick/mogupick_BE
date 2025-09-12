@@ -27,7 +27,7 @@ public class Subscription extends BaseEntity {
     @ManyToOne
     private Product product;
 
-    @OneToOne
+    @ManyToOne
     private SubscriptionOption option;
 
     private LocalDate nextBillingDate;
