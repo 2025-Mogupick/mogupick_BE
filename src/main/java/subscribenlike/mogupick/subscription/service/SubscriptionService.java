@@ -88,7 +88,7 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public void createFromPayment(Long memberId, String paymentKey, String orderId) {
+    public void createFromPayment(String paymentKey, String orderId) {
         if (subscriptionRepository.existsByPaymentKey(paymentKey)) {
             throw new SubscriptionException(SubscriptionErrorCode.PAYMENT_KEY_DUPLICATE);
         }
@@ -98,12 +98,8 @@ public class SubscriptionService {
         if (state.getStatus() != PaymentStatus.APPROVED) {
             throw new BillingException(BillingErrorCode.PAYMENT_NOT_APPROVED);
         }
-        Member member = memberRepository.findOrThrow(memberId);
-
         Order order = orderRepository.findByOrderIdOrThrow(orderId);
-        if (!order.getMember().getId().equals(member.getId())) {
-            throw new SubscriptionException(SubscriptionErrorCode.MEMBER_NOT_FOUND);
-        }
+        Member member = order.getMember();
 
         for (OrderItem item : order.getItems()) {
             Product product = productRepository.findById(item.getProductId())

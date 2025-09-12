@@ -36,7 +36,6 @@ public class TossWebhookController {
         try {
             if ("Payment.Done".equals(webhook.eventType())) {
                 subscriptionService.createFromPayment(
-                        webhook.data().memberId(),
                         webhook.data().paymentKey(),
                         webhook.data().orderId()
                 );
