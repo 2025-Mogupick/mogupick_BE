@@ -15,6 +15,7 @@ import subscribenlike.mogupick.order.domain.OrderItem;
 import subscribenlike.mogupick.order.repository.OrderRepository;
 import subscribenlike.mogupick.order.service.OrderService;
 import subscribenlike.mogupick.product.domain.Product;
+import subscribenlike.mogupick.product.repository.ProductMediaRepository;
 import subscribenlike.mogupick.product.repository.ProductRepository;
 import subscribenlike.mogupick.subscription.common.exception.SubscriptionErrorCode;
 import subscribenlike.mogupick.subscription.common.exception.SubscriptionException;
@@ -28,6 +29,7 @@ import subscribenlike.mogupick.subscriptionOption.repository.SubscriptionOptionR
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,20 +41,32 @@ public class SubscriptionService {
     private final OrderService orderService;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final ProductMediaRepository productMediaRepository;
 
     @Transactional(readOnly = true)
     public List<SubscriptionResponse> getList(Long memberId, SubscriptionStatus status) {
         List<Subscription> list = (status == null)
                 ? subscriptionRepository.findByMemberId(memberId)
                 : subscriptionRepository.findByMemberIdAndStatus(memberId, status);
-        return list.stream().map(SubscriptionResponse::from).toList();
+
+        List<Long> productIds = list.stream()
+                .map(s -> s.getProduct().getId())
+                .distinct()
+                .toList();
+
+        Map<Long, String> imageMap = findFirstImageUrlMap(productIds);
+
+        return list.stream()
+                .map(sub -> SubscriptionResponse.from(sub, imageMap.get(sub.getProduct().getId())))
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public SubscriptionResponse getDetail(Long subscriptionId) {
         Subscription sub = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND));
-        return SubscriptionResponse.from(sub);
+        String imageUrl = findFirstImageUrl(sub.getProduct().getId());
+        return SubscriptionResponse.from(sub, imageUrl);
     }
 
     @Transactional(readOnly = true)
@@ -126,7 +140,8 @@ public class SubscriptionService {
         }
 
         sub.cancel();
-        return SubscriptionResponse.from(sub);
+        String imageUrl = findFirstImageUrl(sub.getProduct().getId());
+        return SubscriptionResponse.from(sub, imageUrl);
     }
 
     @Transactional
@@ -142,7 +157,25 @@ public class SubscriptionService {
         }
 
         sub.changeOption(newOption, request.firstDeliveryDate());
-        return SubscriptionResponse.from(sub);
+        String imageUrl = findFirstImageUrl(sub.getProduct().getId());
+        return SubscriptionResponse.from(sub, imageUrl);
+    }
+
+    private String findFirstImageUrl(Long productId) {
+        if (productId == null) return null;
+        List<Object[]> rows = productMediaRepository.findFirstImageUrlsByProductIds(List.of(productId));
+        return (rows == null || rows.isEmpty()) ? null : (String) rows.get(0)[1];
+    }
+
+    private Map<Long, String> findFirstImageUrlMap(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) return Collections.emptyMap();
+
+        List<Object[]> rows = productMediaRepository.findFirstImageUrlsByProductIds(productIds);
+        return rows.stream().collect(Collectors.toMap(
+                r -> ((Number) r[0]).longValue(),
+                r -> (String) r[1],
+                (a, b) -> a
+        ));
     }
 
     private List<LocalDate> getSchedulesInMonth(Subscription subscription, YearMonth yearMonth) {

@@ -15,10 +15,11 @@ public record SubscriptionResponse(
         LocalDate nextBillingDate,
         int progressRound,
         String status,
+        String imageUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static SubscriptionResponse from(Subscription sub) {
+    public static SubscriptionResponse from(Subscription sub, String imageUrl) {
         var product = sub.getProduct();
         var option = sub.getOption();
         return new SubscriptionResponse(
@@ -31,6 +32,7 @@ public record SubscriptionResponse(
                 sub.getNextBillingDate(),
                 sub.getProgressRound(),
                 sub.getStatus().name(),
+                imageUrl,
                 sub.getCreatedAt(),
                 sub.getUpdatedAt()
         );
