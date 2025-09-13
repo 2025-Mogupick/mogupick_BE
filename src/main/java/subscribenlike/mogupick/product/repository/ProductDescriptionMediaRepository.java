@@ -11,19 +11,19 @@ import java.util.List;
 
 public interface ProductDescriptionMediaRepository extends JpaRepository<ProductDescriptionMedia, Long> {
 
-    List<ProductMedia> findByProduct(Product product);
+    List<ProductDescriptionMedia> findByProduct(Product product);
 
-    List<ProductMedia> findByProductId(Long productId);
+    List<ProductDescriptionMedia> findByProductId(Long productId);
 
     void deleteByProduct(Product product);
 
-    @Query("SELECT pm.imageUrl FROM ProductMedia pm WHERE pm.product.id = :productId ORDER BY pm.createdAt ASC")
+    @Query("SELECT pm.imageUrl FROM ProductDescriptionMedia pm WHERE pm.product.id = :productId ORDER BY pm.createdAt ASC")
     List<String> findImageUrlsByProductId(@Param("productId") Long productId);
 
-    @Query("SELECT pm.imageUrl FROM ProductMedia pm WHERE pm.product IN :products ORDER BY pm.product.id, pm.createdAt ASC")
+    @Query("SELECT pm.imageUrl FROM ProductDescriptionMedia pm WHERE pm.product IN :products ORDER BY pm.product.id, pm.createdAt ASC")
     List<String> findImageUrlsByProducts(@Param("products") List<Product> products);
 
-    @Query("SELECT pm.imageUrl FROM ProductMedia pm WHERE pm.product.id = :productId ORDER BY pm.createdAt ASC LIMIT 1")
+    @Query("SELECT pm.imageUrl FROM ProductDescriptionMedia pm WHERE pm.product.id = :productId ORDER BY pm.createdAt ASC LIMIT 1")
     String findFirstImageUrlByProductId(@Param("productId") Long productId);
 
     @Query(value = """
