@@ -60,7 +60,7 @@ public class ProductViewCountService {
 
     public Page<FetchProductMostDailyViewStatChangeResponse> getMostDailyViewStatChangeProduct(Pageable pageable) {
         if (currentViewStatChanges == null) {
-            return new PageImpl<>(new ArrayList<>(), pageable, 0);
+            updateMostDailyViewStatChangeProduct();
         }
 
         int start = (int) pageable.getOffset();
