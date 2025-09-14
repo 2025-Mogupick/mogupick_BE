@@ -1,5 +1,7 @@
 package subscribenlike.mogupick.common.error.handler;
 
+import org.springframework.data.redis.RedisSystemException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import subscribenlike.mogupick.common.error.core.BaseException;
 import subscribenlike.mogupick.common.error.core.ErrorCode;
@@ -11,6 +13,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return getErrorResponse(e, GlobalErrorCode.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(RedisSystemException.class)
+    public ResponseEntity<ErrorResponse> handleRedisSystemException(RedisSystemException e) {
+        return getErrorResponse(e, GlobalErrorCode.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
