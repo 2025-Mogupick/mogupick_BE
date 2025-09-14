@@ -168,25 +168,28 @@ public class ProductViewCountService {
         String productIdKey = String.valueOf(productId);
         String productViewCountKey = RedisKeyTemplate.PRODUCT_VIEW_COUNT.of(productIdKey);
 
-        if (!redisTemplate.hasKey(productViewCountKey)) {
+        Long currentCount = redisTemplate.opsForValue().get(productViewCountKey);
+        
+        if (currentCount == null) {
+            // Redis에 키가 없으면 DB에서 초기값 로드하고 Redis에 설정
             createProductViewCountIfNotExists(productId);
             Long loadedCount = productViewCountRepository.getByProductId(productId).getViewCount();
-
-            setIfNotExists(productViewCountKey, loadedCount);
-
-            return loadedCount;
+            
+            // setIfAbsent를 사용하여 원자적으로 초기값 설정 (다른 스레드가 이미 설정했으면 무시)
+            redisTemplate.opsForValue().setIfAbsent(productViewCountKey, loadedCount);
+            
+            // 실제 Redis에서 값을 다시 읽어서 반환 (다른 스레드가 설정한 값일 수도 있음)
+            return redisTemplate.opsForValue().get(productViewCountKey);
         }
 
-        // 현재 상품의 조회수 불러오기
-        return redisTemplate.opsForValue().get(productViewCountKey);
+        return currentCount;
     }
 
     private void incrementDailyCount(Long productId) {
         String productIdKey = String.valueOf(productId);
         String dailyViewCountKey = RedisKeyTemplate.PRODUCT_DAILY_VIEW_COUNT.of(timeFormat(LocalDateTime.now()), productIdKey);
 
-        setIfNotExists(dailyViewCountKey);
-
+        // Redis increment는 키가 없으면 자동으로 0으로 초기화하고 증가시킴 (원자적 연산)
         redisTemplate.opsForValue().increment(dailyViewCountKey, 1);
     }
 
@@ -195,27 +198,10 @@ public class ProductViewCountService {
         String productViewCountKey =
                 RedisKeyTemplate.PRODUCT_VIEW_COUNT.of(productIdKey);
 
-        setIfNotExists(productViewCountKey);
-
+        // Redis increment는 키가 없으면 자동으로 0으로 초기화하고 증가시킴 (원자적 연산)
         redisTemplate.opsForValue().increment(productViewCountKey, 1);
     }
 
-    private void setIfNotExists(String key) {
-        if (!redisTemplate.hasKey(key)) {
-            setProductViewCountIfNotExistsInRedis(key, 0L);
-        }
-    }
-
-    private void setIfNotExists(String key, Long initialValue) {
-        if (!redisTemplate.hasKey(key)) {
-            setProductViewCountIfNotExistsInRedis(key, initialValue);
-        }
-    }
-
-    private void setProductViewCountIfNotExistsInRedis(String productViewCountKey, Long value) {
-        redisTemplate.opsForValue()
-                .setIfAbsent(productViewCountKey, value);
-    }
 
     private void createProductViewCountIfNotExists(Long productId) {
         // 뷰 카운트 객체가 존재하지 않으면 생성하기
